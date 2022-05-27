@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Test : MonoBehaviour
+public class SampleMove : MonoBehaviour
 {
 
     private Vector3 _startPosition;
