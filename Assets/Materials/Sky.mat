@@ -123,9 +123,9 @@ Material:
     - _Color: {r: 1, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GroundColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HorizonColor: {r: -0.8304803, g: 0.85102946, b: 0.000050601175, a: 1}
+    - _HorizonColor: {r: 0.439508, g: 0.439508, b: 0.439508, a: 1}
     - _MoonVector: {r: 0, g: 0, b: 0, a: 0}
-    - _SkyColor: {r: 1, g: 0, b: 0, a: 1}
+    - _SkyColor: {r: 0.85614395, g: 0.7889954, b: 0.15728576, a: 1}
     - _SkyColor1: {r: 1, g: 0, b: 0, a: 1}
     - _SkyColor2: {r: 0.1981132, g: 0.13550195, b: 0.13853437, a: 1}
     - _SkyTint: {r: 0, g: 0.18146276, b: 1, a: 1}
