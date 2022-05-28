@@ -17,6 +17,7 @@ namespace VisualEffect.Object
             {
                 if (!field.HasAttribute(typeof(VisualPropertyAttribute))) continue;
                 object property = field.GetValue(this);
+                
                 if (property is IVisualUpdatable updatable)
                 {
                     _properties.Add(updatable);   
@@ -24,7 +25,7 @@ namespace VisualEffect.Object
             }
         }
 
-        private void Update()
+        protected void LateUpdate()
         {
             foreach (var updatable in _properties)
             {

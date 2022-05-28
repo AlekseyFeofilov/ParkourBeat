@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VisualEffect.Function;
 using VisualEffect.Property;
 
 namespace VisualEffect.Object
@@ -11,22 +12,30 @@ namespace VisualEffect.Object
         
         [VisualPropertyAttribute]
         private HorizonColorProperty _horizonColor;
-
-        // Start is called before the first frame update
+        
         private void Awake()
         {
             var skybox = gameObject.GetComponent<Skybox>();
             _skyColor = new SkyColorProperty(skybox);
             _horizonColor = new HorizonColorProperty(skybox);
         }
-
-        // Update is called once per frame
+        
         private void Update()
         {
-            float red = (float) (Math.Sin(Time.time) * 2) / 2;
-            float green = (float) (Math.Sin(Time.time * 4) + 1) / 2;
-            float blue = (float) (Math.Sin(Time.time * 8) + 1) / 2;
-            _horizonColor.Value = new Color(red, green, blue);
+            // ТЕСТ
+            switch (Time.frameCount)
+            {
+                case 1000:
+                    _skyColor.BeginTransition(Color.blue, 0.5f, ITimingFunction.Linear);
+                    break;
+                case 2500:
+                    _horizonColor.BeginTransition(Color.black, 2f, ITimingFunction.Linear);
+                    break;
+                case 3000:
+                    _skyColor.BeginTransition(Color.yellow, 5f, ITimingFunction.Linear);
+                    _horizonColor.BeginTransition(Color.grey, 5f, ITimingFunction.Linear);
+                    break;
+            }
         }
         
         // Цвет неба
