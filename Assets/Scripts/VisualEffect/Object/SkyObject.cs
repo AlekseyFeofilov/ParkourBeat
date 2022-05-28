@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using VisualEffect.Function;
 using VisualEffect.Property;
 
 namespace VisualEffect.Object
@@ -8,38 +6,20 @@ namespace VisualEffect.Object
     public class SkyObject : MonoObject
     {
         [VisualPropertyAttribute]
-        private SkyColorProperty _skyColor;
+        public SkyColorProperty SkyColor;
         
         [VisualPropertyAttribute]
-        private HorizonColorProperty _horizonColor;
+        public HorizonColorProperty HorizonColor;
         
         private void Awake()
         {
             var skybox = gameObject.GetComponent<Skybox>();
-            _skyColor = new SkyColorProperty(skybox);
-            _horizonColor = new HorizonColorProperty(skybox);
+            SkyColor = new SkyColorProperty(skybox);
+            HorizonColor = new HorizonColorProperty(skybox);
         }
-        
-        private void Update()
-        {
-            // ТЕСТ
-            switch (Time.frameCount)
-            {
-                case 1000:
-                    _skyColor.BeginTransition(Color.blue, 0.5f, ITimingFunction.Linear);
-                    break;
-                case 2500:
-                    _horizonColor.BeginTransition(Color.black, 2f, ITimingFunction.Linear);
-                    break;
-                case 3000:
-                    _skyColor.BeginTransition(Color.yellow, 5f, ITimingFunction.Linear);
-                    _horizonColor.BeginTransition(Color.grey, 5f, ITimingFunction.Linear);
-                    break;
-            }
-        }
-        
+
         // Цвет неба
-        private class SkyColorProperty : AbstractColorProperty
+        public class SkyColorProperty : AbstractColorProperty
         {
             private static readonly int SkyColor = Shader.PropertyToID("_SkyColor");
             private readonly Skybox _skybox;
@@ -57,7 +37,7 @@ namespace VisualEffect.Object
         }
         
         // Цвет горизонта
-        private class HorizonColorProperty : AbstractColorProperty
+        public class HorizonColorProperty : AbstractColorProperty
         {
             private static readonly int HorizonColor = Shader.PropertyToID("_HorizonColor");
             private readonly Skybox _skybox;
