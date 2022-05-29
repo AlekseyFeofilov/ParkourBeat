@@ -1,0 +1,111 @@
+﻿#
+# Список элементов, которые расположены на карте
+#
+elements:
+    # Идентификатор элемента
+  - id: 0
+    # Название типа элемента (например, небо)
+    type: sky    
+    # Свойства элемента
+    properties:  
+        # Название свойства
+      - type: sky_color
+        # Разные параметры, для каждого свойства свои (в данном примере это RGBA цвета)
+        r: 0.1
+        g: 0.2
+        b: 0.3
+        a: 1
+      - type: horizon_color
+        r: 0
+        g: 0.5
+        b: 1
+        a: 1
+  - id: 1
+    type: cube
+    properties:
+      - type: position
+        x: 1
+        y: 1
+        z: 1
+      - type: rotation
+        x: 90
+        y: 30
+        z: 0
+      - type: scale
+        x: 1
+        y: 1.1
+        z: 1
+      - type: color
+        r: 0
+        g: 1
+        b: 0.2
+        a: 1
+      - type: visibility 
+        hidden: true
+  - id: 2
+    type: cube
+    # Некоторые свойства можно пропускать, тогда для элемента они будут
+    # заданы по умолчанию (здесь пропущены свойства scale и color)
+    properties:
+      - type: position
+        x: 1
+        y: 1
+        z: 1
+      - type: rotation
+        x: 90
+        y: 30
+        z: 0
+      - type: visibility
+        hidden: false
+  - id: 3
+    # Это объект группы объектов (сорри за тавтологию)
+    type: group
+    # Здесь айдишники объектов, которые принадлежат этой группе
+    references:
+      - 1
+      - 2
+  
+# Триггеры времени. Простыми словами, это анимации
+triggers:
+    # Идентификатор триггера
+  - id: 0
+    # На какой объект будет влиять триггер (в данном случае на куб с id 2)
+    target_id: 2
+    # Когда триггер сработает. Для этого нужно определить временные единицы времени.
+    # Вот единицы, которые я придумал:
+    #
+    # second (суффикс s) - обычные секунды
+    # beat (суффикс b) - номер бита от начала песни (нужен BPM от Лены)
+    #
+    timestamp: 16b
+    # Длительность триггера. Также используются единицы времени.
+    duration: 0.2s
+    # Функция плавности. Вот их список:
+    #
+    # linear, ease, ease-in, ease-out, ease-in-out, cubic-bezier(x1, y1, x2, y2)
+    #
+    function: cubic-bezier(1, 1, 1, 1)
+    # Свойства, которые нужно поменять
+    properties:
+      - type: position
+        x: 1
+        y: 5
+        z: 1
+      - type: rotation
+        x: 0
+        y: 0
+        z: 0
+  - id: 1
+    target_id: 3
+    timestamp: 32b
+    duration: 1.5s
+    function: ease
+    properties:
+      - type: position
+        x: 2
+        y: 2
+        z: 5
+      - type: rotation
+        x: 0
+        y: 0
+        z: 180
