@@ -7,6 +7,8 @@ namespace Mechanics
 {
     public class Player : MonoBehaviour
     {
+        private GamaManager _gamaManager;
+
         public float speedX = 0.1f;
         private float _speedZ;
         public float jumpForce = 50000f;
@@ -16,6 +18,7 @@ namespace Mechanics
 
         private void Start()
         {
+            _gamaManager = FindObjectOfType<GamaManager>();
             _borderSize = GetComponent<Collider>().bounds.size.y;
             _rigidBody = GetComponent<Rigidbody>();
         }
@@ -23,6 +26,12 @@ namespace Mechanics
         private void Update()
         {
             Move3();
+
+            if (IsDead())
+            {
+                // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+                _gamaManager.EndGame();
+            }
         }
 
         private void Move3()
@@ -71,6 +80,11 @@ namespace Mechanics
         private void Jump()
         {
             _rigidBody.AddForce(transform.up * jumpForce);
+        }
+
+        private bool IsDead()
+        {
+            return transform.position.y < -3f;
         }
     }
 }
