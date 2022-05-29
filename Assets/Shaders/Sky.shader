@@ -43,7 +43,7 @@
 		float3 v = normalize(i.texcoord);
 
 		float p = v.y;
-		float p1 = 1 - pow(min(1, 1 - p) + 0.25, pow(_SkyCurvature, v.x*v.z));
+		float p1 = 1 - pow(min(1, 1 - p), pow(_SkyCurvature, v.x*v.z));
 		float p2 = 1 - p1;
 
 		half3 c_sky = _SkyColor * p1 + _HorizonColor * p2;
