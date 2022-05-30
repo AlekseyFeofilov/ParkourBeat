@@ -5,86 +5,198 @@ using VisualEffect.Object;
 
 namespace Mechanics
 {
+    //todo: Set normal axes xyz instead of xzy
     public class Player : MonoBehaviour
     {
-        private GamaManager _gamaManager;
+        // ReSharper disable once InconsistentNaming
+        private const float _speedX = 0.1f;
+        private Vector3 _smoothMovement;
 
-        public float speedX = 0.1f;
-        private float _speedZ;
-        public float jumpForce = 50000f;
+        private const float JumpForce = 500f;
+        private const float BigJumpForce = 700f;
+        private const float PushForce = 10f;
 
         private float _borderSize;
+
         private Rigidbody _rigidBody;
+        private Collider _collider;
+
+        private bool _isFreeFall;
+        private MovingType _movingType;
+
+        private enum MovingType
+        {
+            Slip,
+            Flying,
+            Gravitation,
+        }
+
+        private void OnCollisionEnter()
+        {
+            _isFreeFall = false;
+        }
+
+        private void OnCollisionExit()
+        {
+            _isFreeFall = true;
+        }
 
         private void Start()
         {
-            _gamaManager = FindObjectOfType<GamaManager>();
-            _borderSize = GetComponent<Collider>().bounds.size.y;
+            _collider = GetComponent<Collider>();
+            _borderSize = _collider.bounds.size.y;
             _rigidBody = GetComponent<Rigidbody>();
+            
+            ChangeMovementType(MovingType.Slip);
         }
 
         private void Update()
         {
-            Move3();
-
-            if (IsDead())
+            switch (_movingType)
             {
-                // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
-                _gamaManager.EndGame();
+                case MovingType.Flying:
+                    //todo: remove inertia
+                    
+                    _smoothMovement = new Vector3(
+                        0,
+                        Math.Max(0, Input.GetAxis("Vertical")),
+                        -Input.GetAxis("Horizontal")
+                    );
+                    break;
+                
+                case MovingType.Slip:
+                    Move3();
+                    break;
+                
+                case MovingType.Gravitation:
+                    MoveWithGravity();
+                    break;
+                
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void FixedUpdate()
+        {
+            MoveForward();
+
+            if (_movingType == MovingType.Flying)
+            {
+                Fly(_smoothMovement);
+            }
+        }
+
+        private void ChangeMovementType(MovingType movingType)
+        {
+            _movingType = movingType;
+
+            switch (movingType)
+            {
+                case MovingType.Slip:
+                    SetDefaultGravity();
+                    break;
+                
+                case MovingType.Gravitation:
+                    break;
+                
+                case MovingType.Flying:
+                    SetLowGravity();
+                    break;
+                
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(movingType), movingType, null);
+            }
+        }
+
+        private void Fly(Vector3 direction)
+        {
+            _rigidBody.AddForce(direction * PushForce);
+        }
+
+        private void MoveWithGravity()
+        {
+            if (!_isFreeFall)
+            {
+                if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+                {
+                    SetUpGravity();
+                }
+                else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+                {
+                    SetDownGravity();
+                }
+            }
+
+            Move2();
+        }
+
+        private static void SetDownGravity()
+        {
+            Physics.gravity = new Vector3(0, -40f, 0);
+        }
+
+        private static void SetUpGravity()
+        {
+            Physics.gravity = new Vector3(0, 40f, 0);
+        }
+
+        private static void SetDefaultGravity()
+        {
+            Physics.gravity = new Vector3(0, -20f, 0);
+        }
+        
+        private static void SetLowGravity()
+        {
+            Physics.gravity = new Vector3(0, -5f, 0);
         }
 
         private void Move3()
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-            {
-                AddForceLeft();
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-            {
-                AddForceRight();
-            }
-            else
-            {
-                SetDefaultForce();
-            }
-
             Move2();
 
-            if (Input.GetKeyDown(KeyCode.Space) && Math.Abs(transform.position.y) < 0.01f)
+            if (Input.GetKeyDown(KeyCode.Space) && !_isFreeFall)
             {
                 Jump();
             }
         }
 
-        private void AddForceLeft()
+        private void MoveLeft()
         {
-            _speedZ = _borderSize;
+            transform.Translate(0, 0, _borderSize);
         }
 
-        private void AddForceRight()
+        private void MoveRight()
         {
-            _speedZ = -_borderSize;
+            transform.Translate(0, 0, -_borderSize);
         }
 
-        private void SetDefaultForce()
+        private void MoveForward()
         {
-            _speedZ = 0f;
+            transform.Translate(_speedX, 0, 0);
         }
 
         private void Move2()
         {
-            transform.Translate(speedX, 0, _speedZ);
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            {
+                MoveLeft();
+            }
+
+            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            {
+                MoveRight();
+            }
         }
 
         private void Jump()
         {
-            _rigidBody.AddForce(transform.up * jumpForce);
+            _rigidBody.AddForce(transform.up * JumpForce);
         }
 
-        private bool IsDead()
+        private void BigJump()
         {
-            return transform.position.y < -3f;
+            _rigidBody.AddForce(transform.up * JumpForce * 2);
         }
     }
 }

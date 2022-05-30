@@ -7,15 +7,22 @@ namespace Mechanics
         private Player _player;
         private Vector3 _offset;
 
-        void Start()
+        private void Start()
         {
             _player = FindObjectOfType<Player>();
             _offset = transform.position;
         }
 
-        void Update()
+        private void Update()
         {
-            transform.position = _player.transform.position + _offset;
+            var playerPosition = _player.transform.position;
+            var cameraTransform = transform;
+            
+            cameraTransform.position = new Vector3(
+                playerPosition.x + _offset.x,
+                cameraTransform.position.y,
+                playerPosition.z + _offset.z
+            );
         }
     }
 }
