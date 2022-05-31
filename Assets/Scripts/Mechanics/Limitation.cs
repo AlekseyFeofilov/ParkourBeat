@@ -13,7 +13,6 @@ namespace Mechanics
 
         private void OnCollisionEnter()
         {
-            Physics.gravity = new Vector3(0, -20f, 0);
             _gamaManager.EndGame();
         }
     }
