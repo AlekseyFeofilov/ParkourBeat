@@ -5,7 +5,10 @@ namespace Serialization.Data
     [Serializable]
     public class TransitionData
     {
+        // Тип перехода (цвет, вектор)
         public string Type;
+        
+        // Данные
         public object Data;
         
         public TransitionData()

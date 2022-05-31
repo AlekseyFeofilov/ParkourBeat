@@ -1,9 +1,5 @@
-using System.IO;
-using System.Text;
-using Newtonsoft.Json;
 using Serialization.Converter;
 using Serialization.Data;
-using TMPro;
 using UnityEngine;
 using VisualEffect.Function;
 
@@ -11,11 +7,10 @@ namespace Serialization
 {
     public class SampleSave : MonoBehaviour
     {
-        public TextMeshPro Kek;
-        
         // Пример сохранения и чтения данных
         private void Start()
         {
+            // Подготавливаем beatmap на сериализацию
             BeatmapData beatmap = new();
             ElementData element1 = new();
             TriggerData trigger1 = new();
@@ -42,43 +37,21 @@ namespace Serialization
             transition2.Type = "Color";
             transition2.Data = new Color(1f, 0.5f, 0.1f, 1f);
         
-            JsonSerializer jsonSerializer = new();
-            jsonSerializer.Converters.Add(new Vector3Converter());
-            jsonSerializer.Converters.Add(new ColorConverter());
-            jsonSerializer.Converters.Add(new TimeConverter());
-            jsonSerializer.Converters.Add(new TimingFunctionConverter());
-            jsonSerializer.Converters.Add(new TransitionConverter());
+            // Подготавливаем json manager
+            JsonManager jsonManager = new();
+            jsonManager.AddConverter(new Vector3Converter());
+            jsonManager.AddConverter(new ColorConverter());
+            jsonManager.AddConverter(new TimeConverter());
+            jsonManager.AddConverter(new TimingFunctionConverter());
+            jsonManager.AddConverter(new TransitionConverter());
 
-            string json = Serialize(beatmap, jsonSerializer);
-            BeatmapData obj = Deserialize<BeatmapData>(json, jsonSerializer);
-            json = Serialize(beatmap, jsonSerializer);
+            // Сериализуем, десериализуем и потом опять сериализуем
+            string json = jsonManager.Serialize(beatmap);
+            beatmap = jsonManager.Deserialize<BeatmapData>(json);
+            json = jsonManager.Serialize(beatmap);
             
+            // Выводим
             Debug.Log(json);
-        }
-
-        // Метод сериализации
-        // TODO вынести отдельно в сервис
-        private string Serialize(
-            object value,
-            JsonSerializer jsonSerializer)
-        {
-            StringWriter stringWriter = new(new StringBuilder(256));
-            using (JsonTextWriter jsonTextWriter = new(stringWriter))
-            {
-                jsonTextWriter.Formatting = jsonSerializer.Formatting;
-                jsonSerializer.Serialize(jsonTextWriter, value);
-            }
-            return stringWriter.ToString();
-        }
-    
-        // Метод десериализации
-        // TODO вынести отдельно в сервис
-        private T Deserialize<T>(
-            string json,
-            JsonSerializer jsonSerializer)
-        {
-            using JsonTextReader jsonTextReader = new JsonTextReader(new StringReader(json));
-            return (T) jsonSerializer.Deserialize(jsonTextReader, typeof (T));
         }
     }
 }

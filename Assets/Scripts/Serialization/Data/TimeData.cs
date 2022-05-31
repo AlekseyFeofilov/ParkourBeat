@@ -5,7 +5,10 @@ namespace Serialization.Data
     [Serializable]
     public class TimeData
     {
+        // Единица измерения времени
         public TimeUnit Unit;
+        
+        // Значение в единицах измерения
         public double Value;
 
         public TimeData()
@@ -21,7 +24,10 @@ namespace Serialization.Data
 
     public enum TimeUnit
     {
-        Second, 
+        // Секунды - абсолютная величина
+        Second,
+        
+        // Биты - относительная величина, зависит от карты
         Beat
     }
 }
