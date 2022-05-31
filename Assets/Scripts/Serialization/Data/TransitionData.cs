@@ -5,6 +5,9 @@ namespace Serialization.Data
     [Serializable]
     public class TransitionData
     {
+        public string Type;
+        public object Data;
+        
         public TransitionData()
         {
         }
@@ -14,8 +17,5 @@ namespace Serialization.Data
             Type = type;
             Data = data;
         }
-
-        public string Type;
-        public object Data;
     }
 }
