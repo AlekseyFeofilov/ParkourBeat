@@ -1,7 +1,8 @@
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
-using Serialization;
+using Serialization.Converter;
+using Serialization.Data;
 using UnityEngine;
 
 public class SampleSave : MonoBehaviour
@@ -13,27 +14,36 @@ public class SampleSave : MonoBehaviour
         ElementData element1 = new();
         TriggerData trigger1 = new();
         TransitionData transition1 = new();
+        TransitionData transition2 = new();
 
         beatmap.Elements.Add(element1);
         beatmap.Triggers.Add(trigger1);
         trigger1.Transitions.Add(transition1);
+        trigger1.Transitions.Add(transition2);
         
         element1.Id = 0;
+        element1.Type = "test";
+        
         trigger1.Id = 0;
         trigger1.TargetId = 0;
-        
-        element1.Type = "test";
         trigger1.Timestamp = "8b";
         trigger1.Duration = ".2s";
         trigger1.Function = "ease";
 
         transition1.Type = "Position";
         transition1.Data = new Vector3(1f, 2f, 2.4f);
-            
+           
+        transition2.Type = "Color";
+        transition2.Data = new Color(1f, 0.5f, 0.1f, 1f);
+        
         JsonSerializer jsonSerializer = new();
-        jsonSerializer.Converters.Add(new TransitionJsonConverter());
+        jsonSerializer.Converters.Add(new Vector3Converter());
+        jsonSerializer.Converters.Add(new ColorConverter());
+        jsonSerializer.Converters.Add(new TransitionConverter());
 
         string json = Serialize(beatmap, jsonSerializer);
+        BeatmapData obj = Deserialize<BeatmapData>(json, jsonSerializer);
+        json = Serialize(beatmap, jsonSerializer);
         Debug.Log(json);
     }
 
@@ -44,7 +54,7 @@ public class SampleSave : MonoBehaviour
     }
     
     private string Serialize(
-        object? value,
+        object value,
         JsonSerializer jsonSerializer)
     {
         StringWriter stringWriter = new(new StringBuilder(256));
@@ -54,5 +64,13 @@ public class SampleSave : MonoBehaviour
             jsonSerializer.Serialize(jsonTextWriter, value);
         }
         return stringWriter.ToString();
+    }
+    
+    private T Deserialize<T>(
+        string json,
+        JsonSerializer jsonSerializer)
+    {
+        using JsonTextReader jsonTextReader = new JsonTextReader(new StringReader(json));
+        return (T) jsonSerializer.Deserialize(jsonTextReader, typeof (T));
     }
 }

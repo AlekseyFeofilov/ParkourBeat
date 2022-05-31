@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Serialization
+namespace Serialization.Data
 {
     [Serializable]
     public class TriggerData

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Serialization
+namespace Serialization.Data
 {
     [Serializable]
     public class ElementData
