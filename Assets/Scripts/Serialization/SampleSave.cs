@@ -31,10 +31,10 @@ namespace Serialization
             trigger1.Duration = new TimeData(TimeUnit.Second, .2);
             trigger1.Function = ITimingFunction.Ease;
 
-            transition1.Type = "Position";
+            transition1.Type = "position";
             transition1.Data = new Vector3(1f, 2f, 2.4f);
            
-            transition2.Type = "Color";
+            transition2.Type = "color";
             transition2.Data = new Color(1f, 0.5f, 0.1f, 1f);
         
             // Подготавливаем json manager

@@ -24,7 +24,12 @@ namespace Serialization.Converter
             JObject jObject = JObject.Load(reader);
 
             string type = (jObject["Type"] ?? 0f).Value<string>();
-            Color data = serializer.Deserialize<Color>(jObject["Data"]?.CreateReader()!);
+            object data = type switch
+            {
+                "color" => serializer.Deserialize<Color>(jObject["Data"]?.CreateReader()!),
+                "vector" => serializer.Deserialize<Vector3>(jObject["Data"]?.CreateReader()!),
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             return new TransitionData(type, data);
         }
