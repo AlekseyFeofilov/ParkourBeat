@@ -1,8 +1,5 @@
 using System;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using VisualEffect.Function;
-using VisualEffect.Object;
 
 namespace Mechanics
 {
@@ -14,6 +11,7 @@ namespace Mechanics
         public float jumpForce = 250f;
         public float bigJumpForce = 350f;
         public float pushForce = 10f;
+        public MovingMode movingMode = MovingMode.Slip;
 
         private Vector3 _move;
         private Rigidbody _rigidBody;
@@ -21,19 +19,19 @@ namespace Mechanics
 
         private bool _isTopTrigger;
         private bool _isBottomTrigger;
-
-        private enum MovingMode
+        
+        public enum MovingMode
         {
             Slip,
             Flying,
             Gravitation,
         }
-
+        
         private void Start()
         {
             _rigidBody = GetComponent<Rigidbody>();
 
-            ChangeMovementMode(MovingMode.Slip);
+            ChangeMovementMode(movingMode);
         }
 
         private bool IsFreeFall()
@@ -134,11 +132,11 @@ namespace Mechanics
             }
         }
 
-        private void ChangeMovementMode(MovingMode movingMode)
+        private void ChangeMovementMode(MovingMode newMovingMode)
         {
-            _movingMode = movingMode;
+            _movingMode = newMovingMode;
 
-            switch (movingMode)
+            switch (newMovingMode)
             {
                 case MovingMode.Slip:
                     SetSlipMode();
@@ -153,7 +151,7 @@ namespace Mechanics
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(movingMode), movingMode, null);
+                    throw new ArgumentOutOfRangeException(nameof(newMovingMode), newMovingMode, null);
             }
         }
 
@@ -225,11 +223,6 @@ namespace Mechanics
         private void Jump()
         {
             _rigidBody.AddForce(transform.up * jumpForce);
-        }
-
-        private void BigJump()
-        {
-            _rigidBody.AddForce(transform.up * bigJumpForce);
         }
     }
 }
