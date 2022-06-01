@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using VisualEffect.Function;
 using VisualEffect.Object;
@@ -9,69 +10,111 @@ namespace Mechanics
     public class Player : MonoBehaviour
     {
         // ReSharper disable once InconsistentNaming
-        private const float _speedX = 0.1f;
-        private Vector3 _smoothMovement;
+        public float speedX = 0.1f;
+        public float jumpForce = 250f;
+        public float bigJumpForce = 350f;
+        public float pushForce = 10f;
 
-        private const float JumpForce = 500f;
-        private const float BigJumpForce = 700f;
-        private const float PushForce = 10f;
-
-        private float _borderSize;
-
+        private Vector3 _move;
         private Rigidbody _rigidBody;
-        private Collider _collider;
+        private MovingMode _movingMode;
 
-        private bool _isFreeFall;
-        private MovingType _movingType;
+        private bool _isTopTrigger;
+        private bool _isBottomTrigger;
 
-        private enum MovingType
+        private enum MovingMode
         {
             Slip,
             Flying,
             Gravitation,
         }
 
-        private void OnCollisionEnter()
-        {
-            _isFreeFall = false;
-        }
-
-        private void OnCollisionExit()
-        {
-            _isFreeFall = true;
-        }
-
         private void Start()
         {
-            _collider = GetComponent<Collider>();
-            _borderSize = _collider.bounds.size.y;
             _rigidBody = GetComponent<Rigidbody>();
-            
-            ChangeMovementType(MovingType.Slip);
+
+            ChangeMovementMode(MovingMode.Slip);
         }
 
+        private bool IsFreeFall()
+        {
+            return  Physics.gravity.y < 0 && !_isBottomTrigger ||
+                    Physics.gravity.y > 0 && !_isTopTrigger;
+        }
+
+        internal void CollisionEnter(string collisionTag)
+        {
+            switch (collisionTag)
+            {
+                case "Top":
+                    _isTopTrigger = true;
+                    break;
+                
+                case "Bottom":
+                    _isBottomTrigger = true;
+                    break;
+                
+                default:
+                    throw new Exception("Unknown collider involved CollisionEnter (Player.cs)");
+            }
+        }
+
+        internal void CollisionExit(string collisionTag)
+        {
+            switch (collisionTag)
+            {
+                case "Top":
+                    _isTopTrigger = false;
+                    break;
+                
+                case "Bottom":
+                    _isBottomTrigger = false;
+                    break;
+                
+                default:
+                    throw new Exception("Unknown collider involved CollisionExit (Player.cs)");
+            }
+        }
+        
         private void Update()
         {
-            switch (_movingType)
+            //if true leftMove = 1 else 0
+            var leftMove = Convert.ToInt32(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow));
+            //if true rightMove = 1 else 0
+            var rightMove = Convert.ToInt32(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow));
+
+            //rightMove is negative because this is directed in the negative direction of Z-axis
+            _move = new Vector3(0, 0, leftMove - rightMove);
+
+            switch (_movingMode)
             {
-                case MovingType.Flying:
-                    //todo: remove inertia
-                    
-                    _smoothMovement = new Vector3(
-                        0,
-                        Math.Max(0, Input.GetAxis("Vertical")),
-                        -Input.GetAxis("Horizontal")
-                    );
+                case MovingMode.Flying:
+                    var upMove = Convert.ToInt32(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow));
+                    _move += new Vector3(0, upMove);
                     break;
-                
-                case MovingType.Slip:
-                    Move3();
+
+                case MovingMode.Slip:
+                    if (Input.GetKeyDown(KeyCode.Space) && !IsFreeFall())
+                    {
+                        Jump();
+                    }
+
                     break;
-                
-                case MovingType.Gravitation:
-                    MoveWithGravity();
+
+                case MovingMode.Gravitation:
+                    if (IsFreeFall()) return;
+
+                    if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+                    {
+                        SetUpGravity();
+                    }
+                    else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+                    {
+                        SetDownGravity();
+                    }
+
                     break;
-                
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -81,54 +124,62 @@ namespace Mechanics
         {
             MoveForward();
 
-            if (_movingType == MovingType.Flying)
+            if (_movingMode == MovingMode.Flying)
             {
-                Fly(_smoothMovement);
+                Fly(_move);
+            }
+            else
+            {
+                MoveHorizontal(_move);
             }
         }
 
-        private void ChangeMovementType(MovingType movingType)
+        private void ChangeMovementMode(MovingMode movingMode)
         {
-            _movingType = movingType;
+            _movingMode = movingMode;
 
-            switch (movingType)
+            switch (movingMode)
             {
-                case MovingType.Slip:
-                    SetDefaultGravity();
+                case MovingMode.Slip:
+                    SetSlipMode();
                     break;
-                
-                case MovingType.Gravitation:
+
+                case MovingMode.Gravitation:
+                    SetGravityMode();
                     break;
-                
-                case MovingType.Flying:
-                    SetLowGravity();
+
+                case MovingMode.Flying:
+                    SetFlyingMode();
                     break;
-                
+
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(movingType), movingType, null);
+                    throw new ArgumentOutOfRangeException(nameof(movingMode), movingMode, null);
             }
+        }
+
+        private void SetSlipMode()
+        {
+            SetDefaultGravity();
+            SetDefaultPushForce();
+        }
+
+        private void SetGravityMode()
+        {
+            SetDownGravity();
+            SetDefaultPushForce();
+        }
+
+        private void SetFlyingMode()
+        {
+            SetLowGravity();
+            SetLowPushForce();
         }
 
         private void Fly(Vector3 direction)
         {
-            _rigidBody.AddForce(direction * PushForce);
-        }
+            if (direction.y != 0) _rigidBody.velocity = Vector3.zero;
 
-        private void MoveWithGravity()
-        {
-            if (!_isFreeFall)
-            {
-                if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-                {
-                    SetUpGravity();
-                }
-                else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-                {
-                    SetDownGravity();
-                }
-            }
-
-            Move2();
+            transform.Translate(direction * pushForce);
         }
 
         private static void SetDownGravity()
@@ -145,58 +196,40 @@ namespace Mechanics
         {
             Physics.gravity = new Vector3(0, -20f, 0);
         }
-        
+
         private static void SetLowGravity()
         {
             Physics.gravity = new Vector3(0, -5f, 0);
         }
 
-        private void Move3()
+        private void SetDefaultPushForce()
         {
-            Move2();
-
-            if (Input.GetKeyDown(KeyCode.Space) && !_isFreeFall)
-            {
-                Jump();
-            }
+            pushForce = 10f;
         }
 
-        private void MoveLeft()
+        private void SetLowPushForce()
         {
-            transform.Translate(0, 0, _borderSize);
-        }
-
-        private void MoveRight()
-        {
-            transform.Translate(0, 0, -_borderSize);
+            pushForce = 0.1f;
         }
 
         private void MoveForward()
         {
-            transform.Translate(_speedX, 0, 0);
+            transform.Translate(speedX, 0, 0);
         }
 
-        private void Move2()
+        private void MoveHorizontal(Vector3 direction)
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-            {
-                MoveLeft();
-            }
-
-            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-            {
-                MoveRight();
-            }
+            transform.Translate(direction * (pushForce * Time.deltaTime));
         }
 
         private void Jump()
         {
-            _rigidBody.AddForce(transform.up * JumpForce);
+            _rigidBody.AddForce(transform.up * jumpForce);
         }
 
         private void BigJump()
         {
-            _rigidBody.AddForce(transform.up * JumpForce * 2);
+            _rigidBody.AddForce(transform.up * bigJumpForce);
         }
     }
 }
