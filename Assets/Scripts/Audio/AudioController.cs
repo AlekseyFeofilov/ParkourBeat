@@ -3,43 +3,46 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class AudioController : MonoBehaviour
+namespace Audio
 {
-    public AudioType audioType = AudioType.MPEG;
-    
-    public string path = "Songs/korpvodk.mp3";
-    
-    public AudioSource audioSource;
-
-    private void Start()
+    public class AudioController : MonoBehaviour
     {
-        if (audioSource == null)
+        public AudioType audioType = AudioType.MPEG;
+    
+        public string path = "Songs/korpvodk.mp3";
+    
+        public AudioSource audioSource;
+
+        private void Start()
         {
-            audioSource = gameObject.AddComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+
+            StartCoroutine(LoadAudio());
         }
 
-        StartCoroutine(LoadAudio());
-    }
-
-    private IEnumerator LoadAudio()
-    {
-        string fullPath = "file://" + Application.dataPath + "/" + path;
+        private IEnumerator LoadAudio()
+        {
+            string fullPath = "file://" + Application.dataPath + "/" + path;
         
-        using UnityWebRequest request 
-            = UnityWebRequestMultimedia.GetAudioClip(fullPath, audioType);
-        yield return request.SendWebRequest();
+            using UnityWebRequest request 
+                = UnityWebRequestMultimedia.GetAudioClip(fullPath, audioType);
+            yield return request.SendWebRequest();
 
-        if (request.result is 
-            UnityWebRequest.Result.ConnectionError or 
-            UnityWebRequest.Result.ProtocolError)
-        {
-            Debug.Log(request.error);
-        }
-        else
-        {
-            audioSource.clip = DownloadHandlerAudioClip.GetContent(request);
-            audioSource.clip.name = Regex.Match(path, @"[^\/]*$").Value;
-            audioSource.Play();
+            if (request.result is 
+                UnityWebRequest.Result.ConnectionError or 
+                UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.Log(request.error);
+            }
+            else
+            {
+                audioSource.clip = DownloadHandlerAudioClip.GetContent(request);
+                audioSource.clip.name = Regex.Match(path, @"[^\/]*$").Value;
+                audioSource.Play();
+            }
         }
     }
 }
