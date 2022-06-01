@@ -9,7 +9,6 @@ namespace Mechanics
         // ReSharper disable once InconsistentNaming
         public float speedX = 0.1f;
         public float jumpForce = 250f;
-        public float bigJumpForce = 350f;
         public float pushForce = 10f;
         public MovingMode movingMode = MovingMode.Slip;
 
