@@ -11,7 +11,7 @@ public class AudioController : MonoBehaviour
     
     public AudioSource audioSource;
 
-    public void Start()
+    private void Start()
     {
         if (audioSource == null)
         {
