@@ -1,19 +1,29 @@
 using System;
 using System.Collections.Generic;
+using MapEditor.Timestamp;
+using Serialization.Data;
 using UnityEngine;
 using Utils;
+using VisualEffect.Point;
 
 // ReSharper disable All
 
 namespace MapEditor
 {
-    public class Timeline : MonoBehaviour
+    public class Timeline : MonoBehaviour, ITimeConverter
     {
         private const double planeScale = 10.0;
         
-        private readonly List<SpeedPoint> _speedPoints = new();
-        private readonly List<BpmPoint> _bpmPoints = new();
-
+        private readonly List<BpmTimestamp> _bpmPoints = new();
+        private readonly List<SpeedTimestamp> _speedPoints = new();
+        private readonly List<VisualEffectPoint> _beginSortedEffectPoints = new();
+        private readonly List<VisualEffectPoint> _endSortedEffectPoints = new();
+        
+        private readonly ISet<VisualEffectPoint> _activeEffects = new HashSet<VisualEffectPoint>();
+        private int _indexByBeginSorted;
+        private int _indexByEndSorted;
+        private double _lastSecond;
+        
         [SerializeField]
         private GameObject beatPrefab;
         
@@ -22,24 +32,6 @@ namespace MapEditor
         
         [SerializeField]
         private GameObject bpmPrefab;
-
-        public List<GameObject>[] BeatObjects; // TODO убрать
-
-        private void Awake()
-        {
-            AddSpeedPoint(0, 5);
-            AddSpeedPoint(1, 1);
-            AddSpeedPoint(25.25, 3);
-            AddSpeedPoint(28.25, 1);
-            AddSpeedPoint(31.25, 3);
-            AddSpeedPoint(34, 0.5);
-            AddSpeedPoint(37, 5);
-            AddSpeedPoint(71.72, 1);
-            
-            AddBpmPoint(1.85, 82);
-            AddBpmPoint(48.68, 82 * 4);
-            AddBpmPoint(71.72, 82 * 2);
-        }
 
         private void Start()
         {
@@ -50,42 +42,34 @@ namespace MapEditor
             double beginPos = position.x - localScale.x / 2;
             double endPos = position.x + localScale.x / 2;
 
-            double beginTime = GetTimeByPosition(beginPos);
-            double endTime = GetTimeByPosition(endPos);
+            double beginTime = GetSecondByPosition(beginPos);
+            double endTime = GetSecondByPosition(endPos);
 
-            int beginBeat = (int) Math.Floor(GetBeatByTime(beginTime));
-            int endBeat = (int) Math.Ceiling(GetBeatByTime(endTime));
+            int beginBeat = (int) Math.Floor(GetBeatBySecond(beginTime));
+            int endBeat = (int) Math.Ceiling(GetBeatBySecond(endTime));
 
-            BeatObjects = new List<GameObject>[endBeat - Math.Max(beginBeat, 0) + 1];
-            
             for (int beat = beginBeat; beat <= endBeat; beat++)
             {
-                double time = GetTimeByBeat(beat);
-                double pos = GetPositionByTime(time);
+                double time = GetSecondByBeat(beat);
+                double pos = GetPositionBySecond(time);
                 GameObject obj;
-                
-                if (beat >= 0) BeatObjects[beat] = new(); // TODO убрать
-                
+
                 obj = Instantiate(beatPrefab, 
                     new((float) pos, position.y + .001f, position.z), 
                     Quaternion.Euler(90, 0, 0)
                     );
                 obj.transform.parent = transform;
-                
-                if (beat >= 0) BeatObjects[beat].Add(obj); // TODO убрать
-                
+
                 obj = Instantiate(beatPrefab, 
                     new((float) pos, position.y + localScale.z / 2, position.z + localScale.z / 2),
                     Quaternion.identity
                     );
                 obj.transform.parent = transform;
-                
-                if (beat >= 0) BeatObjects[beat].Add(obj); // TODO убрать
             }
 
             for (int i = 1; i < _speedPoints.Count; i++)
             {
-                double time = _speedPoints[i].Time;
+                double time = _speedPoints[i].Time.ToSecond(this);
                 double pos = _speedPoints[i - 1].GetPosition(time);
                 GameObject obj;
                 
@@ -104,8 +88,8 @@ namespace MapEditor
             
             for (int i = 1; i < _bpmPoints.Count; i++)
             {
-                double time = _bpmPoints[i].Time;
-                double pos = GetPositionByTime(time);
+                double second = _bpmPoints[i].Second;
+                double pos = GetPositionBySecond(second);
                 GameObject obj;
                 
                 obj = Instantiate(bpmPrefab, 
@@ -122,19 +106,26 @@ namespace MapEditor
             }
         }
                 
-        public void AddSpeedPoint(double time, double speed)
+        public void AddSpeedPoint(ITime time, double speed)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, e => e.Time, time);
-            double position = index < 0 ? 0 : _speedPoints[index].GetPosition(time);
-            SpeedPoint point = new(time, speed, position);
+            double second = time.ToSecond(this);
+            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
+                e => e.Second, second);
+            double position = index < 0 ? 0 : _speedPoints[index]
+                .GetPosition(second);
+            
+            SpeedTimestamp point = new(time, second, speed, position);
             _speedPoints.Insert(index + 1, point);
             RecalcSpeedPointsFromIndex(index + 2);
         }
 
-        public void RemoveSpeedPoint(double time)
+        public void RemoveSpeedPoint(ITime time)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, e => e.Time, time);
+            double second = time.ToSecond(this);
+            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
+                e => e.Second, second);
             if (index < 0) return;
+            
             _speedPoints.RemoveAt(index);
             RecalcSpeedPointsFromIndex(index);
         }
@@ -143,151 +134,314 @@ namespace MapEditor
         {
             for (int i = index; i < _speedPoints.Count; i++)
             {
-                double currentTime = _speedPoints[i].Time;
+                ITime currentTime = _speedPoints[i].Time;
+                double currentSecond = _speedPoints[i].Second;
                 double currentSpeed = _speedPoints[i].Speed;
-                double currentPos = _speedPoints[i - 1].GetPosition(_speedPoints[i].Time);
-                _speedPoints[i] = new(currentTime, currentSpeed, currentPos);
+                double currentPos = _speedPoints[i - 1]
+                    .GetPosition(currentSecond);
+                _speedPoints[i] = new(currentTime, currentSecond, 
+                    currentSpeed, currentPos);
             }
         }
 
-        public double GetPositionByTime(double time)
+        public double GetPositionBySecond(double second)
         {
-            SpeedPoint point = SearchSpeedPointByTime(time);
+            SpeedTimestamp point = SearchSpeedPointBySecond(second);
             if (point == null) return -1;
-            return point.GetPosition(time);
+            return point.GetPosition(second);
         }
 
-        private SpeedPoint SearchSpeedPointByTime(double time)
+        private SpeedTimestamp SearchSpeedPointBySecond(double second)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, e => e.Time, time);
+            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
+                e => e.Time.ToSecond(this), second);
             if (index < 0) return null;
             return _speedPoints[index];
         }
 
-        public double GetTimeByPosition(double position)
+        public double GetSecondByPosition(double position)
         {
-            SpeedPoint point = SearchSpeedPointByPosition(position);
+            SpeedTimestamp point = SearchSpeedPointByPosition(position);
             if (point == null) return -1;
-            return point.GetTime(position);
+            return point.GetSecond(position);
         }
         
-        private SpeedPoint SearchSpeedPointByPosition(double position)
+        private SpeedTimestamp SearchSpeedPointByPosition(double position)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, e => e.Position, position);
+            int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
+                e => e.Position, position);
             if (index < 0) return null;
             return _speedPoints[index];
         }
         
-        public void AddBpmPoint(double time, double bpm)
+        public void AddBpmPoint(BaseTime time, double bpm)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, e => e.Time, time);
-            double beat = index < 0 ? 0 : _bpmPoints[index].GetBeat(time);
-            BpmPoint point = new(time, bpm, beat);
+            double second;
+            double beat;
+            int index;
+            
+            switch (time.Unit)
+            {
+                case TimeUnit.Second:
+                    second = time.Value;
+                    index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints,
+                        e => e.Second, second);
+                    beat = index < 0 ? 0 : _bpmPoints[index].GetBeat(second);
+                    break;
+                case TimeUnit.Beat:
+                    beat = time.Value;
+                    index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints,
+                        e => e.Beat, beat);
+                    second = index < 0 ? 0 : _bpmPoints[index].GetSecond(beat);
+                    break;
+                default:
+                    throw new InvalidOperationException("unsupported time unit: " + time.Unit);
+            }
+            
+            BpmTimestamp point = new(second, bpm, beat);
             _bpmPoints.Insert(index + 1, point);
             RecalcBpmPointsFromIndex(index + 2);
+            RecalcSpeedPointsAfterBpmChange();
         }
 
-        public void RemoveBpmPoint(double time)
+        public void RemoveBpmPoint(BaseTime time)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, e => e.Time, time);
+            int index;
+            
+            switch (time.Unit)
+            {
+                case TimeUnit.Second:
+                    index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, 
+                        e => e.Second, time.Value);
+                    break;
+                case TimeUnit.Beat:
+                    index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, 
+                        e => e.Beat, time.Value);
+                    break;
+                default:
+                    throw new InvalidOperationException("unsupported time unit: " + time.Unit);
+            }
             if (index < 0) return;
+            
             _bpmPoints.RemoveAt(index);
             RecalcBpmPointsFromIndex(index);
+            RecalcSpeedPointsAfterBpmChange();
         }
 
         private void RecalcBpmPointsFromIndex(int index)
         {
             for (int i = index; i < _bpmPoints.Count; i++)
             {
-                double currentTime = _bpmPoints[i].Time;
+                double currentSecond = _bpmPoints[i].Second;
                 double currentBpm = _bpmPoints[i].Bpm;
-                double currentBeat = _bpmPoints[i - 1].GetBeat(_speedPoints[i].Time);
-                _bpmPoints[i] = new(currentTime, currentBpm, currentBeat);
+                double currentBeat = _bpmPoints[i - 1]
+                    .GetBeat(currentSecond);
+                _bpmPoints[i] = new(currentSecond, currentBpm, currentBeat);
             }
         }
         
-        public double GetBeatByTime(double time)
+        // TODO оптимизировать
+        // Например пересчитывать только для поинтов скорости, время которых больше,
+        // чем у поинта смены BPM
+        private void RecalcSpeedPointsAfterBpmChange()
         {
-            BpmPoint point = SearchBpmPointByTime(time);
+            for (int i = 1; i < _speedPoints.Count; i++)
+            {
+                ITime currentTime = _speedPoints[i].Time;
+                double currentSecond = currentTime.ToSecond(this);
+                double currentSpeed = _speedPoints[i].Speed;
+                double currentPos = _speedPoints[i - 1]
+                    .GetPosition(currentSecond);
+                _speedPoints[i] = new(currentTime, currentSecond, 
+                    currentSpeed, currentPos);
+            }
+        }
+        
+        public double GetBeatBySecond(double second)
+        {
+            BpmTimestamp point = SearchBpmPointBySecond(second);
             if (point == null) return -1;
-            return point.GetBeat(time);
+            return point.GetBeat(second);
         }
 
-        private BpmPoint SearchBpmPointByTime(double time)
+        private BpmTimestamp SearchBpmPointBySecond(double second)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, (e) => e.Time, time);
+            int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, 
+                e => e.Second, second);
             if (index < 0) return null;
             return _bpmPoints[index];
         }
 
-        public double GetTimeByBeat(double beat)
+        public double GetSecondByBeat(double beat)
         {
-            BpmPoint point = SearchBpmPointByBeat(beat);
+            BpmTimestamp point = SearchBpmPointByBeat(beat);
             if (point == null) return -1;
-            return point.GetTime(beat);
+            return point.GetSecond(beat);
         }
 
-        private BpmPoint SearchBpmPointByBeat(double beat)
+        private BpmTimestamp SearchBpmPointByBeat(double beat)
         {
-            int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, (e) => e.Beat, beat);
+            int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, 
+                e => e.Beat, beat);
             if (index < 0) return null;
             return _bpmPoints[index];
         }
-    }
 
-    public class SpeedPoint
-    {
-        public readonly double Time;
-        public readonly double Speed;
-        public readonly double Position;
-
-        public SpeedPoint(double time, double speed, double position)
+        public void AddEffectPoint(VisualEffectPoint effect)
         {
-            Time = time;
-            Speed = speed;
-            Position = position;
+            // Добавляем эффект в общий список
+            ITime begin = effect.Time;
+            ITime end = effect.Time + effect.Duration;
+            
+            double beginSecond = begin.ToSecond(this);
+            double endSecond = end.ToSecond(this);
+            
+            int beginIndex = CollectionUtils.SearchBinaryInRangeList(_beginSortedEffectPoints, 
+                e => e.Time.ToSecond(this), beginSecond);
+            int endIndex = CollectionUtils.SearchBinaryInRangeList(_endSortedEffectPoints, 
+                e => e.Time.ToSecond(this), endSecond);
+            
+            _beginSortedEffectPoints.Insert(beginIndex + 1, effect);
+            _endSortedEffectPoints.Insert(endIndex + 1, effect);
+            
+            // Добавляем эффект в список свойства
+            // TODO если сложность O(n), то какой смысл в доп. списке?
+            var points = effect.Property.Points;
+            int index = CollectionUtils.SearchBinaryInRangeList(points, 
+                e => e.Time.ToSecond(this), beginSecond);
+
+            if (index < 0) effect.FromState = effect.Property.GetDefault();
+            else effect.FromState = points[index].ToState;
+            if (index + 1 < points.Count) points[index + 1].FromState = effect.ToState;
+            
+            points.Insert(index + 1, effect);
         }
 
-        public double GetTime(double position)
+        public void RemoveEffectPoint(VisualEffectPoint effect)
         {
-            double x = position - Position;
-            double y = x / Speed;
-            return y + Time;
+            // Убираем эффект из общего списка
+            _beginSortedEffectPoints.Remove(effect);
+            _endSortedEffectPoints.Remove(effect);
+            
+            // Убираем эффект из списка свойства
+            // TODO если сложность O(n), то какой смысл в доп. списке?
+            var points = effect.Property.Points;
+            int index = points.BinarySearch(effect);
+
+            if (index > 0 && index + 1 < points.Count)
+            {
+                points[index + 1].FromState = points[index - 1].ToState;
+            }
+            else if (index == 0 && index + 1 < points.Count)
+            {
+                points[index + 1].FromState = effect.Property.GetDefault();
+            }
+
+            points.RemoveAt(index);
         }
 
-        public double GetPosition(double time)
+        public void Move(double second)
         {
-            double x = time - Time;
-            double y = x * Speed;
-            return y + Position;
-        }
-    }
-    
-    public class BpmPoint
-    {
-        public readonly double Time;
-        public readonly double Bpm;
-        public readonly double Beat;
-
-        public BpmPoint(double time, double bpm, double beat)
-        {
-            Time = time;
-            Bpm = bpm;
-            Beat = beat;
+            if (second >= _lastSecond) MoveForth(second);
+            else MoveBack(second);
+            _lastSecond = second;
         }
 
-        public double GetTime(double beat)
+        public void ResetMove()
         {
-            double x = beat - Beat;
-            double y = x / Bpm * 60;
-            return y + Time;
+            Move(0);
         }
 
-        public double GetBeat(double time)
+        private void MoveForth(double second)
         {
-            double x = time - Time;
-            double y = x * Bpm / 60;
-            return y + Beat;
+            var beginSorted = _beginSortedEffectPoints;
+            var endSorted = _endSortedEffectPoints;
+
+            while (_indexByBeginSorted < beginSorted.Count &&
+                   beginSorted[_indexByBeginSorted].Time.ToSecond(this) <= second)
+            {
+                _activeEffects.Add(beginSorted[_indexByBeginSorted++]);
+                if (_indexByBeginSorted >= beginSorted.Count)
+                {
+                    _indexByBeginSorted--;
+                    break;
+                }
+            }
+
+            foreach (var effect in _activeEffects)
+            {
+                effect.Update(second, this);
+            }
+
+            while (_indexByEndSorted < endSorted.Count &&
+                   endSorted[_indexByEndSorted].EndTime.ToSecond(this) <= second)
+            {
+                _activeEffects.Remove(endSorted[_indexByEndSorted++]);
+                if (_indexByEndSorted >= endSorted.Count)
+                {
+                    _indexByEndSorted--;
+                    break;
+                }
+            }
+        }
+        
+        private void MoveBack(double second)
+        {
+            var endSorted = _endSortedEffectPoints;
+            var beginSorted = _beginSortedEffectPoints;
+
+            while (_indexByEndSorted >= 0 &&
+                   endSorted[_indexByEndSorted].EndTime.ToSecond(this) > second)
+            {
+                _activeEffects.Add(endSorted[_indexByEndSorted--]);
+                if (_indexByEndSorted < 0)
+                {
+                    _indexByEndSorted++;
+                    break;
+                }
+            }
+
+            foreach (var effect in _activeEffects)
+            {
+                effect.Update(second, this);
+            }
+                        
+            while (_indexByBeginSorted >= 0 &&
+                   beginSorted[_indexByBeginSorted].Time.ToSecond(this) > second)
+            {
+                _activeEffects.Remove(beginSorted[_indexByBeginSorted--]);
+                if (_indexByBeginSorted < 0)
+                {
+                    _indexByBeginSorted++;
+                    break;
+                }
+            }
+        }
+
+        public double ToSecond(BaseTime time)
+        {
+            switch (time.Unit)
+            {
+                case TimeUnit.Second:
+                    return time.Value;
+                case TimeUnit.Beat:
+                    return GetSecondByBeat(time.Value);
+                default:
+                    throw new InvalidOperationException("unsupported time unit: " + time.Unit);
+            }
+        }
+        
+        public double ToBeat(BaseTime time)
+        {
+            switch (time.Unit)
+            {
+                case TimeUnit.Second:
+                    return GetBeatBySecond(time.Value);
+                case TimeUnit.Beat:
+                    return time.Value;
+                default:
+                    throw new InvalidOperationException("unsupported time unit: " + time.Unit);
+            }
         }
     }
 }

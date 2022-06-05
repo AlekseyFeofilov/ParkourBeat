@@ -8,7 +8,7 @@ namespace VisualEffect.Object
 {
     public class MonoObject : MonoBehaviour
     {
-        private readonly ICollection<IVisualUpdatable> _properties = new List<IVisualUpdatable>();
+        private readonly ICollection<IVisualProperty> _properties = new List<IVisualProperty>();
 
         private void OnEnable()
         {
@@ -17,18 +17,10 @@ namespace VisualEffect.Object
                 if (!field.HasAttribute(typeof(VisualPropertyAttribute))) continue;
                 object property = field.GetValue(this);
                 
-                if (property is IVisualUpdatable updatable)
+                if (property is IVisualProperty updatable)
                 {
-                    _properties.Add(updatable);   
+                    _properties.Add(updatable);
                 }
-            }
-        }
-
-        protected void LateUpdate()
-        {
-            foreach (var updatable in _properties)
-            {
-                updatable.Update();
             }
         }
     }

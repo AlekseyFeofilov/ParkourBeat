@@ -32,10 +32,9 @@ namespace VisualEffect.Object
                 _transform = transform;
             }
 
-            public override Vector3 Value
+            protected override void Apply(Vector3 state)
             {
-                get => _transform.position;
-                set => _transform.position = value;
+                _transform.position = state;
             }
         }
         
@@ -49,10 +48,9 @@ namespace VisualEffect.Object
                 _transform = transform;
             }
 
-            public override Vector3 Value
+            protected override void Apply(Vector3 state)
             {
-                get => _transform.rotation.eulerAngles;
-                set => _transform.rotation = Quaternion.Euler(value);
+                _transform.rotation = Quaternion.Euler(state);
             }
         }
         
@@ -66,10 +64,9 @@ namespace VisualEffect.Object
                 _transform = transform;
             }
 
-            public override Vector3 Value
+            protected override void Apply(Vector3 state)
             {
-                get => _transform.localScale;
-                set => _transform.localScale = value;
+                _transform.localScale = state;
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System;
-using UnityEngine;
-using VisualEffect.Function;
+using System.Collections.Generic;
+using VisualEffect.Point;
 
 namespace VisualEffect.Property
 {
@@ -10,47 +10,44 @@ namespace VisualEffect.Property
         
     }
 
-    public interface IVisualUpdatable
+    public interface IVisualProperty
     {
-        void Update();
+        List<VisualEffectPoint> Points { get; }
+
+        void Apply(object state);
+        
+        void Update(float multiplier, object from, object to);
+
+        object GetDefault();
     }
 
-    public abstract class AbstractVisualProperty<T> : IVisualUpdatable
+    public abstract class AbstractVisualProperty<T> : IVisualProperty
     {
-        private ITimingFunction _timingFunction;
-        private float _initialTime;
-        private float _targetTime;
-        protected T Initial;
-        protected T Target;
+        private List<VisualEffectPoint> _points = new();
+
+        public List<VisualEffectPoint> Points => _points;
+
+        public abstract T Default { get; set; }
         
-        public abstract T Value { get; set; }
+        protected abstract void Apply(T state);
 
-        protected abstract void OnUpdate(float multiplier);
+        protected abstract void Update(float multiplier, T from, T to);
 
-        public void Update()
+        public void Apply(object state)
         {
-            if (_timingFunction == null) return;
-            
-            float time = (Time.time - _initialTime) / (_targetTime - _initialTime);
-            float multiplier = _timingFunction.Get(time);
-                
-            if (time >= 1) _timingFunction = null;
-
-            OnUpdate(Math.Max(0, Math.Min(1, multiplier)));
+            if (state is not T stateCasted) return;
+            Apply(stateCasted);
         }
         
-        public void BeginTransition(T value, float duration, ITimingFunction timingFunction)
+        public void Update(float multiplier, object from, object to)
         {
-            if (duration == 0)
-            {
-                Value = value;
-                return;
-            }
-            _timingFunction = timingFunction;
-            Initial = Value;
-            _initialTime = Time.time;
-            Target = value;
-            _targetTime = _initialTime + duration;
+            if (from is not T fromCasted || to is not T toCasted) return;
+            Update(multiplier, fromCasted, toCasted);
+        }
+        
+        public object GetDefault()
+        {
+            return Default;
         }
     }
 }

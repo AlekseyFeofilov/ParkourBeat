@@ -2,9 +2,11 @@
 {
     public abstract class AbstractFloatProperty : AbstractVisualProperty<float>
     {
-        protected override void OnUpdate(float multiplier)
+        public override float Default { get; set; }
+
+        protected override void Update(float multiplier, float from, float to)
         {
-            Value = Initial + (Target - Initial) * multiplier;
+            Apply(from + (to - from) * multiplier);
         }
     }
 }

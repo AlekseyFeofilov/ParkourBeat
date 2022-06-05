@@ -29,10 +29,9 @@ namespace VisualEffect.Object
                 _skybox = skybox;
             }
 
-            public override Color Value
+            protected override void Apply(Color state)
             {
-                get => _skybox.material.GetColor(SkyColor);
-                set => _skybox.material.SetColor(SkyColor, value);
+                _skybox.material.SetColor(SkyColor, state);
             }
         }
         
@@ -47,10 +46,9 @@ namespace VisualEffect.Object
                 _skybox = skybox;
             }
 
-            public override Color Value
+            protected override void Apply(Color state)
             {
-                get => _skybox.material.GetColor(HorizonColor);
-                set => _skybox.material.SetColor(HorizonColor, value);
+                _skybox.material.SetColor(HorizonColor, state);
             }
         }
     }
