@@ -22,15 +22,9 @@ namespace MapEditor.Tools
 
         private void Update()
         {
-            var cameraPosition = _camera.transform.position;
-            var position = transform.position;
-            var scale = (float) Math.Sqrt(
-                Math.Pow(cameraPosition.x - position.x, 2) +
-                Math.Pow(cameraPosition.y - position.y, 2) +
-                Math.Pow(cameraPosition.z - position.z, 2)
-            ) / 3;
+            var scale = DistanceBetweenCameraAndTool();
             // ReSharper disable once Unity.InefficientPropertyAccess
-            transform.localScale = new Vector3(scale, scale, scale);
+            transform.localScale = new Vector3(scale, scale, scale) / 3;
 
             if (!Input.GetMouseButton(0) || !_activated)
             {
@@ -73,6 +67,28 @@ namespace MapEditor.Tools
         private static void MoveOz(float speed)
         {
             MainTools.Move(new Vector3(0, 0, speed));
+        }
+
+        private float DistanceBetweenCameraAndTool()
+        {
+            var normal = GetCameraDirection();
+            var position = transform.position;
+            var cameraPosition = _camera.transform.position;
+
+            return (float)(Math.Abs(
+                               normal.x * position.x +
+                               normal.y * position.y +
+                               normal.z * position.z +
+                               -normal.x * cameraPosition.x +
+                               -normal.y * cameraPosition.y +
+                               -normal.z * cameraPosition.z
+                           ) /
+                           Math.Sqrt(Math.Pow(normal.x, 2) + Math.Pow(normal.y, 2) + Math.Pow(normal.z, 2)));
+        }
+
+        private Vector3 GetCameraDirection()
+        {
+            return _camera.transform.forward;
         }
     }
 }
