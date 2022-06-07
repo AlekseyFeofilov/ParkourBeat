@@ -3,15 +3,18 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - OX
+  - OY
+  - OZ
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Selectable Mask
   - Water
   - UI
-  - 
+  - Tool
   - 
   - 
   - 
@@ -40,4 +43,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Selectable Mask
+    uniqueID: 809220673
+    locked: 0
+  - name: Tool
+    uniqueID: 4160840303
     locked: 0
