@@ -3,9 +3,9 @@ using UnityEngine;
 using VisualEffect.Function;
 using VisualEffect.Property;
 
-namespace VisualEffect.Point
+namespace MapEditor.Trigger
 {
-    public class VisualEffectPoint
+    public class EffectTrigger : MonoBehaviour
     {
         // Время, когда нужно применить этот эффект
         public ITime Time;
@@ -28,25 +28,7 @@ namespace VisualEffect.Point
         // Время конца эффекта
         public ITime EndTime => Time + Duration;
 
-        public VisualEffectPoint()
-        {
-        }
-
-        public VisualEffectPoint(
-            ITime time, 
-            ITime duration, 
-            ITimingFunction timingFunction, 
-            IVisualProperty property, 
-            object toState)
-        {
-            Time = time;
-            Duration = duration;
-            TimingFunction = timingFunction;
-            Property = property;
-            ToState = toState;
-        }
-
-        public void Update(double second, ITimeConverter converter)
+        public void UpdateEffect(double second, ITimeConverter converter)
         {
             double begin = Time.ToSecond(converter);
             double end = EndTime.ToSecond(converter);

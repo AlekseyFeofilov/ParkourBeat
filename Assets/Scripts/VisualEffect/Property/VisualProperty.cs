@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using VisualEffect.Point;
+using MapEditor.Trigger;
 
 namespace VisualEffect.Property
 {
@@ -12,7 +12,7 @@ namespace VisualEffect.Property
 
     public interface IVisualProperty
     {
-        List<VisualEffectPoint> Points { get; }
+        List<EffectTrigger> Points { get; }
 
         void Apply(object state);
         
@@ -23,9 +23,9 @@ namespace VisualEffect.Property
 
     public abstract class AbstractVisualProperty<T> : IVisualProperty
     {
-        private List<VisualEffectPoint> _points = new();
+        private List<EffectTrigger> _points = new();
 
-        public List<VisualEffectPoint> Points => _points;
+        public List<EffectTrigger> Points => _points;
 
         public abstract T Default { get; set; }
         
