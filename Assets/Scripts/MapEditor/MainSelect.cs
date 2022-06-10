@@ -43,7 +43,8 @@ public class MainSelect : MonoBehaviour {
 	private OutlinedObject GetObjectByMousePosition()
 	{
 		var ray = _camera.ScreenPointToRay(Input.mousePosition);
-		if (!Physics.Raycast(ray, out var hit, 70, toolMask) &&
+		RaycastHit hit;
+		if (!Physics.Raycast(ray, out hit, 70, toolMask) &&
 		    !Physics.Raycast(ray, out hit, 70, selectableMask)) return null;
 
 		var obj = hit.transform.GetComponent<OutlinedObject>();

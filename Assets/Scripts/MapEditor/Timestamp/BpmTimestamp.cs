@@ -1,12 +1,17 @@
-﻿using UnityEngine;
-
-namespace MapEditor.Trigger
+﻿namespace MapEditor.Timestamp
 {
-    public class BpmTrigger : MonoBehaviour
+    public class BpmTimestamp
     {
-        public double Second;
-        public double Bpm;
-        public double Beat;
+        public readonly double Second;
+        public readonly double Bpm;
+        public readonly double Beat;
+
+        public BpmTimestamp(double second, double bpm, double beat)
+        {
+            Second = second;
+            Bpm = bpm;
+            Beat = beat;
+        }
 
         public double GetSecond(double beat)
         {

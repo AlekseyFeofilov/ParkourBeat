@@ -1,8 +1,10 @@
 using System;
 using MapEditor.Timestamp;
+using MapEditor.Trigger;
 using UnityEngine;
 using VisualEffect.Function;
 using VisualEffect.Object;
+using VisualEffect.Property;
 
 namespace MapEditor
 {
@@ -16,15 +18,18 @@ namespace MapEditor
         
         [SerializeField]
         private AudioSource soundSource;
-        
-        [SerializeField]
-        private GameObject wallPrefab;
 
         [SerializeField]
         private Camera player;
         
         [SerializeField]
         private SkyObject skyObject;
+        
+        [SerializeField]
+        private GameObject wallPrefab;
+
+        [SerializeField]
+        private GameObject triggerPrefab;
         
         private GameObject _wall;
         private int _lastBeat = -1;
@@ -42,14 +47,14 @@ namespace MapEditor
             timeline.AddSpeedPoint(ITime.OfBeat(49), 5);
             timeline.AddSpeedPoint(ITime.OfBeat(193), 1);
 
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.Zero, 
                 ITime.OfSecond(.5f),
                 ITimingFunction.Ease,
                 skyObject.SkyColor,
                 Color.black
             );
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.Zero,
                 ITime.OfSecond(.5f),
                 ITimingFunction.Ease,
@@ -57,28 +62,28 @@ namespace MapEditor
                 Color.black
             );
 
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(33), 
                 ITime.OfBeat(1),
                 ITimingFunction.Ease,
                 skyObject.HorizonColor,
                 Color.magenta
             );
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(37), 
                 ITime.OfBeat(1),
                 ITimingFunction.Ease,
                 skyObject.HorizonColor,
                 new Color(.48f, 0, 1)
             );
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(41), 
                 ITime.OfBeat(1),
                 ITimingFunction.Ease,
                 skyObject.HorizonColor,
                 Color.blue
             );
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(45), 
                 ITime.OfBeat(4),
                 ITimingFunction.Linear,
@@ -86,28 +91,28 @@ namespace MapEditor
                 Color.black
             );
             
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(1), 
                 ITime.OfBeat(7),
                 ITimingFunction.Linear,
                 skyObject.SkyColor,
                 Color.yellow
             );
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(8), 
                 ITime.OfBeat(8),
                 ITimingFunction.Linear,
                 skyObject.SkyColor,
                 Color.black
             );
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(16), 
                 ITime.OfBeat(8),
                 ITimingFunction.Linear,
                 skyObject.HorizonColor,
                 Color.yellow
             );
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(24), 
                 ITime.OfBeat(8),
                 ITimingFunction.Linear,
@@ -118,136 +123,136 @@ namespace MapEditor
             // Разгон
             for (int k = 0; k < 2; k++)
             {
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(49 + k*16),
                     ITime.Zero,
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     Color.magenta
                 );
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(49 + k*16),
                     ITime.OfBeat(.9),
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     new Color(.17f, 0, .36f)
-                );
+                ).AddZ(-1f);
                 for (double i = 50; i < 53; i += 0.5)
                 {
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.Zero,
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.27f, 0, .57f)
                     );
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.OfBeat(.5),
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.17f, 0, .36f)
-                    );
+                    ).AddZ(-1f);
                 }
 
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(53 + k*16),
                     ITime.Zero,
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     new Color(.64f, .11f, .37f)
                 );
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(53 + k*16),
                     ITime.OfBeat(.9),
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     new Color(.18f, .12f, .17f)
-                );
+                ).AddZ(-1f);
                 for (double i = 54; i < 57; i += 0.5)
                 {
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.Zero,
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.29f, .13f, .26f)
                     );
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.OfBeat(.5),
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.18f, .12f, .17f)
-                    );
+                    ).AddZ(-1f);
                 }
 
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(57 + k*16),
                     ITime.Zero,
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     new Color(.19f, .49f, .67f)
                 );
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(57 + k*16),
                     ITime.OfBeat(.9),
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     new Color(.11f, .16f, .19f)
-                );
+                ).AddZ(-1f);
                 for (double i = 58; i < 61; i += 0.5)
                 {
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.Zero,
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.16f, .25f, .31f)
                     );
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.OfBeat(.5),
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.11f, .16f, .19f)
-                    );
+                    ).AddZ(-1f);
                 }
 
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(61 + k*16),
                     ITime.Zero,
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     new Color(.25f, .31f, .83f)
                 );
-                timeline.AddEffectPoint(
+                CreateEffectTrigger(
                     ITime.OfBeat(61 + k*16),
                     ITime.OfBeat(.9),
                     ITimingFunction.Linear,
                     skyObject.HorizonColor,
                     new Color(.11f, .12f, .23f)
-                );
+                ).AddZ(-1f);
                 for (double i = 62; i < 65; i += 0.5)
                 {
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.Zero,
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.16f, .18f, .40f)
                     );
-                    timeline.AddEffectPoint(
+                    CreateEffectTrigger(
                         ITime.OfBeat(i + k*16),
                         ITime.OfBeat(.5),
                         ITimingFunction.Linear,
                         skyObject.HorizonColor,
                         new Color(.11f, .12f, .23f)
-                    );
+                    ).AddZ(-1f);
                 }
             }
 
-            timeline.AddEffectPoint(
+            CreateEffectTrigger(
                 ITime.OfBeat(81), 
                 ITime.OfBeat(2),
                 ITimingFunction.Ease,
@@ -329,6 +334,69 @@ namespace MapEditor
             _wall = null;
             
             songSource.Stop();
+        }
+        
+        /*private SpeedTimestamp CreateSpeedTrigger(
+            ITime time, 
+            double second,
+            double speed,
+            double x)
+        {
+            var position = transform.position;
+            Vector3 vectorPos = new((float) x, position.y, position.z);
+            GameObject gameObj = Instantiate(triggerPrefab, vectorPos, Quaternion.identity);
+            gameObj.transform.parent = transform;
+            
+            SpeedTimestamp timestamp = new()
+            {
+                Timeline = this,
+                Time = time,
+                Second = second,
+                Speed = speed,
+                Position = x
+            };
+            return timestamp;
+        }*/
+        
+        /*private BpmTimestamp CreateBpmTrigger(
+            double second,
+            double bpm,
+            double beat)
+        {
+            float x = (float) GetPositionBySecond(second);
+            var position = transform.position;
+            Vector3 vectorPos = new(x, position.y, position.z);
+            GameObject gameObj = Instantiate(triggerPrefab, vectorPos, Quaternion.identity);
+            gameObj.transform.parent = transform;
+            
+            BpmTimestamp timestamp = new()
+            {
+                Timeline = this,
+                Second = second,
+                Bpm = bpm,
+                Beat = beat
+            };
+            return timestamp;
+        }*/
+        
+        private EffectTrigger CreateEffectTrigger(
+            ITime time,
+            ITime duration,
+            ITimingFunction function,
+            IVisualProperty property,
+            object state)
+        {
+            GameObject gameObj = Instantiate(triggerPrefab, Vector3.zero * 1, Quaternion.identity);
+            gameObj.transform.parent = transform;
+
+            EffectTimestamp timestamp = 
+                timeline.AddEffectPoint(time, duration, function, property, state);
+            
+            EffectTrigger trigger = gameObj.AddComponent<EffectTrigger>();
+            trigger.Timeline = timeline;
+            trigger.Timestamp = timestamp;
+                
+            return trigger;
         }
     }
 }

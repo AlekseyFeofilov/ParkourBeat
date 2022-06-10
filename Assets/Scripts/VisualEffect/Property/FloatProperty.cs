@@ -4,9 +4,9 @@
     {
         public override float Default { get; set; }
 
-        protected override void Update(float multiplier, float from, float to)
+        protected override float Calculate(float multiplier, float from, float to)
         {
-            Apply(from + (to - from) * multiplier);
+            return from + (to - from) * multiplier;
         }
     }
 }

@@ -31,5 +31,31 @@ namespace Utils
             }
             return -1;
         }
+
+        public static int FindPrevoius<T>(IList<T> list, int index, Func<T, bool> condition)
+        {
+            for (int i = index - 1; i >= 0; i--)
+            {
+                if (condition.Invoke(list[i]))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+        
+        public static int FindNext<T>(IList<T> list, int index, Func<T, bool> condition)
+        {
+            for (int i = index + 1; i < list.Count; i++)
+            {
+                if (condition.Invoke(list[i]))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
     }
 }

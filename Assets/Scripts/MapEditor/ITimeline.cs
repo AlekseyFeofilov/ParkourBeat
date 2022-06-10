@@ -1,13 +1,12 @@
 ﻿using MapEditor.Timestamp;
-using MapEditor.Trigger;
 using VisualEffect.Function;
 using VisualEffect.Property;
 
 namespace MapEditor
 {
-    public interface ITimeline
+    public interface ITimeline : ITimeConverter
     {
-        public SpeedTrigger AddSpeedPoint(ITime time, double speed);
+        public SpeedTimestamp AddSpeedPoint(ITime time, double speed);
 
         public void RemoveSpeedPoint(ITime time);
 
@@ -15,7 +14,7 @@ namespace MapEditor
 
         public double GetSecondByPosition(double position);
 
-        public BpmTrigger AddBpmPoint(BaseTime time, double bpm);
+        public BpmTimestamp AddBpmPoint(BaseTime time, double bpm);
 
         public void RemoveBpmPoint(BaseTime time);
 
@@ -23,14 +22,14 @@ namespace MapEditor
 
         public double GetSecondByBeat(double beat);
 
-        public EffectTrigger AddEffectPoint(
+        public EffectTimestamp AddEffectPoint(
             ITime time,
             ITime duration,
             ITimingFunction function,
             IVisualProperty property,
             object state);
 
-        public void RemoveEffectPoint(EffectTrigger effect);
+        public void RemoveEffectPoint(EffectTimestamp effect);
 
         public void Move(double second);
 

@@ -6,11 +6,11 @@ namespace VisualEffect.Property
     {
         public override Vector2 Default { get; set; } = new(0, 0);
 
-        protected override void Update(float multiplier, Vector2 from, Vector2 to)
+        protected override Vector2 Calculate(float multiplier, Vector2 from, Vector2 to)
         {
             float x = from.x + (to.x - from.x) * multiplier;
             float y = from.y + (to.y - from.y) * multiplier;
-            Apply(new Vector2(x, y));
+            return new Vector2(x, y);
         }
     }
     
@@ -18,12 +18,12 @@ namespace VisualEffect.Property
     {
         public override Vector3 Default { get; set; } = new(0, 0, 0);
 
-        protected override void Update(float multiplier, Vector3 from, Vector3 to)
+        protected override Vector3 Calculate(float multiplier, Vector3 from, Vector3 to)
         {
             float x = from.x + (to.x - from.x) * multiplier;
             float y = from.y + (to.y - from.y) * multiplier;
             float z = from.z + (to.z - from.z) * multiplier;
-            Apply(new Vector3(x, y, z));
+            return new Vector3(x, y, z);
         }
     }
     
@@ -31,13 +31,13 @@ namespace VisualEffect.Property
     {
         public override Vector4 Default { get; set; } = new(0, 0, 0, 0);
 
-        protected override void Update(float multiplier, Vector4 from, Vector4 to)
+        protected override Vector4 Calculate(float multiplier, Vector4 from, Vector4 to)
         {
             float x = from.x + (to.x - from.x) * multiplier;
             float y = from.y + (to.y - from.y) * multiplier;
             float z = from.z + (to.z - from.z) * multiplier;
             float w = from.w + (to.w - from.w) * multiplier;
-            Apply(new Vector4(x, y, z, w));
+            return new Vector4(x, y, z, w);
         }
     }
 }

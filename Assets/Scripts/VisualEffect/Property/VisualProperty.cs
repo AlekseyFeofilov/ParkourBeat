@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using MapEditor.Trigger;
 
 namespace VisualEffect.Property
 {
@@ -12,37 +10,33 @@ namespace VisualEffect.Property
 
     public interface IVisualProperty
     {
-        List<EffectTrigger> Points { get; }
-
         void Apply(object state);
-        
-        void Update(float multiplier, object from, object to);
+
+        object Calculate(float multiplier, object from, object to);
 
         object GetDefault();
     }
 
     public abstract class AbstractVisualProperty<T> : IVisualProperty
     {
-        private List<EffectTrigger> _points = new();
-
-        public List<EffectTrigger> Points => _points;
-
         public abstract T Default { get; set; }
         
         protected abstract void Apply(T state);
 
-        protected abstract void Update(float multiplier, T from, T to);
+        protected abstract T Calculate(float multiplier, T from, T to);
+
+        public object Calculate(float multiplier, object from, object to)
+        {
+            if (from is not T fromCasted || to is not T toCasted) 
+                throw new InvalidCastException();
+            return Calculate(multiplier, fromCasted, toCasted);
+        }
 
         public void Apply(object state)
         {
-            if (state is not T stateCasted) return;
+            if (state is not T stateCasted)
+                throw new InvalidCastException();
             Apply(stateCasted);
-        }
-        
-        public void Update(float multiplier, object from, object to)
-        {
-            if (from is not T fromCasted || to is not T toCasted) return;
-            Update(multiplier, fromCasted, toCasted);
         }
         
         public object GetDefault()

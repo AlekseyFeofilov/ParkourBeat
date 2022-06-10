@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MapEditor.Timestamp;
-using MapEditor.Trigger;
 using Serialization.Data;
 using UnityEngine;
 using Utils;
@@ -11,16 +10,16 @@ using VisualEffect.Property;
 
 namespace MapEditor
 {
-    public class Timeline : MonoBehaviour, ITimeConverter, ITimeline
+    public class Timeline : MonoBehaviour, ITimeline
     {
         private const double PlaneScale = 10.0;
         
-        private readonly List<BpmTrigger> _bpmPoints = new();
-        private readonly List<SpeedTrigger> _speedPoints = new();
-        private readonly List<EffectTrigger> _beginSortedEffectPoints = new();
-        private readonly List<EffectTrigger> _endSortedEffectPoints = new();
+        private readonly List<BpmTimestamp> _bpmPoints = new();
+        private readonly List<SpeedTimestamp> _speedPoints = new();
+        private readonly List<EffectTimestamp> _beginSortedEffectPoints = new();
+        private readonly List<EffectTimestamp> _endSortedEffectPoints = new();
         
-        private readonly ISet<EffectTrigger> _activeEffects = new HashSet<EffectTrigger>();
+        private readonly ISet<EffectTimestamp> _activeEffects = new HashSet<EffectTimestamp>();
         private int _indexByBeginSorted;
         private int _indexByEndSorted;
         private double _lastSecond;
@@ -33,9 +32,6 @@ namespace MapEditor
         
         [SerializeField]
         private GameObject bpmPrefab;
-        
-        [SerializeField]
-        private GameObject triggerPrefab;
 
         [SuppressMessage("ReSharper", "Unity.InefficientPropertyAccess")]
         [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
@@ -112,7 +108,7 @@ namespace MapEditor
             }
         }
                 
-        public SpeedTrigger AddSpeedPoint(ITime time, double speed)
+        public SpeedTimestamp AddSpeedPoint(ITime time, double speed)
         {
             double second = time.ToSecond(this);
             int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
@@ -120,7 +116,7 @@ namespace MapEditor
             double position = index < 0 ? 0 : _speedPoints[index]
                 .GetPosition(second);
             
-            SpeedTrigger point = CreateSpeedTrigger(time, second, speed, position);
+            SpeedTimestamp point = new(time, second, speed, position);
             _speedPoints.Insert(index + 1, point);
             RecalcSpeedPointsFromIndex(index + 2);
             return point;
@@ -141,21 +137,23 @@ namespace MapEditor
         {
             for (int i = index; i < _speedPoints.Count; i++)
             {
-                double currentSecond = _speedPoints[i].Second;
-                _speedPoints[i].Position = _speedPoints[i - 1]
-                    .GetPosition(currentSecond);
+                ITime time = _speedPoints[i].Time;
+                double second = _speedPoints[i].Second;
+                double speed = _speedPoints[i].Speed;
+                double position = _speedPoints[i - 1].GetPosition(second);
+                _speedPoints[i] = new SpeedTimestamp(time, second, speed, position);
                 // TODO move position
             }
         }
 
         public double GetPositionBySecond(double second)
         {
-            SpeedTrigger point = SearchSpeedPointBySecond(second);
+            SpeedTimestamp point = SearchSpeedPointBySecond(second);
             if (point == null) return -1;
             return point.GetPosition(second);
         }
 
-        private SpeedTrigger SearchSpeedPointBySecond(double second)
+        private SpeedTimestamp SearchSpeedPointBySecond(double second)
         {
             int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
                 e => e.Time.ToSecond(this), second);
@@ -165,12 +163,12 @@ namespace MapEditor
 
         public double GetSecondByPosition(double position)
         {
-            SpeedTrigger point = SearchSpeedPointByPosition(position);
+            SpeedTimestamp point = SearchSpeedPointByPosition(position);
             if (point == null) return -1;
             return point.GetSecond(position);
         }
         
-        private SpeedTrigger SearchSpeedPointByPosition(double position)
+        private SpeedTimestamp SearchSpeedPointByPosition(double position)
         {
             int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
                 e => e.Position, position);
@@ -178,7 +176,7 @@ namespace MapEditor
             return _speedPoints[index];
         }
         
-        public BpmTrigger AddBpmPoint(BaseTime time, double bpm)
+        public BpmTimestamp AddBpmPoint(BaseTime time, double bpm)
         {
             double second;
             double beat;
@@ -202,7 +200,7 @@ namespace MapEditor
                     throw new InvalidOperationException("unsupported time unit: " + time.Unit);
             }
             
-            BpmTrigger point = CreateBpmTrigger(second, bpm, beat);
+            BpmTimestamp point = new(second, bpm, beat);
             _bpmPoints.Insert(index + 1, point);
             RecalcBpmPointsFromIndex(index + 2);
             RecalcSpeedPointsAfterBpmChange();
@@ -237,9 +235,10 @@ namespace MapEditor
         {
             for (int i = index; i < _bpmPoints.Count; i++)
             {
-                double currentSecond = _bpmPoints[i].Second;
-                _bpmPoints[i].Beat = _bpmPoints[i - 1]
-                    .GetBeat(currentSecond);
+                double second = _bpmPoints[i].Second;
+                double bpm = _bpmPoints[i].Bpm;
+                double beat = _bpmPoints[i - 1].GetBeat(second);
+                _bpmPoints[i] = new BpmTimestamp(second, bpm, beat);
                 // TODO move position
             }
         }
@@ -251,22 +250,23 @@ namespace MapEditor
         {
             for (int i = 1; i < _speedPoints.Count; i++)
             {
-                ITime currentTime = _speedPoints[i].Time;
-                double currentSecond = currentTime.ToSecond(this);
-                _speedPoints[i].Position = _speedPoints[i - 1]
-                    .GetPosition(currentSecond);
+                ITime time = _speedPoints[i].Time;
+                double second = time.ToSecond(this);
+                double speed = _speedPoints[i].Speed;
+                double position = _speedPoints[i - 1].GetPosition(second);
+                _speedPoints[i] = new SpeedTimestamp(time, second, speed, position);
                 // TODO move position
             }
         }
         
         public double GetBeatBySecond(double second)
         {
-            BpmTrigger point = SearchBpmPointBySecond(second);
+            BpmTimestamp point = SearchBpmPointBySecond(second);
             if (point == null) return -1;
             return point.GetBeat(second);
         }
 
-        private BpmTrigger SearchBpmPointBySecond(double second)
+        private BpmTimestamp SearchBpmPointBySecond(double second)
         {
             int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, 
                 e => e.Second, second);
@@ -276,12 +276,12 @@ namespace MapEditor
 
         public double GetSecondByBeat(double beat)
         {
-            BpmTrigger point = SearchBpmPointByBeat(beat);
+            BpmTimestamp point = SearchBpmPointByBeat(beat);
             if (point == null) return -1;
             return point.GetSecond(beat);
         }
 
-        private BpmTrigger SearchBpmPointByBeat(double beat)
+        private BpmTimestamp SearchBpmPointByBeat(double beat)
         {
             int index = CollectionUtils.SearchBinaryInRangeList(_bpmPoints, 
                 e => e.Beat, beat);
@@ -289,65 +289,82 @@ namespace MapEditor
             return _bpmPoints[index];
         }
 
-        public EffectTrigger AddEffectPoint(
+        public EffectTimestamp AddEffectPoint(
             ITime time,
             ITime duration,
             ITimingFunction function,
             IVisualProperty property,
             object state)
         {
-            EffectTrigger effect = CreateEffectTrigger(time, duration, function, property, state);
+            EffectTimestamp effect = new(time, duration, function, property, state);
             
-            // Добавляем эффект в общий список
-            ITime begin = effect.Time;
-            ITime end = effect.Time + effect.Duration;
+            ITime begin = effect.BeginTime;
+            ITime end = effect.BeginTime + effect.Duration;
             
             double beginSecond = begin.ToSecond(this);
             double endSecond = end.ToSecond(this);
             
             int beginIndex = CollectionUtils.SearchBinaryInRangeList(_beginSortedEffectPoints, 
-                e => e.Time.ToSecond(this), beginSecond);
+                e => e.BeginTime.ToSecond(this), beginSecond);
             int endIndex = CollectionUtils.SearchBinaryInRangeList(_endSortedEffectPoints, 
-                e => e.Time.ToSecond(this), endSecond);
+                e => e.EndTime.ToSecond(this), endSecond);
             
+            // Добавляем эффект в общий список
             _beginSortedEffectPoints.Insert(beginIndex + 1, effect);
             _endSortedEffectPoints.Insert(endIndex + 1, effect);
             
             // Добавляем эффект в список свойства
-            // TODO если сложность O(n), то какой смысл в доп. списке?
-            var points = effect.Property.Points;
-            int index = CollectionUtils.SearchBinaryInRangeList(points, 
-                e => e.Time.ToSecond(this), beginSecond);
+            int prevoiusIndex = CollectionUtils.FindPrevoius(_beginSortedEffectPoints, beginIndex + 1,
+                e => e.Property == property);
+            int nextIndex = CollectionUtils.FindNext(_beginSortedEffectPoints, beginIndex + 1,
+                e => e.Property == property);
 
-            if (index < 0) effect.FromState = effect.Property.GetDefault();
-            else effect.FromState = points[index].ToState;
-            if (index + 1 < points.Count) points[index + 1].FromState = effect.ToState;
-            
-            points.Insert(index + 1, effect);
+            effect.FromState = prevoiusIndex < 0
+                ? effect.Property.GetDefault()
+                : _beginSortedEffectPoints[prevoiusIndex].CalculateState(beginSecond, this);
+                //: _beginSortedEffectPoints[prevoiusIndex].ToState;
+            if (nextIndex >= 0)
+            {
+                ITime nextBeginTime = _beginSortedEffectPoints[nextIndex].BeginTime;
+                double nextBeginSecond = nextBeginTime.ToSecond(this);
+                
+                _beginSortedEffectPoints[nextIndex].FromState
+                    = effect.CalculateState(nextBeginSecond, this);
+                    //= effect.ToState;
+            }
+
             return effect;
         }
 
-        public void RemoveEffectPoint(EffectTrigger effect)
+        public void RemoveEffectPoint(EffectTimestamp effect)
         {
             // Убираем эффект из общего списка
-            _beginSortedEffectPoints.Remove(effect);
-            _endSortedEffectPoints.Remove(effect);
+            int beginIndex = _beginSortedEffectPoints.IndexOf(effect);
+            int endIndex = _endSortedEffectPoints.IndexOf(effect);
             
+            _beginSortedEffectPoints.RemoveAt(beginIndex);
+            _endSortedEffectPoints.RemoveAt(endIndex);
+
             // Убираем эффект из списка свойства
-            // TODO если сложность O(n), то какой смысл в доп. списке?
-            var points = effect.Property.Points;
-            int index = points.BinarySearch(effect);
+            int prevoiusIndex = CollectionUtils.FindPrevoius(_beginSortedEffectPoints, beginIndex + 1,
+                e => e.Property == effect.Property);
+            int nextIndex = CollectionUtils.FindNext(_beginSortedEffectPoints, beginIndex - 1,
+                e => e.Property == effect.Property);
 
-            if (index > 0 && index + 1 < points.Count)
+            switch (prevoiusIndex)
             {
-                points[index + 1].FromState = points[index - 1].ToState;
+                case >= 0 when nextIndex >= 0:
+                    ITime begin = _beginSortedEffectPoints[nextIndex].BeginTime;
+                    double beginSecond = begin.ToSecond(this);
+                    
+                    _beginSortedEffectPoints[nextIndex].FromState 
+                        = _beginSortedEffectPoints[prevoiusIndex].CalculateState(beginSecond, this);
+                    break;
+                case < 0 when nextIndex >= 0:
+                    _beginSortedEffectPoints[nextIndex].FromState 
+                        = effect.Property.GetDefault();
+                    break;
             }
-            else if (index == 0 && index + 1 < points.Count)
-            {
-                points[index + 1].FromState = effect.Property.GetDefault();
-            }
-
-            points.RemoveAt(index);
         }
 
         public void Move(double second)
@@ -359,7 +376,9 @@ namespace MapEditor
 
         public void ResetMove()
         {
+            _activeEffects.Clear();
             Move(0);
+            // TODO может сразу после Move(0) устанавливать Move(target), где target - какое время надо установить
         }
 
         private void MoveForth(double second)
@@ -368,7 +387,7 @@ namespace MapEditor
             var endSorted = _endSortedEffectPoints;
 
             while (_indexByBeginSorted < beginSorted.Count &&
-                   beginSorted[_indexByBeginSorted].Time.ToSecond(this) <= second)
+                   beginSorted[_indexByBeginSorted].BeginTime.ToSecond(this) <= second)
             {
                 _activeEffects.Add(beginSorted[_indexByBeginSorted++]);
             }
@@ -402,7 +421,7 @@ namespace MapEditor
             }
                         
             while (_indexByBeginSorted - 1 >= 0 &&
-                   beginSorted[_indexByBeginSorted - 1].Time.ToSecond(this) > second)
+                   beginSorted[_indexByBeginSorted - 1].BeginTime.ToSecond(this) > second)
             {
                 _activeEffects.Remove(beginSorted[_indexByBeginSorted-- - 1]);
             }
@@ -432,62 +451,6 @@ namespace MapEditor
                 default:
                     throw new InvalidOperationException("unsupported time unit: " + time.Unit);
             }
-        }
-
-        private SpeedTrigger CreateSpeedTrigger(
-            ITime time, 
-            double second,
-            double speed,
-            double x)
-        {
-            var position = transform.position;
-            Vector3 vectorPos = new((float) x, position.y, position.z);
-            GameObject gameObj = Instantiate(triggerPrefab, vectorPos, Quaternion.identity);
-            SpeedTrigger trigger = gameObj.AddComponent<SpeedTrigger>();
-            
-            trigger.Time = time;
-            trigger.Second = second;
-            trigger.Speed = speed;
-            trigger.Position = x;
-            return trigger;
-        }
-        
-        private BpmTrigger CreateBpmTrigger(
-            double second,
-            double bpm,
-            double beat)
-        {
-            float x = (float) GetPositionBySecond(second);
-            var position = transform.position;
-            Vector3 vectorPos = new(x, position.y, position.z);
-            GameObject gameObj = Instantiate(triggerPrefab, vectorPos, Quaternion.identity);
-            BpmTrigger trigger = gameObj.AddComponent<BpmTrigger>();
-            
-            trigger.Second = second;
-            trigger.Bpm = bpm;
-            trigger.Beat = beat;
-            return trigger;
-        }
-        
-        private EffectTrigger CreateEffectTrigger(
-            ITime time,
-            ITime duration,
-            ITimingFunction function,
-            IVisualProperty property,
-            object state)
-        {
-            float x = (float) GetPositionBySecond(time.ToSecond(this));
-            var position = transform.position;
-            Vector3 vectorPos = new(x, position.y, position.z);
-            GameObject gameObj = Instantiate(triggerPrefab, vectorPos, Quaternion.identity);
-            EffectTrigger trigger = gameObj.AddComponent<EffectTrigger>();
-            
-            trigger.Time = time;
-            trigger.Duration = duration;
-            trigger.TimingFunction = function;
-            trigger.Property = property;
-            trigger.ToState = state;
-            return trigger;
         }
     }
 }
