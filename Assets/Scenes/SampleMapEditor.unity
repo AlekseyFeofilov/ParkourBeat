@@ -465,6 +465,7 @@ MonoBehaviour:
   toolMask:
     serializedVersion: 2
     m_Bits: 64
+  emptyObject: {fileID: 4358790393149043017, guid: 6e6e1c99b85f87647b20754ade3416db, type: 3}
   mainTools: {fileID: 1729957157}
 --- !u!4 &1249602595
 Transform:
@@ -701,8 +702,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   toolMode: 3
   moveTool: {fileID: 5631104124032155365, guid: 2ac501bdfad2c374c93ee593858633c1, type: 3}
-  rotateTool: {fileID: 0}
-  scaleTool: {fileID: 0}
+  rotateTool: {fileID: 5631104124032155365, guid: ca2a4b39bba4e9045b7d71178127005b, type: 3}
+  scaleTool: {fileID: 5631104124032155365, guid: ea6d0e6539afeea4e82aba0fa13977d2, type: 3}
 --- !u!4 &1729957158
 Transform:
   m_ObjectHideFlags: 0
