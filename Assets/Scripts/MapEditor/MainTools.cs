@@ -35,21 +35,33 @@ namespace MapEditor
 
         private GameObject _currentTool;
 
+        private static Vector3 _position;
+        private static Quaternion _rotation;
+        private static Vector3 _scale;
+
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Z))
+            if (toolMode != Mode.None)
             {
-                ToolMode = Mode.MoveTool;
-            }
+                if (Input.GetKeyDown(KeyCode.Z))
+                {
+                    ToolMode = Mode.MoveTool;
+                }
 
-            if (Input.GetKeyDown(KeyCode.X))
-            {
-                ToolMode = Mode.RotateTool;
-            }
+                if (Input.GetKeyDown(KeyCode.X))
+                {
+                    ToolMode = Mode.RotateTool;
+                }
 
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                ToolMode = Mode.ScaleTool;
+                if (Input.GetKeyDown(KeyCode.C))
+                {
+                    ToolMode = Mode.ScaleTool;
+                }
+
+                if (Input.GetKeyDown(KeyCode.Z) && Input.GetKey(KeyCode.LeftControl))
+                {
+                    RollBack();
+                }
             }
 
             if (!_needsUpdate) return;
@@ -121,6 +133,24 @@ namespace MapEditor
         {
             if (!MainSelect.SelectedObj) return;
             MainSelect.SelectedObj.transform.localScale += scaling;
+        }
+
+        public static void Save()
+        {
+            if (!MainSelect.SelectedObj) return;
+            var obj = MainSelect.SelectedObj.transform.parent;
+            _position = obj.position;
+            _rotation = obj.rotation;
+            _scale = obj.localScale;
+        }
+        
+        private static void RollBack()
+        {
+            if (!MainSelect.SelectedObj) return;
+            var obj = MainSelect.SelectedObj.transform.parent;
+            obj.position = _position;
+            obj.rotation = _rotation;
+            obj.localScale = _scale;
         }
     }
 }

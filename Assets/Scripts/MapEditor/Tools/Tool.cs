@@ -4,7 +4,7 @@ namespace MapEditor.Tools
 {
     public abstract class Tool : ActivatingObject
     {
-        protected bool Activated;
+        private bool _activated;
         
         [SerializeField] private float speedBooster = 1f;
         [SerializeField] protected float rotateSpeed = 1f;
@@ -28,8 +28,9 @@ namespace MapEditor.Tools
         protected override void OnMouseDown()
         {
             base.OnMouseDown();
-            
-            Activated = true;
+
+            MainTools.Save();
+            _activated = true;
             CalculateProperties();
             _offset = Input.mousePosition;
         }
@@ -38,12 +39,12 @@ namespace MapEditor.Tools
         {
             base.OnMouseUp();
             
-            Activated = false;
+            _activated = false;
         }
 
         private void Update()
         {
-            if (!Activated) return;
+            if (!_activated) return;
             
             CalculateProperties();
             CalculateChanges();
