@@ -29,7 +29,7 @@ namespace MapEditor
         private GameObject wallPrefab;
 
         [SerializeField]
-        private GameObject triggerPrefab;
+        private EffectTrigger effectTriggerPrefab;
         
         private GameObject _wall;
         private int _lastBeat = -1;
@@ -386,13 +386,13 @@ namespace MapEditor
             IVisualProperty property,
             object state)
         {
-            GameObject gameObj = Instantiate(triggerPrefab, Vector3.zero * 1, Quaternion.identity);
+            GameObject gameObj = Instantiate(effectTriggerPrefab.gameObject, Vector3.zero * 1, Quaternion.identity);
             gameObj.transform.parent = transform;
 
             EffectTimestamp timestamp = 
-                timeline.AddEffectPoint(time, duration, function, property, state);
+                timeline.AddEffectPoint(time, time + duration, function, property, state);
             
-            EffectTrigger trigger = gameObj.AddComponent<EffectTrigger>();
+            EffectTrigger trigger = gameObj.GetComponent<EffectTrigger>();
             trigger.Timeline = timeline;
             trigger.Timestamp = timestamp;
                 

@@ -1,61 +1,64 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using MapEditor.Timestamp;
 using MapEditor.Utils;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace MapEditor.Trigger
 {
     public class EffectTrigger : MonoBehaviour, IMovable
     {
-        private const float Epsilon = 0.001f;
-
         public ITimeline Timeline;
-
         public EffectTimestamp Timestamp;
         
-        private Vector3 _beginMovePosition;
-        
+        private Transform _fromTransfrom;
+        private Transform _toTransfrom;
+        private Transform _cylinderTransfrom;
+
+        public Vector3 BeginPosition
+        {
+            get => _fromTransfrom.position;
+            set
+            {
+                float x = (_toTransfrom.position.x - value.x) / 2f;
+                _cylinderTransfrom.position = _toTransfrom.position;
+                _cylinderTransfrom.position -= new Vector3(x, 0, 0);
+                _cylinderTransfrom.localScale = new Vector3(_cylinderTransfrom.localScale.x, x, _cylinderTransfrom.localScale.z);
+                _fromTransfrom.position = value;
+            }
+        }
+
+        public Vector3 EndPosition
+        {
+            get => _toTransfrom.position;
+            set
+            {
+                float x = (value.x - _fromTransfrom.position.x) / 2f;
+                _cylinderTransfrom.position = _fromTransfrom.position;
+                _cylinderTransfrom.position += new Vector3(x, 0, 0);
+                _cylinderTransfrom.localScale = new Vector3(_cylinderTransfrom.localScale.x, x, _cylinderTransfrom.localScale.z);
+                _toTransfrom.position = value;
+            }
+        }
+
         [SuppressMessage("ReSharper", "Unity.InefficientPropertyAccess")]
         private void Start()
         {
-            double second = Timestamp.BeginTime.ToSecond(Timeline);
-            float x = (float) Timeline.GetPositionBySecond(second);
-            transform.position = new Vector3(x, transform.position.y, transform.position.z);
+            _fromTransfrom = transform.Find("From");
+            _fromTransfrom.AddComponent<EffectTriggerBegin>();
+            _toTransfrom = transform.Find("To");
+            _toTransfrom.AddComponent<EffectTriggerEnd>();
+            _cylinderTransfrom = transform.Find("Cylinder");
 
-            gameObject.layer = LayerMask.NameToLayer("Selectable Mask");
-            OutlinedObject outlined = gameObject.AddComponent<OutlinedObject>();
-            outlined.OutlineWidth = 0f;
+            double beginSecond = Timestamp.BeginTime.ToSecond(Timeline);
+            float beginX = (float) Timeline.GetPositionBySecond(beginSecond);
+            BeginPosition = new Vector3(beginX, BeginPosition.y, BeginPosition.z);
+
+            double endSecond = Timestamp.EndTime.ToSecond(Timeline);
+            float endX = (float) Timeline.GetPositionBySecond(endSecond);
+            EndPosition = new Vector3(endX, EndPosition.y, EndPosition.z);
         }
 
-        public void OnBeginMove()
-        {
-            _beginMovePosition = transform.position;
-        }
-        
-        public void OnEndMove()
-        {
-            if (Math.Abs(_beginMovePosition.x - transform.position.x) < Epsilon)
-            {
-                return;
-            }
-            
-            Timeline.RemoveEffectPoint(Timestamp);
-
-            ITime time = ITime.OfSecond(Timeline.GetSecondByPosition(transform.position.x));
-            
-            Timestamp = Timeline.AddEffectPoint(
-                time,
-                Timestamp.Duration,
-                Timestamp.TimingFunction,
-                Timestamp.Property,
-                Timestamp.ToState
-                );
-
-            // Обязательно нужно, чтобы не было багов из-за прошлых значений
-            Timeline.ResetMove();
-        }
-        
         public EffectTrigger SetX(float x)
         {
             Vector3 pos = transform.position;

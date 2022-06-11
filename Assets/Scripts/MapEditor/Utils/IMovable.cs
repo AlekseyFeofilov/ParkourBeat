@@ -2,10 +2,19 @@
 {
     public interface IMovable
     {
-        public void OnBeginMove() {}
+        public bool OnBeginMove()
+        {
+            return true;
+        }
 
-        public void OnMove() {}
-        
-        public void OnEndMove() {}
+        public bool OnMove()
+        {
+            return true;
+        }
+
+        public bool OnEndMove()
+        {
+            return true;
+        }
     }
 }

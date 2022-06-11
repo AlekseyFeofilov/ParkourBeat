@@ -3488,7 +3488,7 @@ MonoBehaviour:
   player: {fileID: 649265956}
   skyObject: {fileID: 649265960}
   wallPrefab: {fileID: 3728236607417750662, guid: 4ec5a531ac9f0c1449d00061f60d92c3, type: 3}
-  triggerPrefab: {fileID: 7675644319436378675, guid: 68a155316ece96142b5a4a8cfcf65a57, type: 3}
+  effectTriggerPrefab: {fileID: 1687439715765199229, guid: d940a10642421a047bfdcc47321d6f43, type: 3}
 --- !u!4 &2072864773
 Transform:
   m_ObjectHideFlags: 0

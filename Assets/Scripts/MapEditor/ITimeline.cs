@@ -23,8 +23,8 @@ namespace MapEditor
         public double GetSecondByBeat(double beat);
 
         public EffectTimestamp AddEffectPoint(
-            ITime time,
-            ITime duration,
+            ITime beginTime,
+            ITime endTime,
             ITimingFunction function,
             IVisualProperty property,
             object state);

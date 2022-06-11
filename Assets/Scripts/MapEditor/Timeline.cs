@@ -61,12 +61,6 @@ namespace MapEditor
                     Quaternion.Euler(90, 0, 0)
                     );
                 obj.transform.parent = transform;
-
-                obj = Instantiate(beatPrefab, 
-                    new Vector3((float) pos, position.y + localScale.z / 2, position.z + localScale.z / 2),
-                    Quaternion.identity
-                    );
-                obj.transform.parent = transform;
             }
 
             for (int i = 1; i < _speedPoints.Count; i++)
@@ -80,12 +74,6 @@ namespace MapEditor
                     Quaternion.Euler(90, 0, 0)
                 );
                 obj.transform.parent = transform;
-                
-                obj = Instantiate(speedPrefab, 
-                    new Vector3((float) pos, position.y + localScale.z / 2, position.z + localScale.z / 2),
-                    Quaternion.identity
-                );
-                obj.transform.parent = transform;
             }
             
             for (int i = 1; i < _bpmPoints.Count; i++)
@@ -97,12 +85,6 @@ namespace MapEditor
                 obj = Instantiate(bpmPrefab, 
                     new Vector3((float) pos, position.y + .003f, position.z), 
                     Quaternion.Euler(90, 0, 0)
-                );
-                obj.transform.parent = transform;
-                
-                obj = Instantiate(bpmPrefab, 
-                    new Vector3((float) pos, position.y + localScale.z / 2, position.z + localScale.z / 2),
-                    Quaternion.identity
                 );
                 obj.transform.parent = transform;
             }
@@ -290,16 +272,16 @@ namespace MapEditor
         }
 
         public EffectTimestamp AddEffectPoint(
-            ITime time,
-            ITime duration,
+            ITime beginTime,
+            ITime endTime,
             ITimingFunction function,
             IVisualProperty property,
             object state)
         {
-            EffectTimestamp effect = new(time, duration, function, property, state);
+            EffectTimestamp effect = new(beginTime, endTime, function, property, state);
             
             ITime begin = effect.BeginTime;
-            ITime end = effect.BeginTime + effect.Duration;
+            ITime end = effect.EndTime;
             
             double beginSecond = begin.ToSecond(this);
             double endSecond = end.ToSecond(this);
