@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using MapEditor.ChangeHandlers;
+using UnityEngine;
 using VisualEffect.Property;
 
 namespace VisualEffect.Object
 {
-    public class CubeObject : MonoObject
+    public class CubeObject : MonoObject, IMovable, IRotatable, IScalable
     {
         [VisualPropertyAttribute(Id = "Position")]
         public PositionProperty Position;
@@ -20,6 +21,21 @@ namespace VisualEffect.Object
             Position = new PositionProperty(transform1);
             Rotation = new RotationProperty(transform1);
             Scale = new ScaleProperty(transform1);
+        }
+        
+        public void OnEndMove()
+        {
+            Position.Default = transform.position;
+        }
+
+        public void OnEndRotate()
+        {
+            Rotation.Default = transform.rotation.eulerAngles;
+        }
+
+        public void OnEndScale()
+        {
+            Scale.Default = transform.localScale;
         }
 
         // Позиция

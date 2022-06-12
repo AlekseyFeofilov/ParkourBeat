@@ -26,7 +26,7 @@ namespace Beatmap
         
         protected readonly JsonManager JsonManager = new();
         
-        private void Start()
+        protected virtual void Start()
         {
             if (camera == null) camera = Camera.main;
             if (string.IsNullOrWhiteSpace(beatmapName)) beatmapName = BeatmapManager.CurrentName;

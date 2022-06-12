@@ -4,7 +4,13 @@ namespace VisualEffect.Property
 {
     public abstract class AbstractColorProperty : AbstractVisualProperty<Color>
     {
-        public override Color Default { get; set; } = Color.gray;
+        private Color _default = Color.gray;
+        
+        public override Color Default
+        {
+            get => _default;
+            set => Apply(_default = value);
+        }
 
         protected override Color Calculate(float multiplier, Color from, Color to)
         {

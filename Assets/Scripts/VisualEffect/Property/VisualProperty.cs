@@ -61,7 +61,6 @@ namespace VisualEffect.Property
         {
             if (def is not T defCasted)
                 throw new InvalidCastException();
-            Apply(defCasted);
             Default = defCasted;
         }
     }

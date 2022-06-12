@@ -28,12 +28,15 @@ namespace Beatmap.Object
         {
             if (_objects.KeyMap.TryGetValue(id, out MonoObject obj)) return obj;
 
-            return (type switch
+            obj = (type switch
             {
                 "sky" => throw new InvalidOperationException("sky is single object"),
                 "cube" => Instantiate(cubePrefab, new Vector3(0, 0, 0), Quaternion.identity),
                 _ => throw new InvalidOperationException("unsupported type")
             }).GetComponent<MonoObject>();
+
+            _objects.Add(id, obj);
+            return obj;
         }
 
         public string GetTypeByObject(MonoObject monoObject)

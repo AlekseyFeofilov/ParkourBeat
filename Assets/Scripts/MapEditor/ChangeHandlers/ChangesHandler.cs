@@ -7,6 +7,27 @@ namespace MapEditor.ChangeHandlers
     {
         private bool _activated;
 
+        private void LateUpdate()
+        {
+            if(!MainSelect.SelectedObj || IsChangeable() == null) return;
+            
+            if (Input.GetMouseButton(0))
+            {
+                if (!_activated)
+                {
+                    OnBeginChange();
+                }
+                else OnChange();
+                
+                _activated = true;
+            }
+            else if (_activated)
+            {
+                OnEndChange();
+                _activated = false;
+            }
+        }
+        
         private void OnMouseDown()
         {
             if(!MainSelect.SelectedObj || IsChangeable() == null) return;
@@ -23,13 +44,13 @@ namespace MapEditor.ChangeHandlers
             OnEndChange();
         }
 
-        private void Update()
+        /*private void Update()
         {
             if (_activated)
             {
                 OnChange();
             }
-        }
+        }*/
 
         protected abstract void OnBeginChange();
         protected abstract void OnChange();
