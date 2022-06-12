@@ -57,5 +57,16 @@ namespace Utils
 
             return -1;
         }
+
+        public static Dictionary<int, T> AssociateByIndex<T>(IList<T> list)
+        {
+            Dictionary<int, T> dictionary = new();
+            for (int i = 0; i < list.Count; i++)
+            {
+                dictionary[i] = list[i];
+            }
+
+            return dictionary;
+        }
     }
 }

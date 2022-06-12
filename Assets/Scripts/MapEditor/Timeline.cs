@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Beatmap.Object;
 using MapEditor.Timestamp;
 using Serialization.Data;
 using UnityEngine;
@@ -23,6 +25,9 @@ namespace MapEditor
         private int _indexByBeginSorted;
         private int _indexByEndSorted;
         private double _lastSecond;
+
+        [SerializeField]
+        private ObjectManager objectManager;
         
         [SerializeField]
         private GameObject beatPrefab;
@@ -90,7 +95,7 @@ namespace MapEditor
             }
         }
                 
-        public SpeedTimestamp AddSpeedPoint(ITime time, double speed)
+        public SpeedTimestamp AddSpeedPoint(MapTime time, double speed)
         {
             double second = time.ToSecond(this);
             int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
@@ -104,7 +109,7 @@ namespace MapEditor
             return point;
         }
 
-        public void RemoveSpeedPoint(ITime time)
+        public void RemoveSpeedPoint(MapTime time)
         {
             double second = time.ToSecond(this);
             int index = CollectionUtils.SearchBinaryInRangeList(_speedPoints, 
@@ -119,7 +124,7 @@ namespace MapEditor
         {
             for (int i = index; i < _speedPoints.Count; i++)
             {
-                ITime time = _speedPoints[i].Time;
+                MapTime time = _speedPoints[i].Time;
                 double second = _speedPoints[i].Second;
                 double speed = _speedPoints[i].Speed;
                 double position = _speedPoints[i - 1].GetPosition(second);
@@ -158,7 +163,7 @@ namespace MapEditor
             return _speedPoints[index];
         }
         
-        public BpmTimestamp AddBpmPoint(BaseTime time, double bpm)
+        public BpmTimestamp AddBpmPoint(MapTime time, double bpm)
         {
             double second;
             double beat;
@@ -189,7 +194,7 @@ namespace MapEditor
             return point;
         }
 
-        public void RemoveBpmPoint(BaseTime time)
+        public void RemoveBpmPoint(MapTime time)
         {
             int index;
             
@@ -232,7 +237,7 @@ namespace MapEditor
         {
             for (int i = 1; i < _speedPoints.Count; i++)
             {
-                ITime time = _speedPoints[i].Time;
+                MapTime time = _speedPoints[i].Time;
                 double second = time.ToSecond(this);
                 double speed = _speedPoints[i].Speed;
                 double position = _speedPoints[i - 1].GetPosition(second);
@@ -272,16 +277,16 @@ namespace MapEditor
         }
 
         public EffectTimestamp AddEffectPoint(
-            ITime beginTime,
-            ITime endTime,
+            MapTime beginTime,
+            MapTime endTime,
             ITimingFunction function,
             IVisualProperty property,
             object state)
         {
             EffectTimestamp effect = new(beginTime, endTime, function, property, state);
             
-            ITime begin = effect.BeginTime;
-            ITime end = effect.EndTime;
+            MapTime begin = effect.BeginTime;
+            MapTime end = effect.EndTime;
             
             double beginSecond = begin.ToSecond(this);
             double endSecond = end.ToSecond(this);
@@ -307,7 +312,7 @@ namespace MapEditor
                 //: _beginSortedEffectPoints[prevoiusIndex].ToState;
             if (nextIndex >= 0)
             {
-                ITime nextBeginTime = _beginSortedEffectPoints[nextIndex].BeginTime;
+                MapTime nextBeginTime = _beginSortedEffectPoints[nextIndex].BeginTime;
                 double nextBeginSecond = nextBeginTime.ToSecond(this);
                 
                 _beginSortedEffectPoints[nextIndex].FromState
@@ -336,7 +341,7 @@ namespace MapEditor
             switch (prevoiusIndex)
             {
                 case >= 0 when nextIndex >= 0:
-                    ITime begin = _beginSortedEffectPoints[nextIndex].BeginTime;
+                    MapTime begin = _beginSortedEffectPoints[nextIndex].BeginTime;
                     double beginSecond = begin.ToSecond(this);
                     
                     _beginSortedEffectPoints[nextIndex].FromState 
@@ -409,7 +414,7 @@ namespace MapEditor
             }
         }
 
-        public double ToSecond(BaseTime time)
+        public double ToSecond(MapTime time)
         {
             switch (time.Unit)
             {
@@ -422,7 +427,7 @@ namespace MapEditor
             }
         }
         
-        public double ToBeat(BaseTime time)
+        public double ToBeat(MapTime time)
         {
             switch (time.Unit)
             {
@@ -433,6 +438,74 @@ namespace MapEditor
                 default:
                     throw new InvalidOperationException("unsupported time unit: " + time.Unit);
             }
+        }
+
+        public void SaveData(BeatmapData data)
+        {
+            data.Bpm = (from point in _bpmPoints
+                select new BpmTimestampData
+                {
+                    Second = point.Second,
+                    Bpm = point.Bpm,
+                    Beat = point.Beat
+                }).ToList();
+            
+            data.Speed = (from point in _speedPoints
+                select new SpeedTimestampData
+                {
+                    Time = point.Time,
+                    Second = point.Second,
+                    Speed = point.Speed,
+                    Position = point.Position
+                }).ToList();
+            
+            Dictionary<EffectTimestamp, int> effects = new();
+            for (int i = 0; i < _beginSortedEffectPoints.Count; i++)
+            {
+                data.BeginSortedEffects.Add(new EffectTimestampData
+                {
+                    Index = i,
+                    BeginTime = _beginSortedEffectPoints[i].BeginTime,
+                    EndTime = _beginSortedEffectPoints[i].EndTime,
+                    TimingFunction = _beginSortedEffectPoints[i].TimingFunction,
+                    Property = objectManager.GetIdByProperty(_beginSortedEffectPoints[i].Property),
+                    FromState = new ValueData(_beginSortedEffectPoints[i].FromState),
+                    ToState = new ValueData(_beginSortedEffectPoints[i].ToState),
+                });
+                effects[_beginSortedEffectPoints[i]] = i;
+            }
+
+            foreach (var t in _endSortedEffectPoints)
+            {
+                data.EndSortedEffects.Add(effects[t]);
+            }
+        }
+
+        public void LoadData(BeatmapData data)
+        {
+            _bpmPoints.Clear();
+            _bpmPoints.AddRange(from point in data.Bpm
+                select new BpmTimestamp(point.Second, point.Bpm, point.Beat));
+            
+            _speedPoints.Clear();
+            _speedPoints.AddRange(from point in data.Speed
+                select new SpeedTimestamp(point.Time, point.Second, point.Speed, point.Position));
+            
+            _beginSortedEffectPoints.Clear();
+            _beginSortedEffectPoints.AddRange(from point in data.BeginSortedEffects
+                select new EffectTimestamp(point.BeginTime, point.EndTime)
+                {
+                    TimingFunction = point.TimingFunction, 
+                    Property = objectManager.GetPropertyById(point.Property), 
+                    ToState = point.ToState.Value,
+                    FromState = point.FromState.Value
+                });
+            
+            _endSortedEffectPoints.Clear();
+            _endSortedEffectPoints.AddRange(from index in data.EndSortedEffects
+                select _beginSortedEffectPoints[index]);
+ 
+            ResetMove();
         }
     }
 }

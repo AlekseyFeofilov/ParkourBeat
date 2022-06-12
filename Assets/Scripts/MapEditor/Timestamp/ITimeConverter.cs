@@ -2,8 +2,8 @@
 {
     public interface ITimeConverter
     {
-        double ToSecond(BaseTime time);
+        double ToSecond(MapTime time);
 
-        double ToBeat(BaseTime time);
+        double ToBeat(MapTime time);
     }
 }

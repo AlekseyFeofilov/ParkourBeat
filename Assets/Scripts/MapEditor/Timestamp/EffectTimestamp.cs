@@ -7,10 +7,10 @@ namespace MapEditor.Timestamp
     public class EffectTimestamp
     {
         // Время, когда эффект начинается
-        public readonly ITime BeginTime;
+        public readonly MapTime BeginTime;
         
         // Время, когда эффект заканчивается
-        public readonly ITime EndTime;
+        public readonly MapTime EndTime;
         
         // Функция плавности
         public ITimingFunction TimingFunction;
@@ -24,7 +24,13 @@ namespace MapEditor.Timestamp
         // К какому состоянию нужно привести свойство
         public object ToState;
 
-        public EffectTimestamp(ITime beginTime, ITime endTime, ITimingFunction timingFunction, IVisualProperty property, object toState)
+        public EffectTimestamp(MapTime beginTime, MapTime endTime)
+        {
+            BeginTime = beginTime;
+            EndTime = endTime;
+        }
+
+        public EffectTimestamp(MapTime beginTime, MapTime endTime, ITimingFunction timingFunction, IVisualProperty property, object toState)
         {
             BeginTime = beginTime;
             EndTime = endTime;

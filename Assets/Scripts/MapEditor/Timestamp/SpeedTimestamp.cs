@@ -2,12 +2,12 @@
 {
     public class SpeedTimestamp
     {
-        public readonly ITime Time;
+        public readonly MapTime Time;
         public readonly double Second;
         public readonly double Speed;
         public readonly double Position;
 
-        public SpeedTimestamp(ITime time, double second, double speed, double position)
+        public SpeedTimestamp(MapTime time, double second, double speed, double position)
         {
             Time = time;
             Second = second;

@@ -5,10 +5,10 @@ namespace VisualEffect.Object
 {
     public class SkyObject : MonoObject
     {
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "SkyColor")]
         public SkyColorProperty SkyColor;
         
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "HorizonColor")]
         public HorizonColorProperty HorizonColor;
         
         private void Awake()

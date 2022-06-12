@@ -52,7 +52,7 @@ namespace MapEditor.Trigger
             
             Timeline.RemoveEffectPoint(Timestamp);
 
-            ITime beginTime = ITime.OfSecond(Timeline.GetSecondByPosition(position.x));
+            MapTime beginTime = MapTime.OfSecond(Timeline.GetSecondByPosition(position.x));
             
             _effectTrigger.Timestamp = Timeline.AddEffectPoint(
                 beginTime,

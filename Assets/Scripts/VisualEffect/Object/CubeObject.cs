@@ -3,15 +3,15 @@ using VisualEffect.Property;
 
 namespace VisualEffect.Object
 {
-    public class PlacedObject : MonoObject
+    public class CubeObject : MonoObject
     {
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "Position")]
         public PositionProperty Position;
         
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "Rotation")]
         public RotationProperty Rotation;
         
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "Scale")]
         public ScaleProperty Scale;
 
         private void Awake()

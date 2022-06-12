@@ -7,6 +7,12 @@ namespace Serialization
     public class JsonManager
     {
         private JsonSerializer _serializer = new();
+
+        public Formatting Formatting
+        {
+            get => _serializer.Formatting;
+            set => _serializer.Formatting = value;
+        }
         
         /// <summary>
         /// Метод добавления конвертера
@@ -27,7 +33,7 @@ namespace Serialization
             StringWriter stringWriter = new(new StringBuilder(256));
             using (JsonTextWriter jsonTextWriter = new(stringWriter))
             {
-                jsonTextWriter.Formatting = _serializer.Formatting;
+                jsonTextWriter.Formatting = Formatting;
                 _serializer.Serialize(jsonTextWriter, value);
             }
             return stringWriter.ToString();

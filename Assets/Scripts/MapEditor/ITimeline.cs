@@ -4,27 +4,27 @@ using VisualEffect.Property;
 
 namespace MapEditor
 {
-    public interface ITimeline : ITimeConverter
+    public interface ITimeline : ITimeConverter, IStored
     {
-        public SpeedTimestamp AddSpeedPoint(ITime time, double speed);
+        public SpeedTimestamp AddSpeedPoint(MapTime time, double speed);
 
-        public void RemoveSpeedPoint(ITime time);
+        public void RemoveSpeedPoint(MapTime time);
 
         public double GetPositionBySecond(double second);
 
         public double GetSecondByPosition(double position);
 
-        public BpmTimestamp AddBpmPoint(BaseTime time, double bpm);
+        public BpmTimestamp AddBpmPoint(MapTime time, double bpm);
 
-        public void RemoveBpmPoint(BaseTime time);
+        public void RemoveBpmPoint(MapTime time);
 
         public double GetBeatBySecond(double second);
 
         public double GetSecondByBeat(double beat);
 
         public EffectTimestamp AddEffectPoint(
-            ITime beginTime,
-            ITime endTime,
+            MapTime beginTime,
+            MapTime endTime,
             ITimingFunction function,
             IVisualProperty property,
             object state);

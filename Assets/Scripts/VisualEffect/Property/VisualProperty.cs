@@ -1,24 +1,31 @@
 ﻿using System;
+using VisualEffect.Object;
 
 namespace VisualEffect.Property
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class VisualPropertyAttribute : Attribute
     {
-        
+        public string Id;
     }
 
     public interface IVisualProperty
     {
-        void Apply(object state);
+        public MonoObject Parent { get; set; }
 
-        object Calculate(float multiplier, object from, object to);
+        public void Apply(object state);
 
-        object GetDefault();
+        public object Calculate(float multiplier, object from, object to);
+
+        public object GetDefault();
+
+        public void SetDefault(object def);
     }
 
     public abstract class AbstractVisualProperty<T> : IVisualProperty
     {
+        private MonoObject _parent;
+        
         public abstract T Default { get; set; }
         
         protected abstract void Apply(T state);
@@ -32,6 +39,12 @@ namespace VisualEffect.Property
             return Calculate(multiplier, fromCasted, toCasted);
         }
 
+        public MonoObject Parent
+        {
+            get => _parent;
+            set => _parent = value;
+        }
+
         public void Apply(object state)
         {
             if (state is not T stateCasted)
@@ -42,6 +55,14 @@ namespace VisualEffect.Property
         public object GetDefault()
         {
             return Default;
+        }
+
+        public void SetDefault(object def)
+        {
+            if (def is not T defCasted)
+                throw new InvalidCastException();
+            Apply(defCasted);
+            Default = defCasted;
         }
     }
 }

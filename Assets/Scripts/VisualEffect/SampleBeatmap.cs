@@ -7,7 +7,7 @@ namespace VisualEffect
     {
 
         public SkyObject sky;
-        public PlacedObject cube;
+        public CubeObject cube;
 
         private void Update()
         {
