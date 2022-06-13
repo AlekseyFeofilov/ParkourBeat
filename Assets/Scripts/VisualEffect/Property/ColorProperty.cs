@@ -4,14 +4,21 @@ namespace VisualEffect.Property
 {
     public abstract class AbstractColorProperty : AbstractVisualProperty<Color>
     {
-        protected override void OnUpdate(float multiplier)
+        private Color _default = Color.gray;
+        
+        public override Color Default
         {
-            float r = Initial.r + (Target.r - Initial.r) * multiplier;
-            float g = Initial.g + (Target.g - Initial.g) * multiplier;
-            float b = Initial.b + (Target.b - Initial.b) * multiplier;
-            float a = Initial.a + (Target.a - Initial.a) * multiplier;
+            get => _default;
+            set => Apply(_default = value);
+        }
 
-            Value = new Color(r, g, b, a);
+        protected override Color Calculate(float multiplier, Color from, Color to)
+        {
+            float r = from.r + (to.r - from.r) * multiplier;
+            float g = from.g + (to.g - from.g) * multiplier;
+            float b = from.b + (to.b - from.b) * multiplier;
+            float a = from.a + (to.a - from.a) * multiplier;
+            return new Color(r, g, b, a);
         }
     }
 }
