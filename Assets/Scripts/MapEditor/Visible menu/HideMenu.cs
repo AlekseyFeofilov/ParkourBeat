@@ -1,13 +1,17 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class HideMenu : MonoBehaviour
 {
     public GameObject menu;
-    public GameObject button;
+    [CanBeNull] public GameObject button;
 
     public void MenuHide()
     {
         menu.SetActive(false);
-        button.SetActive(true);
+        if (button != null)
+        {
+            button.SetActive(true);
+        }
     }
 }
