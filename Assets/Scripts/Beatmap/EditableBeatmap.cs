@@ -17,7 +17,7 @@ namespace Beatmap
         private GameObject _wall;
         private int _lastBeat = -1;
         
-        private string FileEditor => $"{Folder}\\editor.json";
+        private string FileEditor => $"{Folder}/editor.json";
 
         private void Update()
         {

@@ -20,9 +20,9 @@ namespace Beatmap
         [SerializeField] public AudioSource songSource;
         [SerializeField] public string beatmapName;
         
-        protected string Folder => $"{Application.persistentDataPath}\\Songs\\{beatmapName}\\"; 
-        protected string FileBeatmap => $"{Folder}\\beatmap.json";
-        protected string FileSong => $"{Folder}\\song.mp3";
+        protected string Folder => $"{Application.persistentDataPath}/Songs/{beatmapName}"; 
+        protected string FileBeatmap => $"{Folder}/beatmap.json";
+        protected string FileSong => $"{Folder}/song.mp3";
         
         protected readonly JsonManager JsonManager = new();
         
