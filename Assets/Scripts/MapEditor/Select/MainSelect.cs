@@ -20,6 +20,7 @@ namespace MapEditor.Select
         }
 
         public static OutlinedObject SelectedObj { get; private set; }
+        public static OutlinedObject PreviousSelectedObj { get; private set; }
 
         // ReSharper disable twice Unity.PerformanceCriticalCodeNullComparison
         private void Select()
@@ -77,6 +78,9 @@ namespace MapEditor.Select
 
             SelectedObj.OutlineWidth = 0;
             mainTools.Deactivate();
+            
+            PreviousSelectedObj = SelectedObj;
+            SelectedObj = null;
         }
 
         private OutlinedObject GetObjectByMousePosition()
