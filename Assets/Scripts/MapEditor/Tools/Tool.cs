@@ -18,6 +18,8 @@ namespace MapEditor.Tools
 
         private Camera _camera;
 
+        private Vector3 _previousPosition;
+
         protected override void Start()
         {
             base.Start();
@@ -28,8 +30,7 @@ namespace MapEditor.Tools
         protected override void OnMouseDown()
         {
             base.OnMouseDown();
-
-            MainTools.Save();
+            _previousPosition = MainSelect.SelectedObj.transform.position;
             _activated = true;
             CalculateProperties();
             _offset = Input.mousePosition;
@@ -45,6 +46,12 @@ namespace MapEditor.Tools
         private void Update()
         {
             if (!_activated) return;
+
+            if (Vector3.Distance(MainSelect.SelectedObj.transform.position, _previousPosition) > 100)
+            {
+                OnMouseUp();
+                return;
+            }
             
             CalculateProperties();
             CalculateChanges();
