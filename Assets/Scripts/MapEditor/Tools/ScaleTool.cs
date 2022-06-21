@@ -1,24 +1,37 @@
+using MapEditor.ChangeableInterfaces;
+using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
 {
     public class ScaleTool : Tool, ITool
     {
-        protected override void Change() => ((ITool)this).Change(ScaledSpeed, tag);
+        private IScalable _scalable;
 
-        void ITool.ChangeOx(float speed)
+        protected override void Start()
         {
-            MainTools.Scale(speed * Vector3.right);
+            base.Start();
+            _scalable = MainSelect.SelectedObj.GetComponent<IScalable>();
         }
 
-        void ITool.ChangeOy(float speed)
+        protected override bool OnBegin()
         {
-            MainTools.Scale(speed * Vector3.up);
+            return _scalable.OnBeginScale();
         }
 
-        void ITool.ChangeOz(float speed)
+        protected override void OnChange()
         {
-            MainTools.Scale(speed * Vector3.forward);
+            var change = ((ITool)this).GetChange(ScaledSpeed, tag);
+            if (!_scalable.OnScale(change)) return;
+            ((ITool)this).Change(change);
+
         }
+
+        protected override bool OnEnd()
+        {
+            return _scalable.OnEndScale();
+        }
+        
+        void ITool.Change(Vector3 change) => MainTools.Scale(change);
     }
 }

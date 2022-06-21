@@ -6,7 +6,7 @@ namespace MapEditor.Tools
     public abstract class Tool : ActivatingObject
     {
         private bool _activated;
-        
+
         [SerializeField] private float speedBooster = 1f;
         [SerializeField] protected float rotateSpeed = 1f;
 
@@ -19,7 +19,7 @@ namespace MapEditor.Tools
 
         private Camera _camera;
 
-        private Vector3 _previousPosition;
+        private Transform _previousTransform;
 
         protected override void Start()
         {
@@ -30,8 +30,10 @@ namespace MapEditor.Tools
 
         protected override void OnMouseDown()
         {
+            if (!OnBegin()) return;
+
             base.OnMouseDown();
-            _previousPosition = MainSelect.SelectedObj.transform.position;
+            _previousTransform = MainSelect.SelectedObj.transform;
             _activated = true;
             CalculateProperties();
             _offset = Input.mousePosition;
@@ -39,8 +41,15 @@ namespace MapEditor.Tools
 
         protected override void OnMouseUp()
         {
+            if (!OnEnd())
+            {
+                var selectedObjTransform = MainSelect.SelectedObj.transform;
+                selectedObjTransform.position = _previousTransform.position;
+                selectedObjTransform.rotation = _previousTransform.rotation;
+                selectedObjTransform.localScale = _previousTransform.localScale;
+            }
+
             base.OnMouseUp();
-            
             _activated = false;
         }
 
@@ -48,18 +57,17 @@ namespace MapEditor.Tools
         {
             if (!_activated) return;
 
-            if (Vector3.Distance(MainSelect.SelectedObj.transform.position, _previousPosition) > 100)
+            if (Vector3.Distance(MainSelect.SelectedObj.transform.position, _previousTransform.position) > 100)
             {
                 OnMouseUp();
                 return;
             }
-            
+
             CalculateProperties();
             CalculateChanges();
-            Change();
-        }
 
-        protected abstract void Change();
+            OnChange();
+        }
         
         private void CalculateProperties()
         {
@@ -77,13 +85,19 @@ namespace MapEditor.Tools
         {
             var movement = Input.mousePosition - _offset;
             var projection = Vector3.Project(movement, _projection);
-            
+
             var sign = Vector3.Angle(projection, _projection) < 90 ? 1 : -1;
 
             Speed = projection.magnitude * sign;
-            ScaledSpeed =  Speed  * _lenght * speedBooster / _projection.magnitude;
-            
+            ScaledSpeed = Speed * _lenght * speedBooster / _projection.magnitude;
+
             _offset = Input.mousePosition;
         }
+
+        protected abstract bool OnBegin();
+
+        protected abstract void OnChange();
+
+        protected abstract bool OnEnd();
     }
 }

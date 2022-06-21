@@ -1,12 +1,22 @@
+using MapEditor.ChangeableInterfaces;
+using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
 {
-    public sealed class RotateTool : Tool, ITool
+    public class RotateTool : Tool, ITool
     {
         private int _clicked;
         private float _clickTime;
         private const float ClickDelay = 0.5f;
+
+        private IRotatable _rotatable;
+
+        protected override void Start()
+        {
+            base.Start();
+            _rotatable = MainSelect.SelectedObj.GetComponent<IRotatable>();
+        }
 
         protected override void OnMouseDown()
         {
@@ -46,21 +56,23 @@ namespace MapEditor.Tools
             }
         }
 
-        protected override void Change() => ((ITool)this).Change(Speed * rotateSpeed, tag);
-
-        void ITool.ChangeOx(float speed)
+        protected override bool OnBegin()
         {
-            MainTools.Rotate(speed * Vector3.right);
+            return _rotatable.OnBeginRotate();
         }
 
-        void ITool.ChangeOy(float speed)
+        protected override void OnChange()
         {
-            MainTools.Rotate(speed * Vector3.up);
+            var change = ((ITool)this).GetChange(Speed * rotateSpeed, tag);
+            if (!_rotatable.OnRotate(change)) return;
+            ((ITool)this).Change(change);
         }
 
-        void ITool.ChangeOz(float speed)
+        protected override bool OnEnd()
         {
-            MainTools.Rotate(speed * Vector3.forward);
+            return _rotatable.OnEndRotate();
         }
+
+        void ITool.Change(Vector3 change) => MainTools.Rotate(change);
     }
 }
