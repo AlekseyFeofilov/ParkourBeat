@@ -4,78 +4,83 @@ using UnityEngine;
 
 namespace MapEditor
 {
-public class MainSelect : MonoBehaviour {
+    public class MainSelect : MonoBehaviour
+    {
+        public LayerMask selectableMask;
+        public LayerMask toolMask;
+        public GameObject emptyObject;
 
-	public LayerMask selectableMask;
-	public LayerMask toolMask;
-	public GameObject emptyObject;
+        private Camera _camera;
 
-	private Camera _camera;
+        [SerializeField] private MainTools mainTools;
 
-	[SerializeField] 
-	private MainTools mainTools;
-	
-	private void Start()
-	{
-		_camera = Camera.main;
-	}
+        private void Start()
+        {
+            _camera = Camera.main;
+        }
 
-	public static OutlinedObject SelectedObj { get; private set; }
+        public static OutlinedObject SelectedObj { get; private set; }
 
-	// ReSharper disable twice Unity.PerformanceCriticalCodeNullComparison
-	private void Select()
-	{
-		var obj = GetObjectByMousePosition();
-		if (SelectedObj == obj) return;
+        // ReSharper disable twice Unity.PerformanceCriticalCodeNullComparison
+        private void Select()
+        {
+            var obj = GetObjectByMousePosition();
+            if (SelectedObj == obj) return;
 
-		Transform selectedObjTransform;
-		Transform parent;
+            if (SelectedObj != null)
+            {
+                Deselect();
+            }
 
-		if (SelectedObj != null)
-		{
-			selectedObjTransform = SelectedObj.transform;
-			
-			selectedObjTransform.parent = (parent = selectedObjTransform.parent).parent;
-			Destroy(parent.transform.gameObject);
-			
-			SelectedObj.OutlineWidth = 0;
-		}
+            Select(obj);
+        }
 
-		if ((SelectedObj = obj) == null)
-		{
-			mainTools.ToolMode = MainTools.Mode.None;
-			return;
-		}
+        public void Select(OutlinedObject obj)
+        {
+            if ((SelectedObj = obj) == null) return;
 
-		selectedObjTransform = SelectedObj.transform;
-		
-		parent = selectedObjTransform.parent = Instantiate(
-			emptyObject,
-			selectedObjTransform.position,
-			selectedObjTransform.rotation
-		).transform;
-		
-		parent.name = "Selection";
-		
-		SelectedObj.OutlineWidth = 10;
-		mainTools.ToolMode = MainTools.Mode.MoveTool;
-	}
+            var selectedObjTransform = SelectedObj.transform;
 
-	private OutlinedObject GetObjectByMousePosition()
-	{
-		var ray = _camera.ScreenPointToRay(Input.mousePosition);
-		if (!Physics.Raycast(ray, out var hit, 100, toolMask) &&
-		    !Physics.Raycast(ray, out hit, 100, selectableMask)) return null;
+            var parent = selectedObjTransform.parent = Instantiate(
+                emptyObject,
+                selectedObjTransform.position,
+                selectedObjTransform.rotation
+            ).transform;
 
-		var obj = hit.transform.GetComponent<OutlinedObject>();
-		return obj ? obj : SelectedObj;
-	}
+            parent.name = "Selection";
 
-	private void Update()
-	{
-		if(Input.GetMouseButtonDown(0))
-		{
-			Select();
-		}
-	}
-}}
+            SelectedObj.OutlineWidth = 10;
+            mainTools.Activate();
+        }
+
+        public void Deselect()
+        {
+            Transform parent;
+            var selectedObjTransform = SelectedObj.transform;
+
+            selectedObjTransform.parent = (parent = selectedObjTransform.parent).parent;
+            Destroy(parent.gameObject);
+
+            SelectedObj.OutlineWidth = 0;
+            mainTools.Deactivate();
+        }
+
+        private OutlinedObject GetObjectByMousePosition()
+        {
+            var ray = _camera.ScreenPointToRay(Input.mousePosition);
+            if (!Physics.Raycast(ray, out var hit, 100, toolMask) &&
+                !Physics.Raycast(ray, out hit, 100, selectableMask)) return null;
+
+            var obj = hit.transform.GetComponent<OutlinedObject>();
+            return obj ? obj : SelectedObj;
+        }
+
+        private void Update()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Select();
+            }
+        }
+    }
+}
