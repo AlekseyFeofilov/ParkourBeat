@@ -5,25 +5,23 @@ namespace MapEditor
 {
     public class MainTools : MonoBehaviour
     {
-        public enum Mode
+        private enum Mode
         {
             MoveTool,
             RotateTool,
             ScaleTool,
-            None
         }
 
-        public Mode ToolMode
+        private Mode ToolMode
         {
-            get => toolMode;
             set
             {
-                toolMode = value;
+                _toolMode = value;
                 _needsUpdate = true;
             }
         }
 
-        [SerializeField] private Mode toolMode = Mode.None;
+        private Mode _toolMode = Mode.MoveTool;
 
         private bool _needsUpdate;
 
@@ -35,13 +33,11 @@ namespace MapEditor
 
         private GameObject _currentTool;
 
-        private static Vector3 _position;
-        private static Quaternion _rotation;
-        private static Vector3 _scale;
+        private bool _activated;
 
         private void Update()
         {
-            if (toolMode != Mode.None)
+            if (_activated)
             {
                 if (Input.GetKeyDown(KeyCode.Z))
                 {
@@ -57,11 +53,6 @@ namespace MapEditor
                 {
                     ToolMode = Mode.ScaleTool;
                 }
-
-                if (Input.GetKeyDown(KeyCode.Z) && Input.GetKey(KeyCode.LeftControl))
-                {
-                    RollBack();
-                }
             }
 
             if (!_needsUpdate) return;
@@ -74,9 +65,13 @@ namespace MapEditor
         private void UpdateTools()
         {
             // ReSharper disable once Unity.PerformanceCriticalCodeNullComparison
-            if (!MainSelect.SelectedObj && toolMode != Mode.None) return;
+            if (!_activated)
+            {
+                DestroyTool();
+                return;
+            }
 
-            switch (toolMode)
+            switch (_toolMode)
             {
                 case Mode.MoveTool:
                     AddTool(moveTool);
@@ -89,14 +84,22 @@ namespace MapEditor
                 case Mode.ScaleTool:
                     AddTool(scaleTool);
                     break;
-
-                case Mode.None:
-                    DestroyTool();
-                    break;
-
+                
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public void Activate()
+        {
+            _activated = true;
+            _needsUpdate = true;
+        }
+
+        public void Deactivate()
+        {
+            _activated = false;
+            _needsUpdate = true;
         }
 
         private void AddTool(GameObject tool)
@@ -135,22 +138,22 @@ namespace MapEditor
             MainSelect.SelectedObj.transform.localScale += scaling;
         }
 
-        public static void Save()
+        public static void SetPosition(Vector3 direction)
         {
             if (!MainSelect.SelectedObj) return;
-            var obj = MainSelect.SelectedObj.transform.parent;
-            _position = obj.position;
-            _rotation = obj.rotation;
-            _scale = obj.localScale;
+            MainSelect.SelectedObj.transform.parent.position = direction;
         }
-        
-        private static void RollBack()
+
+        public static void SetRotation(Quaternion rotation)
         {
             if (!MainSelect.SelectedObj) return;
-            var obj = MainSelect.SelectedObj.transform.parent;
-            obj.position = _position;
-            obj.rotation = _rotation;
-            obj.localScale = _scale;
+            MainSelect.SelectedObj.transform.parent.rotation = rotation;
+        }
+
+        public static void SetScale(Vector3 scaling)
+        {
+            if (!MainSelect.SelectedObj) return;
+            MainSelect.SelectedObj.transform.localScale = scaling;
         }
     }
 }
