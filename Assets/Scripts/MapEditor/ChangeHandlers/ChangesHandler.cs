@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.ChangeHandlers

@@ -1,4 +1,6 @@
-﻿namespace MapEditor.ChangeHandlers
+﻿using MapEditor.Select;
+
+namespace MapEditor.ChangeHandlers
 {
     public class ScalingHandler : ChangesHandler
     {
