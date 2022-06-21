@@ -4,7 +4,7 @@ namespace MapEditor.Select
 {
     public class SelectEvent
     {
-        public bool Cancelled;
+        public bool Cancelled = false;
         public Color SelectColor = Color.yellow;
     }
 }
