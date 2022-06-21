@@ -2,7 +2,7 @@ using UnityEngine;
 
 // ReSharper disable Unity.PerformanceCriticalCodeInvocation
 
-namespace MapEditor
+namespace MapEditor.Select
 {
     public class MainSelect : MonoBehaviour
     {
@@ -25,22 +25,29 @@ namespace MapEditor
         private void Select()
         {
             var obj = GetObjectByMousePosition();
+            
             if (SelectedObj == obj) return;
-
-            if (SelectedObj != null)
-            {
-                Deselect();
-            }
+            if (SelectedObj != null) Deselect();
 
             Select(obj);
+        }
+
+        private void Select(ISelectable[] objects)
+        {
+            
         }
 
         public void Select(OutlinedObject obj)
         {
             if ((SelectedObj = obj) == null) return;
+            
+            var selectable = obj.GetComponent<ISelectable>();
+            SelectEvent @event = new();
+            selectable.OnSelect(@event);
+
+            if (@event.Cancelled) return;
 
             var selectedObjTransform = SelectedObj.transform;
-
             var parent = selectedObjTransform.parent = Instantiate(
                 emptyObject,
                 selectedObjTransform.position,
@@ -50,11 +57,18 @@ namespace MapEditor
             parent.name = "Selection";
 
             SelectedObj.OutlineWidth = 10;
+            SelectedObj.OutlineColor = @event.SelectColor;
             mainTools.Activate();
         }
 
         public void Deselect()
         {
+            var selectable = SelectedObj.GetComponent<ISelectable>();
+            DeselectEvent @event = new();
+            selectable.OnDeselect(@event);
+
+            if (@event.Cancelled) return;
+
             Transform parent;
             var selectedObjTransform = SelectedObj.transform;
 
