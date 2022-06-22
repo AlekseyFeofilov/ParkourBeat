@@ -10,5 +10,9 @@ namespace MenuMap
         public string author;
         public long publicationDate;
         public long updateDate;
+
+        private void ShowInfoAboutLevel()
+        {
+        }
     }
 }
