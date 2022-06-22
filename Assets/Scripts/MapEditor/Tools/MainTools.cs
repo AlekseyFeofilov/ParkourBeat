@@ -176,6 +176,14 @@ namespace MapEditor.Tools
         public static void Scale(Vector3 scaling)
         {
             if (!MainSelect.SelectedObj) return;
+
+            var localScale = MainSelect.SelectedObj.transform.localScale;
+            if (
+                localScale.x + scaling.x < 0 ||
+                localScale.y + scaling.y < 0 ||
+                localScale.z + scaling.z < 0
+            ) return;
+            
             MainSelect.SelectedObj.transform.localScale += scaling;
         }
 
