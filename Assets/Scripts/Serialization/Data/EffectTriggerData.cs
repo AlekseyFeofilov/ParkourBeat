@@ -11,7 +11,6 @@ namespace Serialization.Data
         public MapTime BeginTime;
         public MapTime EndTime;
         public ITimingFunction TimingFunction;
-        public long ObjectId;
         public List<int> Effects;
     }
 }

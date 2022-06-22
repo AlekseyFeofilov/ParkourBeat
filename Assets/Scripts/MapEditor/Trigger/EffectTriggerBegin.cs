@@ -2,22 +2,24 @@
 using MapEditor.ChangeableInterfaces;
 using MapEditor.Timestamp;
 using UnityEngine;
+using VisualEffect.Property;
 
 namespace MapEditor.Trigger
 {
-    public class EffectTriggerBegin : MonoBehaviour, IMovable
+    public class EffectTriggerBegin : MonoBehaviour, IMovable, IEffectTriggerPart
     {
         private const float Epsilon = 0.001f;
 
-        private EffectTrigger _effectTrigger;
         private Vector3 _beginMovePosition;
 
-        private ITimeline Timeline => _effectTrigger.Timeline;
-        private List<EffectTimestamp> Timestamps => _effectTrigger.Timestamps;
+        private ITimeline Timeline => Parent.Timeline;
+        private Dictionary<IVisualProperty, EffectTimestamp> Timestamps => Parent.Timestamps;
         
+        public EffectTrigger Parent { get; private set; }
+
         private void Start()
         {
-            _effectTrigger = transform.parent.GetComponent<EffectTrigger>();
+            Parent = transform.parent.GetComponent<EffectTrigger>();
         }
 
         public bool OnBeginMove()
@@ -34,10 +36,10 @@ namespace MapEditor.Trigger
         private bool TryMove()
         {
             Vector3 pos = transform.position;
-            Vector3 end = _effectTrigger.EndPosition;
+            Vector3 end = Parent.EndPosition;
             if (pos.x <= end.x)
             {
-                _effectTrigger.BeginPosition = pos;
+                Parent.BeginPosition = pos;
                 return true;
             }
 
@@ -48,36 +50,42 @@ namespace MapEditor.Trigger
         {
             if (!TryMove())
             {
-                _effectTrigger.BeginPosition = _beginMovePosition;
+                Parent.BeginPosition = _beginMovePosition;
                 return false;
             }
             
             Vector3 position = transform.position;
-            Vector3 end = _effectTrigger.EndPosition;
-            _effectTrigger.EndPosition = new Vector3(end.x, position.y, position.z);
+            Vector3 end = Parent.EndPosition;
+            Parent.EndPosition = new Vector3(end.x, position.y, position.z);
             
             MapTime beginTime = MapTime.OfSecond(Timeline.GetSecondByPosition(position.x));
             
-            List<EffectTimestamp> toAdd = new();
-            foreach (var timestamp in Timestamps)
+            Dictionary<IVisualProperty, EffectTimestamp> toAdd = new();
+            foreach (var (key, timestamp) in Timestamps)
             {
                 Timeline.RemoveEffectPoint(timestamp);
                 
-                toAdd.Add(Timeline.AddEffectPoint(
+                toAdd[key] = Timeline.AddEffectPoint(
                     beginTime,
                     timestamp.EndTime,
                     timestamp.TimingFunction,
                     timestamp.Property,
                     timestamp.ToState
-                ));
+                );
             }
-            
-            _effectTrigger.Timestamps.Clear();
-            _effectTrigger.Timestamps.AddRange(toAdd);
-            _effectTrigger.BeginTime = beginTime;
+            Parent.Timestamps.Clear();
 
-            // Обязательно нужно, чтобы не было багов из-за прошлых значений
-            Timeline.ResetMove();
+            foreach (var (key, value) in toAdd)
+            {
+                Parent.Timestamps[key] = value;   
+            }
+            Parent.BeginTime = beginTime;
+            
+            // Если режим триггера
+            if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Trigger)
+            {
+                BeatmapEditorContext.UpdateTrigger(Timeline);
+            }
             return true;
         }
     }

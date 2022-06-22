@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using Beatmap.Trigger;
 using MapEditor;
-using MapEditor.Trigger;
 using Serialization.Data;
 using UnityEngine;
 
@@ -17,7 +17,7 @@ namespace Beatmap
         
         private GameObject _wall;
         private int _lastBeat = -1;
-        
+
         private string FileEditor => $"{Folder}/editor.json";
 
         protected override void Start()
@@ -28,6 +28,8 @@ namespace Beatmap
         
         private void FixedUpdate()
         {
+            if (BeatmapEditorContext.Mode != BeatmapEditorContext.ToolMode.Preview) return;
+            
             double time = songSource.isPlaying 
             // Если музыка играет, то обновляем эффекты по времени музыки
             ? AudioTime

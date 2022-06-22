@@ -1,8 +1,8 @@
 using System;
 using HSVPicker;
 using MapEditor.Select;
-using Unity.VisualScripting;
 using UnityEngine;
+using VisualEffect.Object;
 
 namespace MapEditor.Tools
 {
@@ -142,8 +142,16 @@ namespace MapEditor.Tools
 
         private void AddColorTool()
         {
-            MainSelect.SelectedObj.AddComponent<ColorPicker>();
             _currentTool = Instantiate(colorTool, canvas.transform);
+            ColorPicker picker = _currentTool.GetComponent<ColorPicker>();
+
+            picker.onValueChanged.AddListener(color =>
+            {
+                if (MainSelect.SelectedObj.TryGetComponent(out CubeObject renderer))
+                {
+                    renderer.Color.SetDefault(color);
+                }
+            });
         }
 
         private void DestroyTool()

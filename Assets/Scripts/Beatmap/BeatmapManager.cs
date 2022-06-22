@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using MapEditor;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Beatmap
@@ -9,11 +10,13 @@ namespace Beatmap
 
         public void LoadBeatmapInPlaymode()
         {
+            BeatmapEditorContext.Reset();
             SceneManager.LoadScene("Map Playmode");
         }
         
         public void LoadBeatmapInEditmode()
         {
+            BeatmapEditorContext.Reset();
             SceneManager.LoadScene("Map Editmode");
         }
 

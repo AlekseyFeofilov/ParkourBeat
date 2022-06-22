@@ -5,7 +5,6 @@ using MapEditor.Timestamp;
 using Unity.VisualScripting;
 using UnityEngine;
 using VisualEffect.Function;
-using VisualEffect.Object;
 using VisualEffect.Property;
 
 namespace MapEditor.Trigger
@@ -13,13 +12,12 @@ namespace MapEditor.Trigger
     public class EffectTrigger : MonoBehaviour, IMovable
     {
         public ITimeline Timeline;
-        public List<EffectTimestamp> Timestamps = new();
+        public Dictionary<IVisualProperty, EffectTimestamp> Timestamps = new();
 
         public MapTime BeginTime;
         public MapTime EndTime;
         public ITimingFunction TimingFunction;
-        public MonoObject Object;
-        
+
         private Transform _fromTransfrom;
         private Transform _toTransfrom;
         private Transform _cylinderTransfrom;
@@ -72,49 +70,55 @@ namespace MapEditor.Trigger
         {
             EffectTimestamp effectTimestamp 
                 = Timeline.AddEffectPoint(BeginTime, EndTime, TimingFunction, property, state);
-            Timestamps.Add(effectTimestamp);
+            Timestamps[property] = effectTimestamp;
             return effectTimestamp;
         }
         
         public EffectTrigger SetX(float x)
         {
-            Vector3 pos = transform.position;
-            transform.position = new Vector3(x, pos.y, pos.z);
+            var transform1 = transform;
+            Vector3 pos = transform1.position;
+            transform1.position = new Vector3(x, pos.y, pos.z);
             return this;
         }
         
         public EffectTrigger SetY(float y)
         {
-            Vector3 pos = transform.position;
-            transform.position = new Vector3(pos.x, y, pos.z);
+            var transform1 = transform;
+            Vector3 pos = transform1.position;
+            transform1.position = new Vector3(pos.x, y, pos.z);
             return this;
         }
         
         public EffectTrigger SetZ(float z)
         {
-            Vector3 pos = transform.position;
-            transform.position = new Vector3(pos.x, pos.y, z);
+            var transform1 = transform;
+            Vector3 pos = transform1.position;
+            transform1.position = new Vector3(pos.x, pos.y, z);
             return this;
         }
         
         public EffectTrigger AddX(float x)
         {
-            Vector3 pos = transform.position;
-            transform.position = new Vector3(pos.x + x, pos.y, pos.z);
+            var transform1 = transform;
+            Vector3 pos = transform1.position;
+            transform1.position = new Vector3(pos.x + x, pos.y, pos.z);
             return this;
         }
         
         public EffectTrigger AddY(float y)
         {
-            Vector3 pos = transform.position;
-            transform.position = new Vector3(pos.x, pos.y + y, pos.z);
+            var transform1 = transform;
+            Vector3 pos = transform1.position;
+            transform1.position = new Vector3(pos.x, pos.y + y, pos.z);
             return this;
         }
         
         public EffectTrigger AddZ(float z)
         {
-            Vector3 pos = transform.position;
-            transform.position = new Vector3(pos.x, pos.y, pos.z + z);
+            var transform1 = transform;
+            Vector3 pos = transform1.position;
+            transform1.position = new Vector3(pos.x, pos.y, pos.z + z);
             return this;
         }
     }

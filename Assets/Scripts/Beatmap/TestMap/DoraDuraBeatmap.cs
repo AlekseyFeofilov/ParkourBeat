@@ -1,7 +1,7 @@
 ﻿using Beatmap.Object;
+using Beatmap.Trigger;
 using MapEditor;
 using MapEditor.Timestamp;
-using MapEditor.Trigger;
 using UnityEngine;
 using VisualEffect.Function;
 using VisualEffect.Object;

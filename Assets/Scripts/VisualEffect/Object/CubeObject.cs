@@ -1,4 +1,5 @@
-﻿using MapEditor.ChangeableInterfaces;
+﻿using MapEditor;
+using MapEditor.ChangeableInterfaces;
 using UnityEngine;
 using VisualEffect.Property;
 
@@ -14,30 +15,36 @@ namespace VisualEffect.Object
         
         [VisualPropertyAttribute(Id = "Scale")]
         public ScaleProperty Scale;
+        
+        [VisualPropertyAttribute(Id = "Color")]
+        public ColorProperty Color;
 
         private void Awake()
         {
-            var transform1 = transform;
+            Renderer renderer = GetComponent<Renderer>();
+            Transform transform1 = transform;
+            
             Position = new PositionProperty(transform1);
             Rotation = new RotationProperty(transform1);
             Scale = new ScaleProperty(transform1);
+            Color = new ColorProperty(renderer.material);
         }
         
         public bool OnEndMove()
         {
-            Position.Default = transform.position;
+            BeatmapEditorContext.SetPropertyValue(Position, transform.position);
             return true;
         }
 
         public bool OnEndRotate()
         {
-            Rotation.Default = transform.rotation.eulerAngles;
+            BeatmapEditorContext.SetPropertyValue(Rotation, transform.rotation.eulerAngles);
             return true;
         }
 
         public bool OnEndScale()
         {
-            Scale.Default = transform.localScale;
+            BeatmapEditorContext.SetPropertyValue(Scale, transform.localScale);
             return true;
         }
 
@@ -86,6 +93,22 @@ namespace VisualEffect.Object
             protected override void Apply(Vector3 state)
             {
                 _transform.localScale = state;
+            }
+        }
+        
+        // Цвет
+        public class ColorProperty : AbstractColorProperty
+        {
+            private readonly Material _material;
+
+            public ColorProperty(Material material)
+            {
+                _material = material;
+            }
+
+            protected override void Apply(Color state)
+            {
+                _material.color = state;
             }
         }
     }

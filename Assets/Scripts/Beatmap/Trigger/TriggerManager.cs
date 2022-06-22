@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Beatmap.Object;
 using DataStructures.BiDictionary;
+using MapEditor;
 using MapEditor.Timestamp;
+using MapEditor.Trigger;
 using Serialization.Data;
 using UnityEngine;
 using VisualEffect.Function;
-using VisualEffect.Object;
 using VisualEffect.Property;
 
-namespace MapEditor.Trigger
+namespace Beatmap.Trigger
 {
     public class TriggerManager : MonoBehaviour
     {
         [SerializeField] private Timeline timeline;
-        [SerializeField] private ObjectManager objectManager;
         [SerializeField] private EffectTrigger effectTriggerPrefab;
 
         private readonly List<EffectTrigger> _effectTriggers = new();
@@ -26,7 +25,7 @@ namespace MapEditor.Trigger
             IVisualProperty property,
             object state)
         {
-            EffectTrigger trigger = CreateEffectTrigger(beginTime, duration, function, property.Parent);
+            EffectTrigger trigger = CreateEffectTrigger(beginTime, duration, function);
             trigger.AddProperty(property, state);
             return trigger;
         }
@@ -34,8 +33,7 @@ namespace MapEditor.Trigger
         public EffectTrigger CreateEffectTrigger(
             MapTime beginTime,
             MapTime duration,
-            ITimingFunction function,
-            MonoObject obj)
+            ITimingFunction function)
         {
             GameObject gameObj = Instantiate(effectTriggerPrefab.gameObject, Vector3.zero * 1, Quaternion.identity);
             gameObj.transform.parent = transform;
@@ -47,7 +45,6 @@ namespace MapEditor.Trigger
             MapTime endTime = new MapTime(endUnit, endValue);
 
             EffectTrigger trigger = gameObj.GetComponent<EffectTrigger>();
-            trigger.Object = obj;
             trigger.TimingFunction = function;
             trigger.BeginTime = beginTime;
             trigger.EndTime = endTime;
@@ -62,7 +59,7 @@ namespace MapEditor.Trigger
         {
             Destroy(trigger.gameObject);
             _effectTriggers.Remove(trigger);
-            foreach (var timestamp in trigger.Timestamps)
+            foreach (var timestamp in trigger.Timestamps.Values)
             {
                 timeline.RemoveEffectPoint(timestamp);
             }
@@ -82,9 +79,12 @@ namespace MapEditor.Trigger
                 trigger.TimingFunction = dataEffect.TimingFunction;
                 trigger.BeginTime = dataEffect.BeginTime;
                 trigger.EndTime = dataEffect.EndTime;
-                trigger.Object = objectManager.GetObjectById(dataEffect.ObjectId);
                 trigger.Timeline = timeline;
-                trigger.Timestamps.AddRange(from id in dataEffect.Effects select effectIds.KeyMap[id]);
+
+                foreach (EffectTimestamp effect in dataEffect.Effects.Select(id => effectIds.KeyMap[id]))
+                {
+                    trigger.Timestamps[effect.Property] = effect;
+                }
 
                 _effectTriggers.Add(trigger);
             }
@@ -101,8 +101,7 @@ namespace MapEditor.Trigger
                     BeginTime = trigger.BeginTime,
                     EndTime = trigger.EndTime,
                     TimingFunction = trigger.TimingFunction,
-                    ObjectId = objectManager.GetIdByObject(trigger.Object),
-                    Effects = (from timestamp in trigger.Timestamps select effectIds.ValueMap[timestamp]).ToList()
+                    Effects = (from timestamp in trigger.Timestamps.Values select effectIds.ValueMap[timestamp]).ToList()
                 });
         }
     }

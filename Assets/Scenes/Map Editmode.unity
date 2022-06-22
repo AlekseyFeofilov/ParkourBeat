@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -540,6 +540,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectManager: {fileID: 1577583975}
   triggerManager: {fileID: 552335829}
+  mainSelect: {fileID: 1702742217}
 --- !u!1 &141058230
 GameObject:
   m_ObjectHideFlags: 0
@@ -1174,6 +1175,53 @@ MonoBehaviour:
   moveTool: {fileID: 5631104124032155365, guid: 2ac501bdfad2c374c93ee593858633c1, type: 3}
   rotateTool: {fileID: 5631104124032155365, guid: ca2a4b39bba4e9045b7d71178127005b, type: 3}
   scaleTool: {fileID: 5631104124032155365, guid: ea6d0e6539afeea4e82aba0fa13977d2, type: 3}
+  colorTool: {fileID: 157272, guid: 916ee089a0d7b63419075f91e1c657ec, type: 3}
+  canvas: {fileID: 611748073}
+--- !u!1 &436967551
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 436967552}
+  - component: {fileID: 436967553}
+  m_Layer: 0
+  m_Name: Editor Mode Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &436967552
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436967551}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 918271467}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &436967553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436967551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eced760dbebf417ca217ad6fbaa0b616, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeline: {fileID: 1514992278}
 --- !u!1 &478813984
 GameObject:
   m_ObjectHideFlags: 0
@@ -1432,7 +1480,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeline: {fileID: 1514992278}
-  objectManager: {fileID: 1577583975}
   effectTriggerPrefab: {fileID: 1687439715765199229, guid: d940a10642421a047bfdcc47321d6f43, type: 3}
 --- !u!1 &553013210
 GameObject:
@@ -2199,7 +2246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   moveSpeedY: 0.03
-  controlMultiplier: 2
+  controlMultiplier: 5
   rotateSpeedH: 2.5
   rotateSpeedV: 2.5
   zoomSpeed: 2.5
@@ -2793,6 +2840,7 @@ Transform:
   m_Children:
   - {fileID: 1702742216}
   - {fileID: 377477225}
+  - {fileID: 436967552}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2806,7 +2854,6 @@ GameObject:
   m_Component:
   - component: {fileID: 945148476}
   - component: {fileID: 945148478}
-  - component: {fileID: 945148477}
   m_Layer: 0
   m_Name: Tools Camera
   m_TagString: Untagged
@@ -2829,14 +2876,6 @@ Transform:
   m_Father: {fileID: 649265957}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!81 &945148477
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 945148475}
-  m_Enabled: 1
 --- !u!20 &945148478
 Camera:
   m_ObjectHideFlags: 0

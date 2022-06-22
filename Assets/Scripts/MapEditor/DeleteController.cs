@@ -1,4 +1,5 @@
 ﻿using Beatmap.Object;
+using Beatmap.Trigger;
 using MapEditor.Select;
 using MapEditor.Trigger;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Beatmap
     {
         [SerializeField] private ObjectManager objectManager;
         [SerializeField] private TriggerManager triggerManager;
+        [SerializeField] private MainSelect mainSelect;
 
         public void Update()
         {
@@ -22,15 +24,14 @@ namespace Beatmap
 
             if (selected.TryGetComponent(out MonoObject monoObject))
             {
+                mainSelect.Deselect();
                 objectManager.RemoveObject(monoObject);
             }
-            else if (selected.TryGetComponent(out EffectTrigger effectTrigger))
+            else if (selected.TryGetComponent(out IEffectTriggerPart part))
             {
-                triggerManager.RemoveEffectTrigger(effectTrigger);
+                mainSelect.Deselect();
+                triggerManager.RemoveEffectTrigger(part.Parent);
             }
-            else return;
-
-            // TODO MainSelect.SelectedObj = null;
         }
     }
 }

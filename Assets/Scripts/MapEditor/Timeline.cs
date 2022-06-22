@@ -23,6 +23,7 @@ namespace MapEditor
         private int _indexByBeginSorted;
         private int _indexByEndSorted;
         private double _lastSecond;
+        private bool _changed;
 
         [SerializeField]
         private ObjectManager objectManager;
@@ -41,6 +42,7 @@ namespace MapEditor
             SpeedTimestamp point = new(time, second, speed, position);
             _speedPoints.Insert(index + 1, point);
             RecalcSpeedPointsFromIndex(index + 2);
+            _changed = true;
             return point;
         }
 
@@ -126,6 +128,7 @@ namespace MapEditor
             _bpmPoints.Insert(index + 1, point);
             RecalcBpmPointsFromIndex(index + 2);
             RecalcSpeedPointsAfterBpmChange();
+            _changed = true;
             return point;
         }
 
@@ -254,7 +257,8 @@ namespace MapEditor
                     = effect.CalculateState(nextBeginSecond, this);
                     //= effect.ToState;
             }
-
+            _changed = true;
+            
             return effect;
         }
 
@@ -302,16 +306,19 @@ namespace MapEditor
 
         public void Move(double second)
         {
+            if (_changed) ResetMove();
             if (second >= _lastSecond) MoveForth(second);
             else MoveBack(second);
             _lastSecond = second;
+            _changed = false;
         }
 
         public void ResetMove()
         {
             _activeEffects.Clear();
-            Move(0);
-            // TODO может сразу после Move(0) устанавливать Move(target), где target - какое время надо установить
+            if (_lastSecond <= 0) MoveForth(0);
+            else MoveBack(0);
+            _lastSecond = 0;
         }
 
         private void MoveForth(double second)
