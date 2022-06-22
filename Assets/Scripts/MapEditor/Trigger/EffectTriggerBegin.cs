@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using MapEditor.ChangeableInterfaces;
 using MapEditor.Timestamp;
-using MapEditor.Utils;
 using UnityEngine;
 
 namespace MapEditor.Trigger
@@ -26,7 +26,12 @@ namespace MapEditor.Trigger
             return true;
         }
         
-        public bool OnMove()
+        public bool OnMove(Vector3 movement)
+        {
+            return TryMove();
+        }
+
+        private bool TryMove()
         {
             Vector3 pos = transform.position;
             Vector3 end = _effectTrigger.EndPosition;
@@ -41,7 +46,7 @@ namespace MapEditor.Trigger
         
         public bool OnEndMove()
         {
-            if (!OnMove())
+            if (!TryMove())
             {
                 _effectTrigger.BeginPosition = _beginMovePosition;
                 return false;

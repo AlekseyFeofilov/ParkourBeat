@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Beatmap.Object;
 using DataStructures.BiDictionary;
@@ -15,8 +14,6 @@ namespace MapEditor
 {
     public class Timeline : MonoBehaviour, ITimeline
     {
-        private const double PlaneScale = 10.0;
-        
         private readonly List<BpmTimestamp> _bpmPoints = new();
         private readonly List<SpeedTimestamp> _speedPoints = new();
         private readonly List<EffectTimestamp> _beginSortedEffectPoints = new();
@@ -29,73 +26,10 @@ namespace MapEditor
 
         [SerializeField]
         private ObjectManager objectManager;
-        
-        [SerializeField]
-        private GameObject beatPrefab;
-        
-        [SerializeField]
-        private GameObject speedPrefab;
-        
-        [SerializeField]
-        private GameObject bpmPrefab;
 
-        [SuppressMessage("ReSharper", "Unity.InefficientPropertyAccess")]
-        [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
-        private void Start()
-        {
-            Transform transform = this.transform;
-            Vector3 position = transform.position;
-            Vector3 localScale = transform.localScale * (float) PlaneScale;
+        public List<SpeedTimestamp> SpeedPoints => _speedPoints;
+        public List<BpmTimestamp> BpmPoints => _bpmPoints;
 
-            double beginPos = position.x - localScale.x / 2;
-            double endPos = position.x + localScale.x / 2;
-
-            double beginTime = GetSecondByPosition(beginPos);
-            double endTime = GetSecondByPosition(endPos);
-
-            int beginBeat = (int) Math.Floor(GetBeatBySecond(beginTime));
-            int endBeat = (int) Math.Ceiling(GetBeatBySecond(endTime));
-
-            for (int beat = beginBeat; beat <= endBeat; beat++)
-            {
-                double time = GetSecondByBeat(beat);
-                double pos = GetPositionBySecond(time);
-                GameObject obj;
-
-                obj = Instantiate(beatPrefab, 
-                    new Vector3((float) pos, position.y + .001f, position.z), 
-                    Quaternion.Euler(90, 0, 0)
-                    );
-                obj.transform.parent = transform;
-            }
-
-            for (int i = 1; i < _speedPoints.Count; i++)
-            {
-                double time = _speedPoints[i].Time.ToSecond(this);
-                double pos = _speedPoints[i - 1].GetPosition(time);
-                GameObject obj;
-                
-                obj = Instantiate(speedPrefab, 
-                    new Vector3((float) pos, position.y + .002f, position.z), 
-                    Quaternion.Euler(90, 0, 0)
-                );
-                obj.transform.parent = transform;
-            }
-            
-            for (int i = 1; i < _bpmPoints.Count; i++)
-            {
-                double second = _bpmPoints[i].Second;
-                double pos = GetPositionBySecond(second);
-                GameObject obj;
-                
-                obj = Instantiate(bpmPrefab, 
-                    new Vector3((float) pos, position.y + .003f, position.z), 
-                    Quaternion.Euler(90, 0, 0)
-                );
-                obj.transform.parent = transform;
-            }
-        }
-                
         public SpeedTimestamp AddSpeedPoint(MapTime time, double speed)
         {
             double second = time.ToSecond(this);

@@ -41,11 +41,13 @@ namespace MapEditor.Select
         public void Select(OutlinedObject obj)
         {
             if ((SelectedObj = obj) == null) return;
-            
-            var selectable = obj.GetComponent<ISelectable>();
-            SelectEvent @event = new();
-            selectable.OnSelect(@event);
 
+            SelectEvent @event = new();
+            
+            if (obj.TryGetComponent(out ISelectable selectable))
+            {
+                selectable.OnSelect(@event);
+            }
             if (@event.Cancelled) return;
 
             var selectedObjTransform = SelectedObj.transform;
@@ -64,10 +66,12 @@ namespace MapEditor.Select
 
         public void Deselect()
         {
-            var selectable = SelectedObj.GetComponent<ISelectable>();
             DeselectEvent @event = new();
-            selectable.OnDeselect(@event);
-
+            
+            if (SelectedObj.TryGetComponent(out ISelectable selectable))
+            {
+                selectable.OnDeselect(@event);
+            }
             if (@event.Cancelled) return;
 
             Transform parent;
