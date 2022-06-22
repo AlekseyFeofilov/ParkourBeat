@@ -1,17 +1,18 @@
-﻿using UnityEngine;
+﻿using MapEditor.ChangeHandlers;
+using UnityEngine;
 using VisualEffect.Property;
 
 namespace VisualEffect.Object
 {
-    public class PlacedObject : MonoObject
+    public class CubeObject : MonoObject, IMovable, IRotatable, IScalable
     {
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "Position")]
         public PositionProperty Position;
         
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "Rotation")]
         public RotationProperty Rotation;
         
-        [VisualPropertyAttribute]
+        [VisualPropertyAttribute(Id = "Scale")]
         public ScaleProperty Scale;
 
         private void Awake()
@@ -20,6 +21,21 @@ namespace VisualEffect.Object
             Position = new PositionProperty(transform1);
             Rotation = new RotationProperty(transform1);
             Scale = new ScaleProperty(transform1);
+        }
+        
+        public void OnEndMove()
+        {
+            Position.Default = transform.position;
+        }
+
+        public void OnEndRotate()
+        {
+            Rotation.Default = transform.rotation.eulerAngles;
+        }
+
+        public void OnEndScale()
+        {
+            Scale.Default = transform.localScale;
         }
 
         // Позиция
@@ -32,10 +48,9 @@ namespace VisualEffect.Object
                 _transform = transform;
             }
 
-            public override Vector3 Value
+            protected override void Apply(Vector3 state)
             {
-                get => _transform.position;
-                set => _transform.position = value;
+                _transform.position = state;
             }
         }
         
@@ -49,10 +64,9 @@ namespace VisualEffect.Object
                 _transform = transform;
             }
 
-            public override Vector3 Value
+            protected override void Apply(Vector3 state)
             {
-                get => _transform.rotation.eulerAngles;
-                set => _transform.rotation = Quaternion.Euler(value);
+                _transform.rotation = Quaternion.Euler(state);
             }
         }
         
@@ -66,10 +80,9 @@ namespace VisualEffect.Object
                 _transform = transform;
             }
 
-            public override Vector3 Value
+            protected override void Apply(Vector3 state)
             {
-                get => _transform.localScale;
-                set => _transform.localScale = value;
+                _transform.localScale = state;
             }
         }
     }

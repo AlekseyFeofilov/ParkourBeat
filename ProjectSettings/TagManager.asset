@@ -4,9 +4,11 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - OX
+  - Top
+  - Bottom
   - OY
   - OZ
+  - OX
   layers:
   - Default
   - TransparentFX
@@ -43,10 +45,4 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Selectable Mask
-    uniqueID: 809220673
-    locked: 0
-  - name: Tool
-    uniqueID: 4160840303
     locked: 0
