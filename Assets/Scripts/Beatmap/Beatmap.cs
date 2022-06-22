@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.IO;
 using Beatmap.Object;
 using MapEditor;
 using MapEditor.Timestamp;
@@ -19,7 +20,8 @@ namespace Beatmap
         [SerializeField] public ObjectManager objectManager;
         [SerializeField] public AudioSource songSource;
         [SerializeField] public string beatmapName;
-        
+
+        public double AudioTime => songSource.clip is null ? 0 : (double) songSource.timeSamples / songSource.clip.frequency;
         protected string Folder => $"{Application.persistentDataPath}/Songs/{beatmapName}"; 
         protected string FileBeatmap => $"{Folder}/beatmap.json";
         protected string FileSong => $"{Folder}/song.mp3";
@@ -28,6 +30,10 @@ namespace Beatmap
 
         public abstract void PlayAudio();
         public abstract void StopAudio();
+
+        protected virtual void OnInitialized()
+        {
+        }
 
         protected virtual void Start()
         {
@@ -43,7 +49,13 @@ namespace Beatmap
             JsonManager.Formatting = Formatting.Indented;
             
             Load();
-            StartCoroutine(AudioUtils.LoadAudio(FileSong, AudioType.MPEG, songSource));
+            StartCoroutine(LoadAudio());
+        }
+
+        private IEnumerator LoadAudio()
+        {
+            yield return AudioUtils.LoadAudio(FileSong, AudioType.MPEG, songSource);
+            OnInitialized();
         }
         
         public virtual void Load()

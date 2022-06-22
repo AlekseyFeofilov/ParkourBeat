@@ -26,11 +26,11 @@ namespace Beatmap
             timelineDisplay.Draw();
         }
         
-        private void Update()
+        private void FixedUpdate()
         {
             double time = songSource.isPlaying 
             // Если музыка играет, то обновляем эффекты по времени музыки
-            ? songSource.time 
+            ? AudioTime
             // Иначе обновляем эффекты по расположению игрока
             : timeline.GetSecondByPosition(camera.transform.position.x);
 

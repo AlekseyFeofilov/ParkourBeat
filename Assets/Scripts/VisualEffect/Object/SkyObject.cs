@@ -49,6 +49,7 @@ namespace VisualEffect.Object
             protected override void Apply(Color state)
             {
                 _skybox.material.SetColor(HorizonColor, state);
+                RenderSettings.fogColor = state;
             }
         }
     }
