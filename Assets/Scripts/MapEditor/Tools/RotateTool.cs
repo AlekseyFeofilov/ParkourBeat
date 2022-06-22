@@ -15,7 +15,21 @@ namespace MapEditor.Tools
         protected override void Start()
         {
             base.Start();
-            _rotatable = MainSelect.SelectedObj.GetComponent<IRotatable>();
+            
+            if (!MainSelect.SelectedObj.TryGetComponent(out _rotatable))
+            {
+                MainTools.Hide();
+            }
+        }
+
+        protected override void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                RotationReset(true, true, true);
+            }
+            
+            base.Update();
         }
 
         protected override void OnMouseDown()
@@ -43,17 +57,28 @@ namespace MapEditor.Tools
             switch (tag)
             {
                 case "OX":
-                    MainTools.SetRotation(Quaternion.Euler(0, rotation.y, rotation.z));
+                    RotationReset(true, false, false);
                     break;
 
                 case "OY":
-                    MainTools.SetRotation(Quaternion.Euler(rotation.x, 0, rotation.z));
+                    RotationReset(false, true, false);
                     break;
 
                 case "OZ":
-                    MainTools.SetRotation(Quaternion.Euler(rotation.x, rotation.y,0));
+                    RotationReset(false, false, true);
                     break;
             }
+        }
+
+        private void RotationReset(bool resetOx, bool resetOy, bool resetOz)
+        {
+            var rotation = transform.parent.parent.rotation.eulerAngles;
+            
+            MainTools.SetRotation(Quaternion.Euler(
+                resetOx ? 0 : 1 * rotation.x, 
+                resetOy ? 0 : 1 * rotation.y, 
+                resetOz ? 0 : 1 * rotation.z)
+            );
         }
 
         protected override bool OnBegin()

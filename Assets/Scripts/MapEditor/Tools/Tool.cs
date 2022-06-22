@@ -18,6 +18,7 @@ namespace MapEditor.Tools
         private Vector3 _offset;
 
         private Camera _camera;
+        protected MainTools MainTools;
 
         private Transform _previousTransform;
 
@@ -26,6 +27,7 @@ namespace MapEditor.Tools
             base.Start();
 
             _camera = Camera.main;
+            MainTools = FindObjectOfType<MainTools>();
         }
 
         protected override void OnMouseDown()
@@ -53,7 +55,7 @@ namespace MapEditor.Tools
             _activated = false;
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             if (!_activated) return;
 
