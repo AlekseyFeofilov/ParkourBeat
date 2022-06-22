@@ -17,15 +17,15 @@ namespace Beatmap
         private GameObject _wall;
         private int _lastBeat = -1;
         
-        private string FileEditor => $"{Folder}\\editor.json";
+        private string FileEditor => $"{Folder}/editor.json";
 
         private void Update()
         {
             double time = songSource.isPlaying 
-                // Если музыка играет, то обновляем эффекты по времени музыки
-                ? songSource.time 
-                // Иначе обновляем эффекты по расположению игрока
-                : timeline.GetSecondByPosition(camera.transform.position.x);
+            // Если музыка играет, то обновляем эффекты по времени музыки
+            ? songSource.time 
+            // Иначе обновляем эффекты по расположению игрока
+            : timeline.GetSecondByPosition(camera.transform.position.x);
 
             // Обновляем эффекты
             timeline.Move(time);
@@ -90,14 +90,30 @@ namespace Beatmap
             songSource.Stop();
         }
         
+        public override void Load()
+        {
+            base.Load();
+            if (!File.Exists(FileEditor)) return;
+            
+            string json = File.ReadAllText(FileEditor);
+            BeatmapEditorData data = JsonManager.Deserialize<BeatmapEditorData>(json);
+            triggerManager.LoadData(data);
+        }
+        
         public void Save()
         {
             if (!Directory.Exists(Folder)) Directory.CreateDirectory(Folder);
+            string json;
             
             BeatmapData data = new();
             SaveData(data);
-            string json = JsonManager.Serialize(data);
+            json = JsonManager.Serialize(data);
             File.WriteAllText(FileBeatmap, json);
+
+            BeatmapEditorData editorData = new();
+            triggerManager.SaveData(editorData);
+            json = JsonManager.Serialize(editorData);
+            File.WriteAllText(FileEditor, json);
         }
 
         public void SaveData(BeatmapData data)

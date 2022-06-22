@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Beatmap.Object;
+using DataStructures.BiDictionary;
 using MapEditor.Timestamp;
 using Serialization.Data;
 using UnityEngine;
@@ -352,6 +353,17 @@ namespace MapEditor
                         = effect.Property.GetDefault();
                     break;
             }
+        }
+
+        public BiDictionary<int, EffectTimestamp> GetEffectPointIdDictonary()
+        {
+            BiDictionary<int, EffectTimestamp> dictionary = new();
+            for (int i = 0; i < _beginSortedEffectPoints.Count; i++)
+            {
+                dictionary.Add(i, _beginSortedEffectPoints[i]);
+            }
+
+            return dictionary;
         }
 
         public void Move(double second)

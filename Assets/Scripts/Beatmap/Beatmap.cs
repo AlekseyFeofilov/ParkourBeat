@@ -14,35 +14,36 @@ namespace Beatmap
     public class Beatmap : MonoBehaviour
     {
         [SerializeField] protected Camera camera;
-
+        
         [SerializeField] public Timeline timeline;
         [SerializeField] public ObjectManager objectManager;
         [SerializeField] public AudioSource songSource;
         [SerializeField] public string beatmapName;
-
-        protected string Folder => $"{Application.persistentDataPath}/Songs/{beatmapName}/";
-        protected string FileBeatmap => $"{Folder}beatmap.json";
-        protected string FileSong => $"{Folder}song.mp3";
-
+        
+        protected string Folder => $"{Application.persistentDataPath}/Songs/{beatmapName}"; 
+        protected string FileBeatmap => $"{Folder}/beatmap.json";
+        protected string FileSong => $"{Folder}/song.mp3";
+        
         protected readonly JsonManager JsonManager = new();
-
+        
         protected virtual void Start()
         {
             if (camera == null) camera = Camera.main;
             if (string.IsNullOrWhiteSpace(beatmapName)) beatmapName = BeatmapManager.CurrentName;
-
+            
+            JsonManager.AddConverter(new Vector2Converter());
             JsonManager.AddConverter(new Vector3Converter());
             JsonManager.AddConverter(new ColorConverter());
             JsonManager.AddConverter(new ValueConverter());
             JsonManager.AddConverter(new TimeConverter());
             JsonManager.AddConverter(new TimingFunctionConverter());
             JsonManager.Formatting = Formatting.Indented;
-
+            
             Load();
             StartCoroutine(AudioUtils.LoadAudio(FileSong, AudioType.MPEG, songSource));
         }
-
-        public void Load()
+        
+        public virtual void Load()
         {
             if (!Directory.Exists(Folder))
             {
@@ -50,12 +51,12 @@ namespace Beatmap
                 timeline.AddSpeedPoint(MapTime.Zero, 1);
                 return;
             }
-
+            
             string json = File.ReadAllText(FileBeatmap);
             BeatmapData data = JsonManager.Deserialize<BeatmapData>(json);
             LoadData(data);
         }
-
+        
         public void LoadData(BeatmapData data)
         {
             objectManager.LoadData(data);
