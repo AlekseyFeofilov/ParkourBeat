@@ -1,5 +1,5 @@
 ﻿using Beatmap.Object;
-using MapEditor;
+using MapEditor.Select;
 using MapEditor.Trigger;
 using UnityEngine;
 using VisualEffect.Object;

@@ -1,4 +1,4 @@
-﻿using MapEditor.ChangeHandlers;
+﻿using MapEditor.ChangeableInterfaces;
 using UnityEngine;
 using VisualEffect.Property;
 
@@ -23,19 +23,22 @@ namespace VisualEffect.Object
             Scale = new ScaleProperty(transform1);
         }
         
-        public void OnEndMove()
+        public bool OnEndMove()
         {
             Position.Default = transform.position;
+            return true;
         }
 
-        public void OnEndRotate()
+        public bool OnEndRotate()
         {
             Rotation.Default = transform.rotation.eulerAngles;
+            return true;
         }
 
-        public void OnEndScale()
+        public bool OnEndScale()
         {
             Scale.Default = transform.localScale;
+            return true;
         }
 
         // Позиция

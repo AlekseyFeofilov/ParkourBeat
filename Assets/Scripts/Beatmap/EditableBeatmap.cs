@@ -10,6 +10,7 @@ namespace Beatmap
     public class EditableBeatmap : Beatmap, IStored
     {
         [SerializeField] public TriggerManager triggerManager;
+        [SerializeField] public TimelineDisplay timelineDisplay;
         
         [SerializeField] private AudioSource soundSource;
         [SerializeField] private GameObject wallPrefab;
@@ -19,6 +20,12 @@ namespace Beatmap
         
         private string FileEditor => $"{Folder}/editor.json";
 
+        protected override void Start()
+        {
+            base.Start();
+            timelineDisplay.Draw();
+        }
+        
         private void Update()
         {
             double time = songSource.isPlaying 
@@ -69,7 +76,7 @@ namespace Beatmap
             songSource.time = 0;
         }
         
-        public void PlayAudio()
+        public override void PlayAudio()
         {
             StopAudio();
             Vector3 scale = wallPrefab.transform.localScale;
@@ -81,7 +88,7 @@ namespace Beatmap
             songSource.Play();
         }
 
-        public void StopAudio()
+        public override void StopAudio()
         {
             if (_wall == null) return;
             Destroy(_wall);

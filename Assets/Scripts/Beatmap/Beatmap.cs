@@ -11,7 +11,7 @@ using Utils;
 
 namespace Beatmap
 {
-    public class Beatmap : MonoBehaviour
+    public abstract class Beatmap : MonoBehaviour
     {
         [SerializeField] protected Camera camera;
         
@@ -25,7 +25,10 @@ namespace Beatmap
         protected string FileSong => $"{Folder}/song.mp3";
         
         protected readonly JsonManager JsonManager = new();
-        
+
+        public abstract void PlayAudio();
+        public abstract void StopAudio();
+
         protected virtual void Start()
         {
             if (camera == null) camera = Camera.main;
