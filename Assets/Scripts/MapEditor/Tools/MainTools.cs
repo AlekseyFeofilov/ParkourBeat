@@ -1,8 +1,10 @@
 using System;
+using HSVPicker;
 using MapEditor.Select;
+using Unity.VisualScripting;
 using UnityEngine;
 
-namespace MapEditor
+namespace MapEditor.Tools
 {
     public class MainTools : MonoBehaviour
     {
@@ -11,6 +13,8 @@ namespace MapEditor
             MoveTool,
             RotateTool,
             ScaleTool,
+            ColorTool,
+            None,
         }
 
         private Mode ToolMode
@@ -31,6 +35,10 @@ namespace MapEditor
         [SerializeField] private GameObject rotateTool;
 
         [SerializeField] private GameObject scaleTool;
+
+        [SerializeField] private GameObject colorTool;
+
+        [SerializeField] private GameObject canvas;
 
         private GameObject _currentTool;
 
@@ -53,6 +61,11 @@ namespace MapEditor
                 if (Input.GetKeyDown(KeyCode.C))
                 {
                     ToolMode = Mode.ScaleTool;
+                }
+
+                if (Input.GetKeyDown(KeyCode.V))
+                {
+                    ToolMode = Mode.ColorTool;
                 }
             }
 
@@ -85,7 +98,14 @@ namespace MapEditor
                 case Mode.ScaleTool:
                     AddTool(scaleTool);
                     break;
-                
+
+                case Mode.ColorTool:
+                    AddColorTool();
+                    break;
+
+                case Mode.None:
+                    break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -103,6 +123,11 @@ namespace MapEditor
             _needsUpdate = true;
         }
 
+        public void Hide()
+        {
+            ToolMode = Mode.None;
+        }
+
         private void AddTool(GameObject tool)
         {
             var selectedObjTransform = MainSelect.SelectedObj.transform;
@@ -115,9 +140,24 @@ namespace MapEditor
             );
         }
 
+        private void AddColorTool()
+        {
+            MainSelect.SelectedObj.AddComponent<ColorPicker>();
+            _currentTool = Instantiate(colorTool, canvas.transform);
+        }
+
         private void DestroyTool()
         {
             if (!_currentTool) return;
+            if (_currentTool == colorTool) DestroyColorTool();
+
+            Destroy(_currentTool);
+        }
+
+        // ReSharper disable Unity.PerformanceAnalysis
+        private void DestroyColorTool()
+        {
+            Destroy(MainSelect.SelectedObj.GetComponent<ColorPicker>());
             Destroy(_currentTool);
         }
 
