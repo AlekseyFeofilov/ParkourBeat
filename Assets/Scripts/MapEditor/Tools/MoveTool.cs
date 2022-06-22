@@ -11,11 +11,8 @@ namespace MapEditor.Tools
         protected override void Start()
         {
             base.Start();
-            
-            if (!MainSelect.SelectedObj.TryGetComponent(out _movable))
-            {
-                MainTools.Hide();
-            }
+
+            _movable = MainSelect.SelectedObj.GetComponent<IMovable>();
         }
 
         protected override bool OnBegin()
@@ -29,8 +26,6 @@ namespace MapEditor.Tools
             if (!_movable.OnMove(change)) return;
             ((ITool)this).Change(change);
         }
-        
-        
 
         protected override bool OnEnd()
         {

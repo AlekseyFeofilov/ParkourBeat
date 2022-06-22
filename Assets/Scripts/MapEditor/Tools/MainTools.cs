@@ -1,8 +1,8 @@
 using System;
 using HSVPicker;
+using MapEditor.ChangeableInterfaces;
 using MapEditor.Select;
 using UnityEngine;
-using VisualEffect.Object;
 
 namespace MapEditor.Tools
 {
@@ -14,7 +14,6 @@ namespace MapEditor.Tools
             RotateTool,
             ScaleTool,
             ColorTool,
-            None,
         }
 
         private Mode ToolMode
@@ -88,22 +87,31 @@ namespace MapEditor.Tools
             switch (_toolMode)
             {
                 case Mode.MoveTool:
-                    AddTool(moveTool);
+                    if (MainSelect.SelectedObj.TryGetComponent(out IMovable _))
+                    {
+                        AddTool(moveTool);
+                    }
                     break;
 
                 case Mode.RotateTool:
-                    AddTool(rotateTool);
+                    if (MainSelect.SelectedObj.TryGetComponent(out IRotatable _))
+                    {
+                        AddTool(rotateTool);
+                    }
                     break;
 
                 case Mode.ScaleTool:
-                    AddTool(scaleTool);
+                    if (MainSelect.SelectedObj.TryGetComponent(out IScalable _))
+                    {
+                        AddTool(scaleTool);
+                    }
                     break;
 
                 case Mode.ColorTool:
-                    AddColorTool();
-                    break;
-
-                case Mode.None:
+                    if (MainSelect.SelectedObj.TryGetComponent(out IColorable _))
+                    {
+                        AddColorTool();
+                    }
                     break;
 
                 default:
@@ -123,11 +131,6 @@ namespace MapEditor.Tools
             _needsUpdate = true;
         }
 
-        public void Hide()
-        {
-            ToolMode = Mode.None;
-        }
-
         private void AddTool(GameObject tool)
         {
             var selectedObjTransform = MainSelect.SelectedObj.transform;
@@ -140,16 +143,33 @@ namespace MapEditor.Tools
             );
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         private void AddColorTool()
         {
             _currentTool = Instantiate(colorTool, canvas.transform);
-            ColorPicker picker = _currentTool.GetComponent<ColorPicker>();
+            var picker = _currentTool.GetComponent<ColorPicker>();
+            StartColorTool(picker);
+            SetColorToolListener(picker);
+        }
 
+        private static void StartColorTool(ColorPicker picker)
+        {
+            if (MainSelect.SelectedObj.TryGetComponent(out Renderer component))
+            {
+                picker._color = component.material.color;
+            }
+        }
+
+        private static void SetColorToolListener(ColorPicker picker)
+        {
             picker.onValueChanged.AddListener(color =>
             {
-                if (MainSelect.SelectedObj.TryGetComponent(out CubeObject renderer))
+                if (!MainSelect.SelectedObj.TryGetComponent(out Renderer component)) return;
+                
+                var colorable = MainSelect.SelectedObj.GetComponent<IColorable>();
+                if (colorable.OnChange(color))
                 {
-                    renderer.Color.SetDefault(color);
+                    component.material.color = color;
                 }
             });
         }
@@ -165,7 +185,6 @@ namespace MapEditor.Tools
         // ReSharper disable Unity.PerformanceAnalysis
         private void DestroyColorTool()
         {
-            Destroy(MainSelect.SelectedObj.GetComponent<ColorPicker>());
             Destroy(_currentTool);
         }
 

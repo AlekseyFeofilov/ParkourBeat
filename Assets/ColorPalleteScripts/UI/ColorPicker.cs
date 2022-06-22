@@ -8,7 +8,7 @@ namespace HSVPicker
         private float _saturation = 0;
         private float _brightness = 0;
 
-        [SerializeField] private Color _color = Color.red;
+        public Color _color = Color.red;
 
         [Header("Setup")] public ColorPickerSetup Setup;
 

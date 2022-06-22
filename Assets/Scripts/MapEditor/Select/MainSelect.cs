@@ -26,6 +26,8 @@ namespace MapEditor.Select
         // ReSharper disable twice Unity.PerformanceCriticalCodeNullComparison
         private void Select()
         {
+            if (UIRaycaster.PointerIsOverUI(Input.mousePosition)) return;
+            
             var obj = GetObjectByMousePosition();
             
             if (SelectedObj == obj) return;
@@ -100,7 +102,7 @@ namespace MapEditor.Select
 
         private void Update()
         {
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(0))
             {
                 Select();
             }
