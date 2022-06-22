@@ -1,27 +1,35 @@
-﻿namespace MapEditor.Tools
+﻿using UnityEngine;
+
+namespace MapEditor.Tools
 {
     public interface ITool
     {
-        protected internal void Change(float speed, string tag)
+        protected internal void Change(Vector3 change);
+
+        protected internal Vector3 GetChange(float speed, string tag)
         {
-            switch (tag)
+            return tag switch
             {
-                case "OX":
-                    ChangeOx(speed);
-                    break;
-
-                case "OY":
-                    ChangeOy(speed);
-                    break;
-
-                case "OZ":
-                    ChangeOz(speed);
-                    break;
-            }
+                "OX" => ChangeOx(speed),
+                "OY" => ChangeOy(speed),
+                "OZ" => ChangeOz(speed),
+                _ => Vector3.zero
+            };
         }
         
-        protected void ChangeOx(float speed);
-        protected void ChangeOy(float speed);
-        protected void ChangeOz(float speed);
+        protected Vector3 ChangeOx(float speed)
+        {
+            return speed * Vector3.right;
+        }
+
+        protected Vector3 ChangeOy(float speed)
+        {
+            return speed * Vector3.up;
+        }
+
+        protected Vector3 ChangeOz(float speed)
+        {
+            return speed * Vector3.forward;
+        }
     }
 }

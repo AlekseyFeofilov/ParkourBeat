@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6325388453876622577}
   - component: {fileID: 6325388453876622578}
   - component: {fileID: 6325388453876622582}
+  - component: {fileID: -5908995906474131042}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -116,3 +117,15 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &-5908995906474131042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6325388453876622579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db946c2319b4df40b3997bb38da5e2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

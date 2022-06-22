@@ -1,24 +1,78 @@
+using MapEditor.ChangeableInterfaces;
+using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
 {
     public class RotateTool : Tool, ITool
     {
-        protected override void Change() => ((ITool)this).Change(Speed * rotateSpeed, tag);
+        private int _clicked;
+        private float _clickTime;
+        private const float ClickDelay = 0.5f;
 
-        void ITool.ChangeOx(float speed)
+        private IRotatable _rotatable;
+
+        protected override void Start()
         {
-            MainTools.Rotate(speed * Vector3.right);
+            base.Start();
+            _rotatable = MainSelect.SelectedObj.GetComponent<IRotatable>();
         }
 
-        void ITool.ChangeOy(float speed)
+        protected override void OnMouseDown()
         {
-            MainTools.Rotate(speed * Vector3.up);
+            base.OnMouseDown();
+
+            if (Time.time - _clickTime > ClickDelay)
+            {
+                _clicked = 0;
+            }
+
+            _clicked++;
+            _clickTime = Time.time;
+
+            if (_clicked == 2)
+            {
+                OnDoubleClick();
+            }
         }
 
-        void ITool.ChangeOz(float speed)
+        private void OnDoubleClick()
         {
-            MainTools.Rotate(speed * Vector3.forward);
+            var rotation = transform.parent.parent.rotation.eulerAngles;
+
+            switch (tag)
+            {
+                case "OX":
+                    MainTools.SetRotation(Quaternion.Euler(0, rotation.y, rotation.z));
+                    break;
+
+                case "OY":
+                    MainTools.SetRotation(Quaternion.Euler(rotation.x, 0, rotation.z));
+                    break;
+
+                case "OZ":
+                    MainTools.SetRotation(Quaternion.Euler(rotation.x, rotation.y,0));
+                    break;
+            }
         }
+
+        protected override bool OnBegin()
+        {
+            return _rotatable.OnBeginRotate();
+        }
+
+        protected override void OnChange()
+        {
+            var change = ((ITool)this).GetChange(Speed * rotateSpeed, tag);
+            if (!_rotatable.OnRotate(change)) return;
+            ((ITool)this).Change(change);
+        }
+
+        protected override bool OnEnd()
+        {
+            return _rotatable.OnEndRotate();
+        }
+
+        void ITool.Change(Vector3 change) => MainTools.Rotate(change);
     }
 }

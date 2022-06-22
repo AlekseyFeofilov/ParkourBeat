@@ -1,24 +1,38 @@
+using MapEditor.ChangeableInterfaces;
+using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
 {
     public class MoveTool : Tool, ITool
     {
-        protected override void Change() => ((ITool)this).Change(ScaledSpeed, tag);
+        private IMovable _movable;
 
-        void ITool.ChangeOx(float speed)
+        protected override void Start()
         {
-            MainTools.Move(speed * Vector3.right);
+            base.Start();
+            _movable = MainSelect.SelectedObj.GetComponent<IMovable>();
         }
 
-        void ITool.ChangeOy(float speed)
+        protected override bool OnBegin()
         {
-            MainTools.Move(speed * Vector3.up);
+            return _movable.OnBeginMove();
         }
 
-        void ITool.ChangeOz(float speed)
+        protected override void OnChange()
         {
-            MainTools.Move(speed * Vector3.forward);
+            var change = ((ITool)this).GetChange(ScaledSpeed, tag);
+            if (!_movable.OnMove(change)) return;
+            ((ITool)this).Change(change);
         }
+        
+        
+
+        protected override bool OnEnd()
+        {
+            return _movable.OnEndMove();
+        }
+
+        void ITool.Change(Vector3 change) => MainTools.Move(change);
     }
 }
