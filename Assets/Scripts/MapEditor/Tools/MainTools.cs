@@ -2,7 +2,6 @@ using System;
 using HSVPicker;
 using MapEditor.ChangeableInterfaces;
 using MapEditor.Select;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace MapEditor.Tools
@@ -15,7 +14,6 @@ namespace MapEditor.Tools
             RotateTool,
             ScaleTool,
             ColorTool,
-            None,
         }
 
         private Mode ToolMode
@@ -116,9 +114,6 @@ namespace MapEditor.Tools
                     }
                     break;
 
-                case Mode.None:
-                    break;
-
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -136,11 +131,6 @@ namespace MapEditor.Tools
             _needsUpdate = true;
         }
 
-        public void Hide()
-        {
-            ToolMode = Mode.None;
-        }
-
         private void AddTool(GameObject tool)
         {
             var selectedObjTransform = MainSelect.SelectedObj.transform;
@@ -153,10 +143,35 @@ namespace MapEditor.Tools
             );
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         private void AddColorTool()
         {
-            MainSelect.SelectedObj.AddComponent<ColorPicker>();
             _currentTool = Instantiate(colorTool, canvas.transform);
+            var picker = _currentTool.GetComponent<ColorPicker>();
+            StartColorTool(picker);
+            SetColorToolListener(picker);
+        }
+
+        private static void StartColorTool(ColorPicker picker)
+        {
+            if (MainSelect.SelectedObj.TryGetComponent(out Renderer component))
+            {
+                picker._color = component.material.color;
+            }
+        }
+
+        private static void SetColorToolListener(ColorPicker picker)
+        {
+            picker.onValueChanged.AddListener(color =>
+            {
+                if (!MainSelect.SelectedObj.TryGetComponent(out Renderer component)) return;
+                
+                var colorable = MainSelect.SelectedObj.GetComponent<IColorable>();
+                if (colorable.OnChange(color))
+                {
+                    component.material.color = color;
+                }
+            });
         }
 
         private void DestroyTool()
@@ -170,7 +185,6 @@ namespace MapEditor.Tools
         // ReSharper disable Unity.PerformanceAnalysis
         private void DestroyColorTool()
         {
-            Destroy(MainSelect.SelectedObj.GetComponent<ColorPicker>());
             Destroy(_currentTool);
         }
 
