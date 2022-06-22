@@ -1,15 +1,24 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MapEditor.Timestamp;
 using MapEditor.Utils;
 using Unity.VisualScripting;
 using UnityEngine;
+using VisualEffect.Function;
+using VisualEffect.Object;
+using VisualEffect.Property;
 
 namespace MapEditor.Trigger
 {
     public class EffectTrigger : MonoBehaviour, IMovable
     {
         public ITimeline Timeline;
-        public EffectTimestamp Timestamp;
+        public List<EffectTimestamp> Timestamps = new();
+
+        public MapTime BeginTime;
+        public MapTime EndTime;
+        public ITimingFunction TimingFunction;
+        public MonoObject Object;
         
         private Transform _fromTransfrom;
         private Transform _toTransfrom;
@@ -50,15 +59,23 @@ namespace MapEditor.Trigger
             _toTransfrom.AddComponent<EffectTriggerEnd>();
             _cylinderTransfrom = transform.Find("Cylinder");
 
-            double beginSecond = Timestamp.BeginTime.ToSecond(Timeline);
+            double beginSecond = BeginTime.ToSecond(Timeline);
             float beginX = (float) Timeline.GetPositionBySecond(beginSecond);
             BeginPosition = new Vector3(beginX, BeginPosition.y, BeginPosition.z);
 
-            double endSecond = Timestamp.EndTime.ToSecond(Timeline);
+            double endSecond = EndTime.ToSecond(Timeline);
             float endX = (float) Timeline.GetPositionBySecond(endSecond);
             EndPosition = new Vector3(endX, EndPosition.y, EndPosition.z);
         }
 
+        public EffectTimestamp AddProperty(IVisualProperty property, object state)
+        {
+            EffectTimestamp effectTimestamp 
+                = Timeline.AddEffectPoint(BeginTime, EndTime, TimingFunction, property, state);
+            Timestamps.Add(effectTimestamp);
+            return effectTimestamp;
+        }
+        
         public EffectTrigger SetX(float x)
         {
             Vector3 pos = transform.position;

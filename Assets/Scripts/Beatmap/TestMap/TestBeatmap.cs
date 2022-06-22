@@ -6,7 +6,7 @@ using UnityEngine;
 using VisualEffect.Function;
 using VisualEffect.Object;
 
-namespace Beatmap
+namespace Beatmap.TestMap
 {
     public class TestBeatmap : MonoBehaviour
     {

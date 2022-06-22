@@ -1,4 +1,5 @@
-﻿using MapEditor.Timestamp;
+﻿using System.Collections.Generic;
+using MapEditor.Timestamp;
 using MapEditor.Utils;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ namespace MapEditor.Trigger
         private Vector3 _beginMovePosition;
 
         private ITimeline Timeline => _effectTrigger.Timeline;
-        private EffectTimestamp Timestamp => _effectTrigger.Timestamp;
+        private List<EffectTimestamp> Timestamps => _effectTrigger.Timestamps;
         
         private void Start()
         {
@@ -50,17 +51,25 @@ namespace MapEditor.Trigger
             Vector3 end = _effectTrigger.EndPosition;
             _effectTrigger.EndPosition = new Vector3(end.x, position.y, position.z);
             
-            Timeline.RemoveEffectPoint(Timestamp);
-
             MapTime beginTime = MapTime.OfSecond(Timeline.GetSecondByPosition(position.x));
             
-            _effectTrigger.Timestamp = Timeline.AddEffectPoint(
-                beginTime,
-                Timestamp.EndTime,
-                Timestamp.TimingFunction,
-                Timestamp.Property,
-                Timestamp.ToState
-            );
+            List<EffectTimestamp> toAdd = new();
+            foreach (var timestamp in Timestamps)
+            {
+                Timeline.RemoveEffectPoint(timestamp);
+                
+                toAdd.Add(Timeline.AddEffectPoint(
+                    beginTime,
+                    timestamp.EndTime,
+                    timestamp.TimingFunction,
+                    timestamp.Property,
+                    timestamp.ToState
+                ));
+            }
+            
+            _effectTrigger.Timestamps.Clear();
+            _effectTrigger.Timestamps.AddRange(toAdd);
+            _effectTrigger.BeginTime = beginTime;
 
             // Обязательно нужно, чтобы не было багов из-за прошлых значений
             Timeline.ResetMove();

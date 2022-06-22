@@ -36,6 +36,10 @@ namespace Beatmap.Object
             }).GetComponent<MonoObject>();
 
             _objects.Add(id, obj);
+
+            if (_counter < id) _counter = id;
+            _counter++;
+            
             return obj;
         }
 
@@ -49,9 +53,15 @@ namespace Beatmap.Object
             };
         }
 
+        public void RemoveObject(MonoObject monoObject)
+        {
+            Destroy(monoObject.gameObject);
+            _objects.RemoveValue(monoObject);
+        }
+
         public MonoObject CreateObject(string type)
         {
-            return CreateOrGetObject(type, _counter++);
+            return CreateOrGetObject(type, _counter);
         }
         
         public long GetIdByObject(MonoObject monoObject)

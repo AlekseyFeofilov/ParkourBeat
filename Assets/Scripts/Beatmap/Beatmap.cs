@@ -31,6 +31,7 @@ namespace Beatmap
             if (camera == null) camera = Camera.main;
             if (string.IsNullOrWhiteSpace(beatmapName)) beatmapName = BeatmapManager.CurrentName;
             
+            JsonManager.AddConverter(new Vector2Converter());
             JsonManager.AddConverter(new Vector3Converter());
             JsonManager.AddConverter(new ColorConverter());
             JsonManager.AddConverter(new ValueConverter());
@@ -42,7 +43,7 @@ namespace Beatmap
             StartCoroutine(AudioUtils.LoadAudio(FileSong, AudioType.MPEG, songSource));
         }
         
-        public void Load()
+        public virtual void Load()
         {
             if (!Directory.Exists(Folder))
             {
