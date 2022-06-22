@@ -5,7 +5,7 @@ using VisualEffect.Property;
 
 namespace VisualEffect.Object
 {
-    public class CubeObject : MonoObject, IMovable, IRotatable, IScalable
+    public class CubeObject : MonoObject, IMovable, IRotatable, IScalable, IColorable
     {
         [VisualPropertyAttribute(Id = "Position")]
         public PositionProperty Position;
@@ -45,6 +45,12 @@ namespace VisualEffect.Object
         public bool OnEndScale()
         {
             BeatmapEditorContext.SetPropertyValue(Scale, transform.localScale);
+            return true;
+        }
+
+        public bool OnChange(Color color)
+        {
+            BeatmapEditorContext.SetPropertyValue(Color, color);
             return true;
         }
 
