@@ -15,7 +15,11 @@ namespace MapEditor.Tools
         protected override void Start()
         {
             base.Start();
-            _rotatable = MainSelect.SelectedObj.GetComponent<IRotatable>();
+            
+            if (!MainSelect.SelectedObj.TryGetComponent(out _rotatable))
+            {
+                MainTools.Hide();
+            }
         }
 
         protected override void Update()
