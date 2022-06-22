@@ -12,10 +12,7 @@ namespace MapEditor.Tools
         {
             base.Start();
             
-            if (!MainSelect.SelectedObj.TryGetComponent(out _scalable))
-            {
-                MainTools.Hide();
-            }
+            _scalable = MainSelect.SelectedObj.GetComponent<IScalable>();
         }
 
         protected override bool OnBegin()

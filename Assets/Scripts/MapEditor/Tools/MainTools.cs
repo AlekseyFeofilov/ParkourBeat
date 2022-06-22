@@ -1,5 +1,6 @@
 using System;
 using HSVPicker;
+using MapEditor.ChangeableInterfaces;
 using MapEditor.Select;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -88,19 +89,31 @@ namespace MapEditor.Tools
             switch (_toolMode)
             {
                 case Mode.MoveTool:
-                    AddTool(moveTool);
+                    if (MainSelect.SelectedObj.TryGetComponent(out IMovable _))
+                    {
+                        AddTool(moveTool);
+                    }
                     break;
 
                 case Mode.RotateTool:
-                    AddTool(rotateTool);
+                    if (MainSelect.SelectedObj.TryGetComponent(out IRotatable _))
+                    {
+                        AddTool(rotateTool);
+                    }
                     break;
 
                 case Mode.ScaleTool:
-                    AddTool(scaleTool);
+                    if (MainSelect.SelectedObj.TryGetComponent(out IScalable _))
+                    {
+                        AddTool(scaleTool);
+                    }
                     break;
 
                 case Mode.ColorTool:
-                    AddColorTool();
+                    if (MainSelect.SelectedObj.TryGetComponent(out IColorable _))
+                    {
+                        AddColorTool();
+                    }
                     break;
 
                 case Mode.None:
