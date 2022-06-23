@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using MapEditor.ChangeableInterfaces;
-using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
@@ -8,27 +8,31 @@ namespace MapEditor.Tools
     {
         private IScalable _scalable;
 
-        protected override void Start()
+        protected override void AddChangeHandler(OutlinedObject selected)
         {
-            base.Start();
-            
-            _scalable = MainSelect.SelectedObj.GetComponent<IScalable>();
+            _scalable = selected.GetComponent<IScalable>();
         }
 
-        protected override bool OnBegin()
+        protected override bool OnBegin(OutlinedObject selected)
         {
-            return _scalable.OnBeginScale();
+            return selected.TryGetComponent(out IScalable scalable) && scalable.OnBeginScale();
         }
 
-        protected override void OnChange()
+        protected override void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(ScaledSpeed, tag);
-            if (!_scalable.OnScale(change)) return;
-            ((ITool)this).Change(change);
-
+            if (_scalable.OnScale(change)) return;
+            
+            MainSelect.Deselect(data.Key);
+            Data.Remove(data.Key);
+        }
+        
+        protected override void Change()
+        {
+            ((ITool)this).Change(((ITool)this).GetChange(ScaledSpeed, tag));
         }
 
-        protected override bool OnEnd()
+        protected override bool OnEnd(OutlinedObject outlinedObject)
         {
             return _scalable.OnEndScale();
         }

@@ -1,14 +1,20 @@
-﻿using MapEditor.Select;
+﻿using System.Collections.Generic;
+using System.Linq;
+using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
 {
     public abstract class Tool : ActivatingObject
     {
-        private bool _activated;
-
+        protected readonly Dictionary<OutlinedObject, Transform> Data = new(); 
+        
         [SerializeField] private float speedBooster = 1f;
         [SerializeField] protected float rotateSpeed = 1f;
+
+        protected MainSelect MainSelect;
+        private MainTools _mainTools;
+        private Camera _camera;
 
         protected float Speed;
         protected float ScaledSpeed;
@@ -17,58 +23,79 @@ namespace MapEditor.Tools
         private Vector3 _projection;
         private Vector3 _offset;
 
-        private Camera _camera;
-        protected MainTools MainTools;
-
-        private Transform _previousTransform;
-
-        protected override void Start()
+            protected override void Start()
         {
             base.Start();
-
             _camera = Camera.main;
-            MainTools = FindObjectOfType<MainTools>();
+            MainSelect = FindObjectOfType<MainSelect>();
+            _mainTools = FindObjectOfType<MainTools>();
         }
 
         protected override void OnMouseDown()
         {
-            if (!OnBegin()) return;
-
             base.OnMouseDown();
-            _previousTransform = MainSelect.SelectedObj.transform;
-            _activated = true;
-            CalculateProperties();
-            _offset = Input.mousePosition;
+
+            foreach (var selected in MainSelect.Selected.Where(OnBegin))
+            {
+                AddChangeHandler(selected);
+                Data[selected] = selected.transform;
+                _offset = Input.mousePosition;
+                CalculateProperties();
+            }
+
+            var copySelected =new List<OutlinedObject>(MainSelect.Selected);
+            
+            foreach (var selected in copySelected.Where(selected => !Data.ContainsKey(selected)))
+            {
+                MainSelect.Deselect(selected);
+            }
         }
 
         protected override void OnMouseUp()
         {
-            if (!OnEnd())
+            base.OnMouseUp();
+
+            while (Data.Count != 0)
             {
-                var selectedObjTransform = MainSelect.SelectedObj.transform;
-                selectedObjTransform.position = _previousTransform.position;
-                selectedObjTransform.rotation = _previousTransform.rotation;
-                selectedObjTransform.localScale = _previousTransform.localScale;
+                EndChange(Data.First());
+            }
+        }
+
+        private void EndChange(KeyValuePair<OutlinedObject, Transform> data)
+        {
+            if (!OnEnd(data.Key))
+            {
+                var selectedObjTransform = data.Key.transform;
+                selectedObjTransform.position = data.Value.position;
+                selectedObjTransform.rotation = data.Value.rotation;
+                selectedObjTransform.localScale = data.Value.localScale;
+                
+                _mainTools.Hide();
             }
 
-            base.OnMouseUp();
-            _activated = false;
+            Data.Remove(data.Key);
         }
 
         protected virtual void Update()
         {
-            if (!_activated) return;
-
-            if (Vector3.Distance(MainSelect.SelectedObj.transform.position, _previousTransform.position) > 100)
+            if (Data.Count != 0)
             {
-                OnMouseUp();
-                return;
+                CalculateProperties();
+                CalculateChanges();
             }
+            
+            foreach (var data in Data)
+            {
+                if (Vector3.Distance(data.Key.transform.position, data.Value.position) > 100)
+                {
+                    EndChange(data);
+                    continue;
+                }
 
-            CalculateProperties();
-            CalculateChanges();
-
-            OnChange();
+                ChangeRequest(data);
+            }
+            
+            if(Data.Count != 0) Change();
         }
         
         private void CalculateProperties()
@@ -96,10 +123,14 @@ namespace MapEditor.Tools
             _offset = Input.mousePosition;
         }
 
-        protected abstract bool OnBegin();
+        protected abstract void AddChangeHandler(OutlinedObject selected);
+        
+        protected abstract bool OnBegin(OutlinedObject selected);
 
-        protected abstract void OnChange();
+        protected abstract void Change();
 
-        protected abstract bool OnEnd();
+        protected abstract void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data);
+
+        protected abstract bool OnEnd(OutlinedObject selected);
     }
 }

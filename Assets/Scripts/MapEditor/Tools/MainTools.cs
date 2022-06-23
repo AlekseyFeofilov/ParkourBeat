@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using HSVPicker;
 using MapEditor.ChangeableInterfaces;
 using MapEditor.Select;
@@ -40,8 +42,14 @@ namespace MapEditor.Tools
         [SerializeField] private GameObject canvas;
 
         private GameObject _currentTool;
+        private MainSelect _mainSelect;
 
         private bool _activated;
+
+        private void Start()
+        {
+            _mainSelect = FindObjectOfType<MainSelect>();
+        }
 
         private void Update()
         {
@@ -87,36 +95,45 @@ namespace MapEditor.Tools
             switch (_toolMode)
             {
                 case Mode.MoveTool:
-                    if (MainSelect.SelectedObj.TryGetComponent(out IMovable _))
+                    if (MainSelect.TryFind<IMovable>())
                     {
                         AddTool(moveTool);
                     }
+
                     break;
 
                 case Mode.RotateTool:
-                    if (MainSelect.SelectedObj.TryGetComponent(out IRotatable _))
+                    if (MainSelect.TryFind<IRotatable>())
                     {
                         AddTool(rotateTool);
                     }
+
                     break;
 
                 case Mode.ScaleTool:
-                    if (MainSelect.SelectedObj.TryGetComponent(out IScalable _))
+                    if (MainSelect.TryFind<IScalable>())
                     {
                         AddTool(scaleTool);
                     }
+
                     break;
 
                 case Mode.ColorTool:
-                    if (MainSelect.SelectedObj.TryGetComponent(out IColorable _))
+                    if (MainSelect.TryFind<IColorable>())
                     {
                         AddColorTool();
                     }
+
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public void Hide()
+        {
+            DestroyTool();
         }
 
         public void Activate()
@@ -133,13 +150,13 @@ namespace MapEditor.Tools
 
         private void AddTool(GameObject tool)
         {
-            var selectedObjTransform = MainSelect.SelectedObj.transform;
+            var selectedObjTransform = MainSelect.Selected[0].transform;
 
             _currentTool = Instantiate(
                 tool,
                 selectedObjTransform.position,
                 selectedObjTransform.rotation,
-                selectedObjTransform.parent
+                selectedObjTransform.parent.parent
             );
         }
 
@@ -148,13 +165,27 @@ namespace MapEditor.Tools
         {
             _currentTool = Instantiate(colorTool, canvas.transform);
             var picker = _currentTool.GetComponent<ColorPicker>();
+            ColorToolCleaner();
             StartColorTool(picker);
             SetColorToolListener(picker);
         }
 
+        private void ColorToolCleaner()
+        {
+            var copySelected = new List<OutlinedObject>(MainSelect.Selected);
+
+            foreach (var selected in copySelected.Where(selected =>
+                         !selected.TryGetComponent(out IColorable _) ||
+                         !selected.TryGetComponent(out Renderer _))
+                    )
+            {
+                _mainSelect.Deselect(selected);
+            }
+        }
+
         private static void StartColorTool(ColorPicker picker)
         {
-            if (MainSelect.SelectedObj.TryGetComponent(out Renderer component))
+            if (MainSelect.Selected[0].TryGetComponent(out Renderer component))
             {
                 picker._color = component.material.color;
             }
@@ -164,10 +195,12 @@ namespace MapEditor.Tools
         {
             picker.onValueChanged.AddListener(color =>
             {
-                if (!MainSelect.SelectedObj.TryGetComponent(out Renderer component)) return;
-                
-                var colorable = MainSelect.SelectedObj.GetComponent<IColorable>();
-                if (colorable.OnChange(color))
+                foreach (var component in
+                         from selected in MainSelect.Selected
+                         let component = selected.GetComponent<Renderer>()
+                         let colorable = selected.GetComponent<IColorable>()
+                         where colorable.OnChange(color)
+                         select component)
                 {
                     component.material.color = color;
                 }
@@ -190,46 +223,49 @@ namespace MapEditor.Tools
 
         public static void Move(Vector3 direction)
         {
-            if (!MainSelect.SelectedObj) return;
-            MainSelect.SelectedObj.transform.parent.Translate(direction);
+            if (MainSelect.Selected.Count == 0) return;
+            MainSelect.Selected.First().transform.parent.parent.Translate(direction);
         }
 
         public static void Rotate(Vector3 rotation)
         {
-            if (!MainSelect.SelectedObj) return;
-            MainSelect.SelectedObj.transform.parent.Rotate(rotation);
+            if (MainSelect.Selected.Count == 0) return;
+            MainSelect.Selected.First().transform.parent.Rotate(rotation);
         }
 
         public static void Scale(Vector3 scaling)
         {
-            if (!MainSelect.SelectedObj) return;
+            if (MainSelect.Selected.Count == 0) return;
 
-            var localScale = MainSelect.SelectedObj.transform.localScale;
-            if (
-                localScale.x + scaling.x < 0 ||
-                localScale.y + scaling.y < 0 ||
-                localScale.z + scaling.z < 0
-            ) return;
-            
-            MainSelect.SelectedObj.transform.localScale += scaling;
+            foreach (var selected in MainSelect.Selected)
+            {
+                var localScale = selected.transform.localScale;
+                if (
+                    localScale.x + scaling.x < 0 ||
+                    localScale.y + scaling.y < 0 ||
+                    localScale.z + scaling.z < 0
+                ) return;
+
+                selected.transform.localScale += scaling;
+            }
         }
 
         public static void SetPosition(Vector3 direction)
         {
-            if (!MainSelect.SelectedObj) return;
-            MainSelect.SelectedObj.transform.parent.position = direction;
+            if (MainSelect.Selected.Count == 0) return;
+            MainSelect.Selected.First().transform.parent.position = direction;
         }
 
         public static void SetRotation(Quaternion rotation)
         {
-            if (!MainSelect.SelectedObj) return;
-            MainSelect.SelectedObj.transform.parent.rotation = rotation;
+            if (MainSelect.Selected.Count == 0) return;
+            MainSelect.Selected.First().transform.parent.rotation = rotation;
         }
 
         public static void SetScale(Vector3 scaling)
         {
-            if (!MainSelect.SelectedObj) return;
-            MainSelect.SelectedObj.transform.localScale = scaling;
+            if (MainSelect.Selected.Count == 0) return;
+            MainSelect.Selected.First().transform.parent.localScale = scaling;
         }
     }
 }

@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using MapEditor.ChangeableInterfaces;
-using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
@@ -11,11 +11,10 @@ namespace MapEditor.Tools
         private const float ClickDelay = 0.5f;
 
         private IRotatable _rotatable;
-
-        protected override void Start()
+        
+        protected override void AddChangeHandler(OutlinedObject selected)
         {
-            base.Start();
-            _rotatable = MainSelect.SelectedObj.GetComponent<IRotatable>();
+            _rotatable = selected.GetComponent<IRotatable>();
         }
 
         protected override void Update()
@@ -48,8 +47,6 @@ namespace MapEditor.Tools
 
         private void OnDoubleClick()
         {
-            var rotation = transform.parent.parent.rotation.eulerAngles;
-
             switch (tag)
             {
                 case "OX":
@@ -69,27 +66,34 @@ namespace MapEditor.Tools
         private void RotationReset(bool resetOx, bool resetOy, bool resetOz)
         {
             var rotation = transform.parent.parent.rotation.eulerAngles;
-            
-            MainTools.SetRotation(Quaternion.Euler(
-                resetOx ? 0 : 1 * rotation.x, 
-                resetOy ? 0 : 1 * rotation.y, 
-                resetOz ? 0 : 1 * rotation.z)
-            );
+
+            foreach (var data in Data)
+            {
+                MainTools.SetRotation(Quaternion.Euler(
+                    resetOx ? 0 : 1 * rotation.x, 
+                    resetOy ? 0 : 1 * rotation.y, 
+                    resetOz ? 0 : 1 * rotation.z)
+                );
+            }
         }
 
-        protected override bool OnBegin()
+        protected override bool OnBegin(OutlinedObject selected)
         {
-            return _rotatable.OnBeginRotate();
+            return selected.TryGetComponent(out IRotatable rotatable) && rotatable.OnBeginRotate();
         }
 
-        protected override void OnChange()
+        protected override void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(Speed * rotateSpeed, tag);
-            if (!_rotatable.OnRotate(change)) return;
-            ((ITool)this).Change(change);
+            if (_rotatable.OnRotate(change)) return;
+            
+            MainSelect.Deselect(data.Key);
+            Data.Remove(data.Key);
         }
 
-        protected override bool OnEnd()
+        protected override void Change() => ((ITool)this).Change(((ITool)this).GetChange(Speed * rotateSpeed, tag));
+
+        protected override bool OnEnd(OutlinedObject outlinedObject)
         {
             return _rotatable.OnEndRotate();
         }
