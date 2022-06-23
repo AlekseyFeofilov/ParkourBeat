@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
 using Serialization;
 using TMPro;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
+using UnityEngine;
 
 namespace MenuMap
 {
@@ -18,27 +16,32 @@ namespace MenuMap
         void Start()
         {
             _folder = $"{Application.persistentDataPath}/Songs";
-            
+
             foreach (var beatmapInfo in GetListBeatmap())
             {
-                var item = Instantiate(prefab);
-                
+                var item = Instantiate(prefab, container);
+                var rectTransform = prefab.GetComponent<RectTransform>();
+
+                rectTransform.sizeDelta = new Vector2(116, container.position.y);
+
                 //заполнить данные
+
                 item.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "bla";
                 item.transform.GetChild(1).gameObject.GetComponent<TextMeshProUGUI>().text = beatmapInfo.Meta.author;
 
-                item.transform.SetParent(container);
+                // Instantiate(item);
+                //item.transform.SetParent(container); 
                 //item.transform.localScale = Vector2.one;
-            
+
                 // var targetTransform = container.transform;
                 // Instantiate(prefab, Vector3.zero, Quaternion.identity, targetTransform);
             }
         }
-        
+
         private List<BeatmapInfo> GetListBeatmap()
         {
             List<BeatmapInfo> _listMaps = new();
-            
+
             foreach (var beatmapDir in Directory.GetDirectories(_folder))
             {
                 string metaFile = $"{beatmapDir}/meta.json";
@@ -50,7 +53,7 @@ namespace MenuMap
 
                     string name = Path.GetDirectoryName(beatmapDir);
                     BeatmapInfo metaInfo = new BeatmapInfo(name, metaData);
-                    
+
                     _listMaps.Add(metaInfo);
                 }
             }
@@ -58,20 +61,4 @@ namespace MenuMap
             return _listMaps;
         }
     }
-
-    //добавление объекта в список объектов
-    //то есть просто добавляем текст в Scroll View
-    // private void AddObjectToList()
-    // {
-    //     var item = Instantiate(_settingsPrefab);
-    //
-    //     item.GetComponentInChildren<Text>().text = "title";
-    //     item.transform.SetParent(_contentContainerListObject);
-    //     item.transform.localScale = Vector2.one;
-    //
-    //     // ScrollView listObj = GameObject.Find("Scroll List Object").GetComponent<ScrollView>();
-    //     // _title.text = "Bla";
-    //     //
-    //     // listObj.contentContainer.Children(_title);
-    // }
 }
