@@ -8,7 +8,7 @@
       "hash": "31bedebac2b714a5ab171493b860d5e714f28f6d"
     },
     "com.unity.collab-proxy": {
-      "version": "1.15.16",
+      "version": "1.15.17",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -188,7 +188,7 @@
       }
     },
     "com.unity.visualscripting": {
-      "version": "1.7.6",
+      "version": "1.7.8",
       "depth": 0,
       "source": "registry",
       "dependencies": {

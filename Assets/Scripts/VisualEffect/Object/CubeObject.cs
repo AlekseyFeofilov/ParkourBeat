@@ -1,11 +1,12 @@
 ﻿using MapEditor;
 using MapEditor.ChangeableInterfaces;
+using MapEditor.Select;
 using UnityEngine;
 using VisualEffect.Property;
 
 namespace VisualEffect.Object
 {
-    public class CubeObject : MonoObject, IMovable, IRotatable, IScalable, IColorable
+    public class CubeObject : MonoObject, ISelectable, IMovable, IRotatable, IScalable, IColorable
     {
         [VisualPropertyAttribute(Id = "Position")]
         public PositionProperty Position;
@@ -62,6 +63,7 @@ namespace VisualEffect.Object
             public PositionProperty(Transform transform)
             {
                 _transform = transform;
+                Default = _transform.position;
             }
 
             protected override void Apply(Vector3 state)
@@ -78,6 +80,7 @@ namespace VisualEffect.Object
             public RotationProperty(Transform transform)
             {
                 _transform = transform;
+                Default = _transform.rotation.eulerAngles;
             }
 
             protected override void Apply(Vector3 state)
@@ -94,6 +97,7 @@ namespace VisualEffect.Object
             public ScaleProperty(Transform transform)
             {
                 _transform = transform;
+                Default = _transform.localScale;
             }
 
             protected override void Apply(Vector3 state)
@@ -110,6 +114,7 @@ namespace VisualEffect.Object
             public ColorProperty(Material material)
             {
                 _material = material;
+                Default = _material.color;
             }
 
             protected override void Apply(Color state)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DataStructures.BiDictionary;
 using MapEditor;
@@ -14,14 +15,19 @@ namespace Beatmap.Object
         private readonly BiDictionary<long, MonoObject> _objects = new();
 
         [SerializeField] public SkyObject skyObject;
+        [SerializeField] public HorizonObject horizonObject;
+        [SerializeField] private Timeline timeline;
         
         [SerializeField] private CubeObject cubePrefab; 
         
         private long _counter;
 
+        public ICollection<MonoObject> Objects => _objects.ValueMap.Keys;
+
         private void Awake()
         {
             _objects.Add(-1L, skyObject);
+            _objects.Add(-2L, horizonObject);
         }
 
         public MonoObject CreateOrGetObject(string type, long id)
@@ -31,6 +37,7 @@ namespace Beatmap.Object
             obj = (type switch
             {
                 "sky" => throw new InvalidOperationException("sky is single object"),
+                "horizon" => throw new InvalidOperationException("horizon is single object"),
                 "cube" => Instantiate(cubePrefab, new Vector3(0, 0, 0), Quaternion.identity),
                 _ => throw new InvalidOperationException("unsupported type")
             }).GetComponent<MonoObject>();
@@ -48,6 +55,7 @@ namespace Beatmap.Object
             return monoObject switch
             {
                 SkyObject => "sky",
+                HorizonObject => "horizon",
                 CubeObject => "cube",
                 _ => throw new InvalidOperationException("unsupported type")
             };
@@ -57,6 +65,10 @@ namespace Beatmap.Object
         {
             Destroy(monoObject.gameObject);
             _objects.RemoveValue(monoObject);
+            foreach (var property in monoObject.Properties.ValueMap.Keys)
+            {
+                timeline.RemoveVisualProperty(property);
+            }
         }
 
         public MonoObject CreateObject(string type)

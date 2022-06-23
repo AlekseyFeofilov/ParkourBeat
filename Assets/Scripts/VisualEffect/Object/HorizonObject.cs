@@ -8,17 +8,17 @@ using VisualEffect.Property;
 
 namespace VisualEffect.Object
 {
-    public class SkyObject : MonoObject, ISelectable, IColorable
+    public class HorizonObject : MonoObject, ISelectable, IColorable
     {
         [SerializeField] private Skybox skybox;
         [SerializeField] private MainTools mainTools;
-        
+
         [VisualPropertyAttribute(Id = "Color")]
-        public SkyColorProperty Color;
+        public HorizonColorProperty Color;
 
         private void Awake()
         {
-            Color = new SkyColorProperty(skybox);
+            Color = new HorizonColorProperty(skybox);
         }
 
         public void OnSelect(SelectEvent @event)
@@ -38,25 +38,26 @@ namespace VisualEffect.Object
             @event.StartColor = Color.Get();
         }
 
-        // Цвет неба
-        public class SkyColorProperty : AbstractColorProperty
+        // Цвет горизонта
+        public class HorizonColorProperty : AbstractColorProperty
         {
-            private static readonly int SkyColor = Shader.PropertyToID("_SkyColor");
+            private static readonly int HorizonColor = Shader.PropertyToID("_HorizonColor");
             private readonly Skybox _skybox;
 
-            public SkyColorProperty(Skybox skybox)
+            public HorizonColorProperty(Skybox skybox)
             {
                 _skybox = skybox;
             }
 
             protected override void Apply(Color state)
             {
-                _skybox.material.SetColor(SkyColor, state);
+                _skybox.material.SetColor(HorizonColor, state);
+                RenderSettings.fogColor = state;
             }
 
             public Color Get()
             {
-                return _skybox.material.GetColor(SkyColor);
+                return _skybox.material.GetColor(HorizonColor);
             }
         }
     }

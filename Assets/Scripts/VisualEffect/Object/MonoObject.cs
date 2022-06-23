@@ -25,6 +25,14 @@ namespace VisualEffect.Object
             }
         }
 
+        public void Reset()
+        {
+            foreach (var property in Properties.ValueMap.Keys)
+            {
+                property.Apply(property.GetDefault());
+            }
+        }
+
         public IVisualProperty GetPropertyById(string id)
         {
             return Properties.KeyMap[id];

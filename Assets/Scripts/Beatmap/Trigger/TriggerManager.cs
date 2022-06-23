@@ -58,6 +58,7 @@ namespace Beatmap.Trigger
         public void RemoveEffectTrigger(EffectTrigger trigger)
         {
             Destroy(trigger.gameObject);
+            
             _effectTriggers.Remove(trigger);
             foreach (var timestamp in trigger.Timestamps.Values)
             {

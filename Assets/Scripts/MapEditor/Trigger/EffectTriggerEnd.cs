@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using MapEditor.ChangeableInterfaces;
+using MapEditor.Select;
 using MapEditor.Timestamp;
+using MapEditor.Tools;
 using UnityEngine;
 using VisualEffect.Property;
 
 namespace MapEditor.Trigger
 {
-    public class EffectTriggerEnd : MonoBehaviour, IMovable, IEffectTriggerPart
+    public class EffectTriggerEnd : MonoBehaviour, ISelectable, IMovable, IEffectTriggerPart
     {
         private const float Epsilon = 0.001f;
 
@@ -14,12 +16,19 @@ namespace MapEditor.Trigger
 
         private ITimeline Timeline => Parent.Timeline;
         private Dictionary<IVisualProperty, EffectTimestamp> Timestamps => Parent.Timestamps;
+        private MainTools _mainTools;
         
         public EffectTrigger Parent { get; private set; }
 
         private void Start()
         {
+            _mainTools = FindObjectOfType<MainTools>();
             Parent = transform.parent.GetComponent<EffectTrigger>();
+        }
+        
+        public void OnSelect(SelectEvent @event)
+        {
+            _mainTools.ToolMode = MainTools.Mode.MoveTool;
         }
 
         public bool OnBeginMove()
@@ -30,7 +39,8 @@ namespace MapEditor.Trigger
 
         public bool OnMove(Vector3 movement)
         {
-            return TryMove();
+            TryMove();
+            return true;
         }
 
         private bool TryMove()

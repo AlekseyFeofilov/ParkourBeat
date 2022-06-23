@@ -1,6 +1,7 @@
 using System;
 using HSVPicker;
 using MapEditor.ChangeableInterfaces;
+using MapEditor.Event;
 using MapEditor.Select;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace MapEditor.Tools
 {
     public class MainTools : MonoBehaviour
     {
-        private enum Mode
+        public enum Mode
         {
             MoveTool,
             RotateTool,
@@ -16,7 +17,7 @@ namespace MapEditor.Tools
             ColorTool,
         }
 
-        private Mode ToolMode
+        public Mode ToolMode
         {
             set
             {
@@ -154,9 +155,16 @@ namespace MapEditor.Tools
 
         private static void StartColorTool(ColorPicker picker)
         {
+            ColorBeginEvent @event = new();
             if (MainSelect.SelectedObj.TryGetComponent(out Renderer component))
             {
-                picker._color = component.material.color;
+                @event.StartColor = component.material.color;
+            }
+            
+            if (MainSelect.SelectedObj.TryGetComponent(out IColorable colorable))
+            {
+                colorable.OnBeginColor(@event);
+                picker._color = @event.StartColor;
             }
         }
 
@@ -164,13 +172,11 @@ namespace MapEditor.Tools
         {
             picker.onValueChanged.AddListener(color =>
             {
+                if (!MainSelect.SelectedObj.TryGetComponent(out IColorable colorable)) return;
+                if (!colorable.OnChange(color)) return;
                 if (!MainSelect.SelectedObj.TryGetComponent(out Renderer component)) return;
                 
-                var colorable = MainSelect.SelectedObj.GetComponent<IColorable>();
-                if (colorable.OnChange(color))
-                {
-                    component.material.color = color;
-                }
+                component.material.color = color;
             });
         }
 

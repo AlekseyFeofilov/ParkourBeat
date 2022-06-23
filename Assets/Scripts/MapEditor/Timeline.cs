@@ -19,7 +19,7 @@ namespace MapEditor
         private readonly List<EffectTimestamp> _beginSortedEffectPoints = new();
         private readonly List<EffectTimestamp> _endSortedEffectPoints = new();
         
-        private readonly ISet<EffectTimestamp> _activeEffects = new HashSet<EffectTimestamp>();
+        private readonly System.Collections.Generic.ISet<EffectTimestamp> _activeEffects = new HashSet<EffectTimestamp>();
         private int _indexByBeginSorted;
         private int _indexByEndSorted;
         private double _lastSecond;
@@ -55,6 +55,7 @@ namespace MapEditor
             
             _speedPoints.RemoveAt(index);
             RecalcSpeedPointsFromIndex(index);
+            _changed = true;
         }
 
         private void RecalcSpeedPointsFromIndex(int index)
@@ -154,6 +155,7 @@ namespace MapEditor
             _bpmPoints.RemoveAt(index);
             RecalcBpmPointsFromIndex(index);
             RecalcSpeedPointsAfterBpmChange();
+            _changed = true;
         }
 
         private void RecalcBpmPointsFromIndex(int index)
@@ -272,7 +274,7 @@ namespace MapEditor
             _endSortedEffectPoints.RemoveAt(endIndex);
 
             // Убираем эффект из списка свойства
-            int prevoiusIndex = CollectionUtils.FindPrevoius(_beginSortedEffectPoints, beginIndex + 1,
+            int prevoiusIndex = CollectionUtils.FindPrevoius(_beginSortedEffectPoints, beginIndex,
                 e => e.Property == effect.Property);
             int nextIndex = CollectionUtils.FindNext(_beginSortedEffectPoints, beginIndex - 1,
                 e => e.Property == effect.Property);
@@ -290,6 +292,47 @@ namespace MapEditor
                     _beginSortedEffectPoints[nextIndex].FromState 
                         = effect.Property.GetDefault();
                     break;
+            }
+            _changed = true;
+        }
+        
+        public void RemoveVisualProperty(IVisualProperty property)
+        {
+            List<EffectTimestamp> list = new();
+            foreach (var effect in _beginSortedEffectPoints)
+            {
+                if (effect.Property == property)
+                {
+                    list.Add(effect);
+                }
+            }
+
+            foreach (var effectTimestamp in list)
+            {
+                RemoveEffectPoint(effectTimestamp);
+            }
+        }
+
+        public void UpdateDefault(IVisualProperty property, object state)
+        {
+            property.SetDefault(state);
+            if (_beginSortedEffectPoints.Count > 0)
+            {
+                _beginSortedEffectPoints[0].FromState = state;
+            }
+        }
+
+        public void UpdateEffect(EffectTimestamp effect, object state)
+        {
+            int beginIndex = _beginSortedEffectPoints.IndexOf(effect);
+            
+            int nextIndex = CollectionUtils.FindNext(_beginSortedEffectPoints, beginIndex,
+                e => e.Property == effect.Property);
+
+            effect.ToState = state;
+            if (nextIndex >= 0)
+            {
+                _beginSortedEffectPoints[nextIndex].FromState = state;
             }
         }
 
@@ -316,8 +359,14 @@ namespace MapEditor
         public void ResetMove()
         {
             _activeEffects.Clear();
-            if (_lastSecond <= 0) MoveForth(0);
-            else MoveBack(0);
+            _indexByBeginSorted = 0;
+            _indexByEndSorted = 0;
+            foreach (var obj in objectManager.Objects)
+            {
+                obj.Reset();
+            }
+            /*if (_lastSecond <= 0) MoveForth(0);
+            else MoveBack(0);*/
             _lastSecond = 0;
         }
 

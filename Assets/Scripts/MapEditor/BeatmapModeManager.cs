@@ -1,6 +1,7 @@
 ﻿using MapEditor.Select;
 using MapEditor.Trigger;
 using UnityEngine;
+using VisualEffect.Object;
 
 namespace MapEditor
 {
@@ -10,6 +11,23 @@ namespace MapEditor
         
         private void Update()
         {
+            if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Global &&
+                MainSelect.SelectedObj == null)
+            {
+                BeatmapEditorContext.Reset();
+                return;
+            }
+            
+            if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Preview &&
+                MainSelect.SelectedObj != null &&
+                MainSelect.SelectedObj.GetComponent<MonoObject>() != null)
+            {
+                BeatmapEditorContext.Trigger = null;
+                BeatmapEditorContext.Mode = BeatmapEditorContext.ToolMode.Global;
+                timeline.Move(0);
+                return;
+            }
+            
             if (Input.GetKeyDown(KeyCode.F))
             {
                 ResetTrigger();
@@ -30,13 +48,6 @@ namespace MapEditor
                     BeatmapEditorContext.Mode = BeatmapEditorContext.ToolMode.Global;
                     timeline.Move(0);
                 }
-            }
-
-            // Превью режим
-            if (Input.GetKeyDown(KeyCode.G))
-            {
-                ResetTrigger();
-                BeatmapEditorContext.Reset();
             }
         }
 

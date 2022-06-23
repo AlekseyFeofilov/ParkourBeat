@@ -16,6 +16,7 @@ namespace Beatmap.TestMap
         private ObjectManager ObjectManager => beatmap.objectManager;
         private TriggerManager TriggerManager => beatmap.triggerManager;
         private SkyObject SkyObject => ObjectManager.skyObject;
+        private HorizonObject HorizonObject => ObjectManager.horizonObject;
 
         public void Start()
         {
@@ -29,14 +30,14 @@ namespace Beatmap.TestMap
                 MapTime.Zero,
                 MapTime.Zero,
                 ITimingFunction.Linear,
-                SkyObject.SkyColor,
+                SkyObject.Color,
                 Color.black
             );
             TriggerManager.CreateEffectTrigger(
                 MapTime.Zero,
                 MapTime.Zero,
                 ITimingFunction.Linear,
-                SkyObject.HorizonColor,
+                HorizonObject.Color,
                 Color.black
             );
         }

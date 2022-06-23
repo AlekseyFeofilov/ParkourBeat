@@ -34,7 +34,7 @@ namespace Utils
 
         public static int FindPrevoius<T>(IList<T> list, int index, Func<T, bool> condition)
         {
-            for (int i = index - 1; i >= 0; i--)
+            for (int i = Math.Min(index - 1, list.Count - 1); i >= 0; i--)
             {
                 if (condition.Invoke(list[i]))
                 {
@@ -47,7 +47,7 @@ namespace Utils
         
         public static int FindNext<T>(IList<T> list, int index, Func<T, bool> condition)
         {
-            for (int i = index + 1; i < list.Count; i++)
+            for (int i = Math.Max(index + 1, 0); i < list.Count; i++)
             {
                 if (condition.Invoke(list[i]))
                 {

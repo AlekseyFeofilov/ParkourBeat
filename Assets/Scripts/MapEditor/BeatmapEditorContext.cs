@@ -1,6 +1,7 @@
 ﻿using System;
 using MapEditor.Timestamp;
 using MapEditor.Trigger;
+using UnityEngine;
 using VisualEffect.Property;
 
 namespace MapEditor
@@ -10,17 +11,29 @@ namespace MapEditor
         public static ToolMode Mode = ToolMode.Preview;
         public static EffectTrigger Trigger;
 
+        public static Timeline LazyTimeline;
+
+        public static Timeline GetTimeline()
+        {
+            if (LazyTimeline == null)
+            {
+                LazyTimeline = GameObject.FindObjectOfType<Timeline>();
+            }
+
+            return LazyTimeline;
+        }
+        
         public static void SetPropertyValue<T>(AbstractVisualProperty<T> property, T value)
         {
             switch (Mode)
             {
                 case ToolMode.Global:
-                    property.Default = value; 
+                    GetTimeline().UpdateDefault(property, value);
                     break;
                 case ToolMode.Trigger:
                     if (Trigger.Timestamps.TryGetValue(property, out EffectTimestamp effect))
                     {
-                        effect.ToState = value;   
+                        GetTimeline().UpdateEffect(effect, value);
                     }
                     else
                     {
