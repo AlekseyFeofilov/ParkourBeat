@@ -61,7 +61,7 @@ namespace Beatmap
 
         public virtual void Load()
         {
-            if (!Directory.Exists(Folder))
+            if (!Directory.Exists(Folder) || !File.Exists(FileBeatmap))
             {
                 timeline.AddBpmPoint(MapTime.Zero, 60);
                 timeline.AddSpeedPoint(MapTime.Zero, 1);
