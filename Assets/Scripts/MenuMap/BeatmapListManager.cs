@@ -3,44 +3,50 @@ using System.IO;
 using Serialization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MenuMap
 {
     public class BeatmapListManager : MonoBehaviour
     {
         [SerializeField] private Transform container;
-        [SerializeField] private GameObject prefab;
+        [SerializeField] private GameObject prefabMap;
+        [SerializeField] private GameObject prefabLargeMap;
+        [SerializeField] private Transform placeForPrefabMap;
         private string _folder;
         private readonly JsonManager _jsonManager = new JsonManager();
+        private GameObject targetObj;
+        private ShowLargeMapWindow _actionTarget;
 
         void Start()
         {
             _folder = $"{Application.persistentDataPath}/Songs";
+            _actionTarget = targetObj.GetComponent<ShowLargeMapWindow>();
 
             foreach (var beatmapInfo in GetListBeatmap())
             {
-                var item = Instantiate(prefab, container);
-                var rectTransform = prefab.GetComponent<RectTransform>();
+                var item = Instantiate(prefabMap, container);
+                var rectTransform = prefabMap.GetComponent<RectTransform>();
 
                 rectTransform.sizeDelta = new Vector2(116, container.position.y);
 
-                //заполнить данные
-
-                item.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "bla";
+                //заполняем данные
+                item.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text =
+                    beatmapInfo.Meta.displayName;
                 item.transform.GetChild(1).gameObject.GetComponent<TextMeshProUGUI>().text = beatmapInfo.Meta.author;
 
-                // Instantiate(item);
-                //item.transform.SetParent(container); 
-                //item.transform.localScale = Vector2.one;
-
-                // var targetTransform = container.transform;
-                // Instantiate(prefab, Vector3.zero, Quaternion.identity, targetTransform);
+                //вешаем показать подробную инфу о карте по клику
+                Button button = item.GetComponent<Button>();
+                button.onClick.AddListener(() =>
+                {
+                    _actionTarget.Show(beatmapInfo, prefabLargeMap, placeForPrefabMap);
+                });
             }
         }
 
         private List<BeatmapInfo> GetListBeatmap()
         {
-            List<BeatmapInfo> _listMaps = new();
+            List<BeatmapInfo> _listMapsInfo = new();
 
             foreach (var beatmapDir in Directory.GetDirectories(_folder))
             {
@@ -52,13 +58,19 @@ namespace MenuMap
                     BeatmapMeta metaData = _jsonManager.Deserialize<BeatmapMeta>(jsonString);
 
                     string name = Path.GetDirectoryName(beatmapDir);
-                    BeatmapInfo metaInfo = new BeatmapInfo(name, metaData);
+                    BeatmapInfo metaInfo = new BeatmapInfo(name, metaData, beatmapDir);
 
-                    _listMaps.Add(metaInfo);
+                    _listMapsInfo.Add(metaInfo);
                 }
             }
 
-            return _listMaps;
+            return _listMapsInfo;
         }
     }
 }
+
+
+// ShowLargeMapWindow script = item.AddComponent<ShowLargeMapWindow>();
+// script.Info = beatmapInfo;
+// script.prefab = prefabLargeMap;
+// script.placeForPrefabMap = placeForPrefabMap;

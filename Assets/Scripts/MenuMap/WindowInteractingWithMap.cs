@@ -1,29 +1,41 @@
+using System.IO;
 using UnityEngine;
 
 namespace MenuMap
 {
     public class WindowInteractingWithMap : MonoBehaviour
     {
-        private string _difficultyLevel; //easy, medium, hard
+        public void AddNewMap()
+        {
+            //TODO: оставила прослушку Роме
+        }
+
+        public void Delete(string path)
+        {
+            //удаляем карту - папку из списка
+            RecursiveDirectoryDelete(path);
+
+            //удаляем карту из листа UI
+        }
 
         public void StartGame()
         {
             //TODO: оставила прослушку Роме
         }
 
-        public void EditMap()
+        private void RecursiveDirectoryDelete(string path)
         {
-            //TODO: оставила прослушку Роме
-        }
+            foreach (var file in Directory.GetFiles(path))
+            {
+                File.Delete(file);
+            }
 
-        public void DeleteMap()
-        {
-            //TODO: СДЕЛАТЬ УДАЛЕНИЕ ИЗ СПИСКА И ПАПКУ КАРТЫ
-        }
+            foreach (var dir in Directory.GetDirectories(path))
+            {
+                RecursiveDirectoryDelete(dir);
+            }
 
-        public void ChangeDifficultyLevel(string difficultyLevel)
-        {
-            _difficultyLevel = difficultyLevel;
+            Directory.Delete(path);
         }
     }
 }

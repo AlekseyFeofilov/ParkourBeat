@@ -4,11 +4,13 @@ namespace MenuMap
     {
         public readonly string Name;
         public readonly BeatmapMeta Meta;
+        public readonly string Path;
 
-        public BeatmapInfo(string name, BeatmapMeta meta)
+        public BeatmapInfo(string name, BeatmapMeta meta, string path)
         {
             Name = name;
             Meta = meta;
+            Path = path;
         }
     }
 }

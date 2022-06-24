@@ -12,6 +12,8 @@ namespace MenuMap
         public long updateDate;
         public bool yourMap;
         public bool defaultMap;
+        public string assessment;
+        public string difficulty;
 
         private void ShowInfoAboutLevel()
         {
