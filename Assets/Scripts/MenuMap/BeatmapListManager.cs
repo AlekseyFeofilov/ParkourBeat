@@ -54,8 +54,9 @@ namespace MenuMap
         {
             List<BeatmapInfo> _listMapsInfo = new();
 
-            foreach (var beatmapDir in Directory.GetDirectories(_folder))
+            foreach (var dir in Directory.GetDirectories(_folder))
             {
+                string beatmapDir = dir.Replace("\\", "/");
                 string metaFile = $"{beatmapDir}/meta.json";
                 if (File.Exists(metaFile))
                 {
@@ -63,7 +64,7 @@ namespace MenuMap
                     string jsonString = File.ReadAllText(metaFile);
                     BeatmapMeta metaData = _jsonManager.Deserialize<BeatmapMeta>(jsonString);
 
-                    string name = Path.GetDirectoryName(beatmapDir);
+                    string name = new DirectoryInfo(beatmapDir).Name;
                     BeatmapInfo metaInfo = new BeatmapInfo(name, metaData, beatmapDir);
 
                     _listMapsInfo.Add(metaInfo);
