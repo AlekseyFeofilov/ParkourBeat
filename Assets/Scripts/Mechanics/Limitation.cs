@@ -4,16 +4,16 @@ namespace Mechanics
 {
     public class Limitation : MonoBehaviour
     {
-        private GamaManager _gamaManager;
+        private GameManager _gamaManager;
 
         private void Start()
         {
-            _gamaManager = FindObjectOfType<GamaManager>();
+            _gamaManager = FindObjectOfType<GameManager>();
         }
 
         private void OnCollisionEnter()
         {
-            _gamaManager.EndGame();
+            _gamaManager.EndGame(0);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Beatmap
 {
     public class BeatmapManager : MonoBehaviour
     {
-        public static string CurrentName { get; private set; } = "Example";
+        public static string CurrentName { get; private set; } = "LaLiDia";
 
         public void LoadBeatmapInPlaymode()
         {

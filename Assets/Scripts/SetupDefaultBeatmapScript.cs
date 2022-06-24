@@ -2,22 +2,19 @@
 using System.IO.Compression;
 using UnityEngine;
 
-namespace DefaultNamespace
+public class SetupDefaultBeatmapScript : MonoBehaviour
 {
-    public class SetupDefaultBeatmapScript : MonoBehaviour
+
+    private void Start()
     {
+        string folder = $"{Application.persistentDataPath}/Songs";
 
-        private void Start()
-        {
-            string folder = $"{Application.persistentDataPath}/Songs";
-
-            if (Directory.Exists(folder)) return;
+        if (Directory.Exists(folder)) return;
             
-            var songs = Resources.Load<TextAsset>("Songs");
-            string zip = $"{folder}.zip";
-            File.WriteAllBytes(zip, songs.bytes);
+        var songs = Resources.Load<TextAsset>("Songs");
+        string zip = $"{folder}.zip";
+        File.WriteAllBytes(zip, songs.bytes);
                 
-            ZipFile.ExtractToDirectory(zip, Application.persistentDataPath);
-        }
+        ZipFile.ExtractToDirectory(zip, Application.persistentDataPath);
     }
 }
