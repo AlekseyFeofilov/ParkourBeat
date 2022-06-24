@@ -1,4 +1,5 @@
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace MenuMap
@@ -10,12 +11,14 @@ namespace MenuMap
             //TODO: оставила прослушку Роме
         }
 
-        public void Delete(string path)
+        public void Delete(string path, GameObject map, GameObject manyInfoMap)
         {
             //удаляем карту - папку из списка
             RecursiveDirectoryDelete(path);
 
             //удаляем карту из листа UI
+            Destroy(map.GameObject());
+            Destroy(manyInfoMap.GameObject());
         }
 
         public void StartGame()

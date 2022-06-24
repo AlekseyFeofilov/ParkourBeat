@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 using Serialization;
 using TMPro;
 using UnityEngine;
@@ -15,8 +16,8 @@ namespace MenuMap
         [SerializeField] private Transform placeForPrefabMap;
         private string _folder;
         private readonly JsonManager _jsonManager = new JsonManager();
-        private GameObject targetObj;
-        private ShowLargeMapWindow _actionTarget;
+        [SerializeField] GameObject targetObj;
+        [CanBeNull] private ShowLargeMapWindow _actionTarget;
 
         void Start()
         {
@@ -39,7 +40,7 @@ namespace MenuMap
                 Button button = item.GetComponent<Button>();
                 button.onClick.AddListener(() =>
                 {
-                    _actionTarget.Show(beatmapInfo, prefabLargeMap, placeForPrefabMap);
+                    _actionTarget.Show(beatmapInfo, prefabLargeMap, placeForPrefabMap, item);
                 });
             }
         }
