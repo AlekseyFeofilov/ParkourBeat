@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,6 +27,9 @@ namespace MenuMap
             var position = placeForPrefabMap.position;
 
             rectTransform.sizeDelta = new Vector2(position.x, position.y);
+
+            item.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = info.Meta.displayName;
+            item.transform.GetChild(1).gameObject.GetComponent<TextMeshProUGUI>().text = info.Meta.author;
 
             if (info.Meta.yourMap)
             {
