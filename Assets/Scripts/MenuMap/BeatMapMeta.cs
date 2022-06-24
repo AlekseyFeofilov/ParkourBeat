@@ -10,7 +10,7 @@ namespace MenuMap
         public string author;
         public long publicationDate;
         public long updateDate;
-        public bool yourMap;
+        public bool yoursMap;
         public bool defaultMap;
         public string assessment;
         public string difficulty;

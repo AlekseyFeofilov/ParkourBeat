@@ -8,7 +8,7 @@ namespace MenuMap
     {
         public void AddNewMap()
         {
-            //TODO: оставила прослушку Роме
+            //TODO: в разработке
         }
 
         public void Delete(string path, GameObject map, GameObject manyInfoMap)
@@ -19,11 +19,6 @@ namespace MenuMap
             //удаляем карту из листа UI
             Destroy(map.GameObject());
             Destroy(manyInfoMap.GameObject());
-        }
-
-        public void StartGame()
-        {
-            //TODO: оставила прослушку Роме
         }
 
         private void RecursiveDirectoryDelete(string path)

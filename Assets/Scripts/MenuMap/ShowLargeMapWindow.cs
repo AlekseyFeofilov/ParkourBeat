@@ -1,3 +1,4 @@
+using Beatmap;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -15,7 +16,12 @@ namespace MenuMap
             _actionWindowInteractingWithMap = _targetObj.GetComponent<WindowInteractingWithMap>();
         }
 
-        public void Show(BeatmapInfo info, GameObject prefab, Transform placeForPrefabMap, GameObject currentMap)
+        public void Show(
+            BeatmapInfo info,
+            GameObject prefab,
+            Transform placeForPrefabMap,
+            GameObject currentMap,
+            BeatmapManager beatmapManager)
         {
             if (placeForPrefabMap.transform.childCount > 0)
             {
@@ -31,29 +37,39 @@ namespace MenuMap
             item.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = info.Meta.displayName;
             item.transform.GetChild(1).gameObject.GetComponent<TextMeshProUGUI>().text = info.Meta.author;
 
-            if (info.Meta.yourMap)
+            if (info.Meta.yoursMap)
             {
                 //показали кнопку редактирования в UI
                 item.transform.GetChild(8).GameObject().SetActive(true);
-
-                //TODO: оставила далее прослушку Роме
             }
+
+            //прослушка редактирования игры
+            Button editBtn = item.transform.GetChild(8).gameObject.GetComponent<Button>();
+            editBtn.onClick.AddListener(() =>
+            {
+                beatmapManager.SetName(info.Name);
+                beatmapManager.LoadBeatmapInEditmode();
+            });
 
             if (info.Meta.defaultMap)
             {
                 item.transform.GetChild(9).GameObject().SetActive(true);
-
-                //удаляем карту по клику
-                Button deleteMap = item.transform.GetChild(9).GetComponent<Button>();
-                deleteMap.onClick.AddListener(() =>
-                {
-                    _actionWindowInteractingWithMap.Delete(info.Path, currentMap, item);
-                });
             }
 
-            //вешаем запуск игры на клик
-            Button startGame = item.transform.GetChild(7).GetComponent<Button>();
-            startGame.onClick.AddListener(() => { _actionWindowInteractingWithMap.StartGame(); });
+            //прослушка удаления карты
+            Button deleteMap = item.transform.GetChild(9).GetComponent<Button>();
+            deleteMap.onClick.AddListener(() =>
+            {
+                _actionWindowInteractingWithMap.Delete(info.Path, currentMap, item);
+            });
+
+            //прослушка запуска карты
+            Button startBtn = item.transform.GetChild(7).gameObject.GetComponent<Button>();
+            startBtn.onClick.AddListener(() =>
+            {
+                beatmapManager.SetName(info.Name);
+                beatmapManager.LoadBeatmapInPlaymode();
+            });
         }
     }
 }

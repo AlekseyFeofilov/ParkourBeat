@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Beatmap;
 using JetBrains.Annotations;
 using Serialization;
 using TMPro;
@@ -10,6 +11,7 @@ namespace MenuMap
 {
     public class BeatmapListManager : MonoBehaviour
     {
+        [SerializeField] private BeatmapManager beatmapManager;
         [SerializeField] private Transform container;
         [SerializeField] private GameObject prefabMap;
         [SerializeField] private GameObject prefabLargeMap;
@@ -35,16 +37,19 @@ namespace MenuMap
                 item.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text =
                     beatmapInfo.Meta.displayName;
                 item.transform.GetChild(1).gameObject.GetComponent<TextMeshProUGUI>().text = beatmapInfo.Meta.author;
+                var bla1 = beatmapInfo.Meta.defaultMap;
+
 
                 //вешаем показать подробную инфу о карте по клику
                 Button button = item.GetComponent<Button>();
                 button.onClick.AddListener(() =>
                 {
-                    _actionTarget.Show(beatmapInfo, prefabLargeMap, placeForPrefabMap, item);
+                    _actionTarget.Show(beatmapInfo, prefabLargeMap, placeForPrefabMap, item, beatmapManager);
                 });
             }
         }
 
+        //формируем лист с мета-данными каждой карты
         private List<BeatmapInfo> GetListBeatmap()
         {
             List<BeatmapInfo> _listMapsInfo = new();
