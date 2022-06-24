@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using MapEditor.ChangeableInterfaces;
-using MapEditor.Select;
 using UnityEngine;
 
 namespace MapEditor.Tools
@@ -7,27 +7,29 @@ namespace MapEditor.Tools
     public class MoveTool : Tool, ITool
     {
         private IMovable _movable;
-
-        protected override void Start()
+        
+        protected override void AddChangeHandler(OutlinedObject selected)
         {
-            base.Start();
-
-            _movable = MainSelect.SelectedObj.GetComponent<IMovable>();
+            _movable = selected.GetComponent<IMovable>();
         }
 
-        protected override bool OnBegin()
+        protected override bool OnBegin(OutlinedObject selected)
         {
-            return _movable.OnBeginMove();
+            return selected.TryGetComponent(out IMovable movable) && movable.OnBeginMove();
         }
 
-        protected override void OnChange()
+        protected override void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(ScaledSpeed, tag);
-            if (!_movable.OnMove(change)) return;
-            ((ITool)this).Change(change);
+            if (_movable.OnMove(change)) return;
+            
+            MainSelect.Deselect(data.Key);
+            Data.Remove(data.Key);
         }
 
-        protected override bool OnEnd()
+        protected override void Change() => ((ITool)this).Change(((ITool)this).GetChange(ScaledSpeed, tag));
+
+        protected override bool OnEnd(OutlinedObject selected)
         {
             return _movable.OnEndMove();
         }
