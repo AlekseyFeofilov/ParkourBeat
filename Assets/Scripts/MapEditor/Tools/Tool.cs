@@ -59,6 +59,8 @@ namespace MapEditor.Tools
             {
                 EndChange(Data.First());
             }
+            
+            MainTools.UpdateTool();
         }
 
         private void EndChange(KeyValuePair<OutlinedObject, Transform> data)

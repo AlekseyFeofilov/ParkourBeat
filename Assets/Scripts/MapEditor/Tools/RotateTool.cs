@@ -11,7 +11,7 @@ namespace MapEditor.Tools
         private const float ClickDelay = 0.5f;
 
         private IRotatable _rotatable;
-        
+
         protected override void AddChangeHandler(OutlinedObject selected)
         {
             _rotatable = selected.GetComponent<IRotatable>();
@@ -23,7 +23,7 @@ namespace MapEditor.Tools
             {
                 RotationReset(true, true, true);
             }
-            
+
             base.Update();
         }
 
@@ -63,18 +63,10 @@ namespace MapEditor.Tools
             }
         }
 
-        private void RotationReset(bool resetOx, bool resetOy, bool resetOz)
+        private static void RotationReset(bool resetOx, bool resetOy, bool resetOz)
         {
-            var rotation = transform.parent.parent.rotation.eulerAngles;
-
-            foreach (var data in Data)
-            {
-                MainTools.SetRotation(Quaternion.Euler(
-                    resetOx ? 0 : 1 * rotation.x, 
-                    resetOy ? 0 : 1 * rotation.y, 
-                    resetOz ? 0 : 1 * rotation.z)
-                );
-            }
+            MainTools.RotationReset(resetOx, resetOy, resetOz);
+            MainTools.UpdateTool();
         }
 
         protected override bool OnBegin(OutlinedObject selected)
@@ -86,7 +78,7 @@ namespace MapEditor.Tools
         {
             var change = ((ITool)this).GetChange(Speed * rotateSpeed, tag);
             if (_rotatable.OnRotate(change)) return;
-            
+
             MainSelect.Deselect(data.Key);
             Data.Remove(data.Key);
         }

@@ -83,10 +83,11 @@ namespace MapEditor.Select
             var wrapper = Instantiate(
                 emptyObject,
                 mainWrapper.position,
-                mainWrapper.rotation,
-                mainWrapper
+                mainWrapper.rotation
             ).transform;
 
+            wrapper.parent = mainWrapper;
+            
             mainWrapper.name = "Selection";
             wrapper.name = "Selected";
             mainTools.Activate();

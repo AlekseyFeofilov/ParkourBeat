@@ -29,7 +29,7 @@ namespace MapEditor.Tools
 
         private Mode _toolMode = Mode.MoveTool;
 
-        private bool _needsUpdate;
+        private static bool _needsUpdate;
 
         [SerializeField] private GameObject moveTool;
 
@@ -256,10 +256,29 @@ namespace MapEditor.Tools
             MainSelect.Selected.First().transform.parent.position = direction;
         }
 
-        public static void SetRotation(Quaternion rotation)
+        public static void RotationReset(bool resetOx, bool resetOy, bool resetOz)
         {
             if (MainSelect.Selected.Count == 0) return;
-            MainSelect.Selected.First().transform.parent.rotation = rotation;
+
+            var rotarion1 = MainSelect.Selected.First().transform.parent.rotation;
+            var rotarion2 = MainSelect.Selected.First().transform.parent.parent.rotation;
+
+            MainSelect.Selected.First().transform.parent.rotation = Quaternion.Euler(
+                resetOx ? 0 : 1 * rotarion1.x,
+                resetOx ? 0 : 1 * rotarion1.y,
+                resetOx ? 0 : 1 * rotarion1.z
+            );
+
+            MainSelect.Selected.First().transform.parent.parent.rotation = Quaternion.Euler(
+                resetOx ? 0 : 1 * rotarion2.x,
+                resetOx ? 0 : 1 * rotarion2.y,
+                resetOx ? 0 : 1 * rotarion2.z
+            );
+        }
+
+        public static void UpdateTool()
+        {
+            _needsUpdate = true;
         }
 
         public static void SetScale(Vector3 scaling)
