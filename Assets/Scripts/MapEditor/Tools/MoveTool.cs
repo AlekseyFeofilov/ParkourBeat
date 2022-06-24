@@ -21,8 +21,9 @@ namespace MapEditor.Tools
         protected override void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(ScaledSpeed, tag);
-            if (_movable.OnMove(change)) return;
-            
+
+            if (!data.Key.TryGetComponent(out IMovable movable) || movable.OnMove(change)) return;
+
             MainSelect.Deselect(data.Key);
             Data.Remove(data.Key);
         }
@@ -31,7 +32,7 @@ namespace MapEditor.Tools
 
         protected override bool OnEnd(OutlinedObject selected)
         {
-            return _movable.OnEndMove();
+            return !selected.TryGetComponent(out IMovable movable) || movable.OnEndMove();
         }
 
         void ITool.Change(Vector3 change) => MainTools.Move(change);

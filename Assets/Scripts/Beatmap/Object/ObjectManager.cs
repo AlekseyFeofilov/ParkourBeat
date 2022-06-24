@@ -38,7 +38,7 @@ namespace Beatmap.Object
             {
                 "sky" => throw new InvalidOperationException("sky is single object"),
                 "horizon" => throw new InvalidOperationException("horizon is single object"),
-                "cube" => Instantiate(cubePrefab, new Vector3(0, 0, 0), Quaternion.identity),
+                "cube" => Instantiate(cubePrefab),
                 _ => throw new InvalidOperationException("unsupported type")
             }).GetComponent<MonoObject>();
 
@@ -48,6 +48,18 @@ namespace Beatmap.Object
             _counter++;
             
             return obj;
+        }
+
+        public MonoObject CopyObject(MonoObject monoObject)
+        {
+            MonoObject copy = CreateObject(GetTypeByObject(monoObject)); 
+            
+            foreach (var (id, property) in monoObject.Properties)
+            {
+                copy.GetPropertyById(id).SetDefault(property.GetDefault());
+            }
+
+            return copy;
         }
 
         public string GetTypeByObject(MonoObject monoObject)

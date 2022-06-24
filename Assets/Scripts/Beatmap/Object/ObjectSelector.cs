@@ -11,12 +11,14 @@ namespace Beatmap.Object
         public void SelectSky()
         {
             var outlined = objectManager.skyObject.GetComponent<OutlinedObject>();
+            mainSelect.Deselect();
             mainSelect.Select(outlined);
         }
 
         public void SelectHorizon()
         {
             var outlined = objectManager.horizonObject.GetComponent<OutlinedObject>();
+            mainSelect.Deselect();
             mainSelect.Select(outlined);
         }
     }

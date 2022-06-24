@@ -21,8 +21,9 @@ namespace MapEditor.Tools
         protected override void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(ScaledSpeed, tag);
-            if (_scalable.OnScale(change)) return;
             
+            if (!data.Key.TryGetComponent(out IScalable scalable) || scalable.OnScale(change)) return;
+
             MainSelect.Deselect(data.Key);
             Data.Remove(data.Key);
         }
@@ -34,7 +35,7 @@ namespace MapEditor.Tools
 
         protected override bool OnEnd(OutlinedObject outlinedObject)
         {
-            return _scalable.OnEndScale();
+            return !outlinedObject.TryGetComponent(out IScalable scalable) || scalable.OnEndScale();
         }
         
         void ITool.Change(Vector3 change) => MainTools.Scale(change);

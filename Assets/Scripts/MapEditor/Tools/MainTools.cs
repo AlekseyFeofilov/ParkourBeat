@@ -176,8 +176,7 @@ namespace MapEditor.Tools
             var copySelected = new List<OutlinedObject>(MainSelect.Selected);
 
             foreach (var selected in copySelected.Where(selected =>
-                         !selected.TryGetComponent(out IColorable _) ||
-                         !selected.TryGetComponent(out Renderer _))
+                         !selected.TryGetComponent(out IColorable _))
                     )
             {
                 _mainSelect.Deselect(selected);

@@ -77,7 +77,8 @@ namespace MapEditor.Tools
         protected override void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(Speed * rotateSpeed, tag);
-            if (_rotatable.OnRotate(change)) return;
+            
+            if (!data.Key.TryGetComponent(out IRotatable rotatable) || rotatable.OnRotate(change)) return;
 
             MainSelect.Deselect(data.Key);
             Data.Remove(data.Key);
@@ -87,7 +88,7 @@ namespace MapEditor.Tools
 
         protected override bool OnEnd(OutlinedObject outlinedObject)
         {
-            return _rotatable.OnEndRotate();
+            return !outlinedObject.TryGetComponent(out IRotatable rotatable) || rotatable.OnEndRotate();
         }
 
         void ITool.Change(Vector3 change) => MainTools.Rotate(change);
