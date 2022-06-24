@@ -6,14 +6,17 @@ TagManager:
   tags:
   - Top
   - Bottom
+  - OY
+  - OZ
+  - OX
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Selectable Mask
   - Water
   - UI
-  - 
+  - Tool
   - 
   - 
   - 

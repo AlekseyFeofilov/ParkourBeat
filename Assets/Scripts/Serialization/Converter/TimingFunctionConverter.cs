@@ -16,6 +16,18 @@ namespace Serialization.Converter
                 case LinearFunction:
                     writer.WriteValue("linear");
                     break;
+                case EaseFunction:
+                    writer.WriteValue("ease");
+                    break;
+                case EaseInFunction:
+                    writer.WriteValue("ease-in");
+                    break;
+                case EaseOutFunction:
+                    writer.WriteValue("ease-out");
+                    break;
+                case EaseInOutFunction:
+                    writer.WriteValue("ease-in-out");
+                    break;
                 case CubicBezierFunction bezier:
                     writer.WriteValue("cubic-bezier(" + bezier.X1 + ";" + bezier.Y1 + ";" + bezier.X2 + ";" + bezier.Y2 + ")");
                     break;
@@ -35,6 +47,22 @@ namespace Serialization.Converter
             if (read == "linear")
             {
                 return ITimingFunction.Linear;
+            }
+            if (read == "ease")
+            {
+                return ITimingFunction.Ease;
+            }
+            if (read == "ease-in")
+            {
+                return ITimingFunction.EaseIn;
+            }
+            if (read == "ease-out")
+            {
+                return ITimingFunction.EaseOut;
+            }
+            if (read == "ease-in-out")
+            {
+                return ITimingFunction.EaseInOut;
             }
 
             if (read.StartsWith("cubic-bezier"))

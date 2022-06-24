@@ -1,56 +1,67 @@
 ﻿using System;
-using UnityEngine;
-using VisualEffect.Function;
+using VisualEffect.Object;
 
 namespace VisualEffect.Property
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class VisualPropertyAttribute : Attribute
     {
-        
+        public string Id;
     }
 
-    public interface IVisualUpdatable
+    public interface IVisualProperty
     {
-        void Update();
+        public MonoObject Parent { get; set; }
+
+        public void Apply(object state);
+
+        public object Calculate(float multiplier, object from, object to);
+
+        public object GetDefault();
+
+        public void SetDefault(object def);
     }
 
-    public abstract class AbstractVisualProperty<T> : IVisualUpdatable
+    public abstract class AbstractVisualProperty<T> : IVisualProperty
     {
-        private ITimingFunction _timingFunction;
-        private float _initialTime;
-        private float _targetTime;
-        protected T Initial;
-        protected T Target;
+        private MonoObject _parent;
         
-        public abstract T Value { get; set; }
+        public abstract T Default { get; set; }
+        
+        protected abstract void Apply(T state);
 
-        protected abstract void OnUpdate(float multiplier);
+        protected abstract T Calculate(float multiplier, T from, T to);
 
-        public void Update()
+        public object Calculate(float multiplier, object from, object to)
         {
-            if (_timingFunction == null) return;
-            
-            float time = (Time.time - _initialTime) / (_targetTime - _initialTime);
-            float multiplier = _timingFunction.Get(time);
-                
-            if (time >= 1) _timingFunction = null;
+            if (from is not T fromCasted || to is not T toCasted) 
+                throw new InvalidCastException();
+            return Calculate(multiplier, fromCasted, toCasted);
+        }
 
-            OnUpdate(Math.Max(0, Math.Min(1, multiplier)));
+        public MonoObject Parent
+        {
+            get => _parent;
+            set => _parent = value;
+        }
+
+        public void Apply(object state)
+        {
+            if (state is not T stateCasted)
+                throw new InvalidCastException();
+            Apply(stateCasted);
         }
         
-        public void BeginTransition(T value, float duration, ITimingFunction timingFunction)
+        public object GetDefault()
         {
-            if (duration == 0)
-            {
-                Value = value;
-                return;
-            }
-            _timingFunction = timingFunction;
-            Initial = Value;
-            _initialTime = Time.time;
-            Target = value;
-            _targetTime = _initialTime + duration;
+            return Default;
+        }
+
+        public void SetDefault(object def)
+        {
+            if (def is not T defCasted)
+                throw new InvalidCastException();
+            Default = defCasted;
         }
     }
 }

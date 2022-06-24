@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using DataStructures.BiDictionary;
 using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer.Internal;
 using UnityEngine;
@@ -8,28 +8,39 @@ namespace VisualEffect.Object
 {
     public class MonoObject : MonoBehaviour
     {
-        private readonly ICollection<IVisualUpdatable> _properties = new List<IVisualUpdatable>();
+        public readonly BiDictionary<string, IVisualProperty> Properties = new();
 
         private void OnEnable()
         {
             foreach (var field in GetType().GetDeclaredFields())
             {
                 if (!field.HasAttribute(typeof(VisualPropertyAttribute))) continue;
+                string id = field.GetAttribute<VisualPropertyAttribute>().Id;
                 object property = field.GetValue(this);
+
+                if (property is not IVisualProperty updatable) continue;
                 
-                if (property is IVisualUpdatable updatable)
-                {
-                    _properties.Add(updatable);   
-                }
+                updatable.Parent = this;
+                Properties.Add(id, updatable);
             }
         }
 
-        protected void LateUpdate()
+        public void Reset()
         {
-            foreach (var updatable in _properties)
+            foreach (var property in Properties.ValueMap.Keys)
             {
-                updatable.Update();
+                property.Apply(property.GetDefault());
             }
+        }
+
+        public IVisualProperty GetPropertyById(string id)
+        {
+            return Properties.KeyMap[id];
+        }
+
+        public string GetIdByProperty(IVisualProperty property)
+        {
+            return Properties.ValueMap[property];
         }
     }
 }

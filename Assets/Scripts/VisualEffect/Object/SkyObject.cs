@@ -1,21 +1,41 @@
+using MapEditor;
+using MapEditor.ChangeableInterfaces;
+using MapEditor.Event;
+using MapEditor.Select;
+using MapEditor.Tools;
 using UnityEngine;
 using VisualEffect.Property;
 
 namespace VisualEffect.Object
 {
-    public class SkyObject : MonoObject
+    public class SkyObject : MonoObject, ISelectable, IColorable
     {
-        [VisualPropertyAttribute]
-        public SkyColorProperty SkyColor;
+        [SerializeField] private Skybox skybox;
+        [SerializeField] private MainTools mainTools;
         
-        [VisualPropertyAttribute]
-        public HorizonColorProperty HorizonColor;
-        
+        [VisualPropertyAttribute(Id = "Color")]
+        public SkyColorProperty Color;
+
         private void Awake()
         {
-            var skybox = gameObject.GetComponent<Skybox>();
-            SkyColor = new SkyColorProperty(skybox);
-            HorizonColor = new HorizonColorProperty(skybox);
+            Color = new SkyColorProperty(skybox);
+        }
+
+        public void OnSelect(SelectEvent @event)
+        {
+            mainTools.ToolMode = MainTools.Mode.ColorTool;
+        }
+
+        public bool OnChange(Color color)
+        {
+            BeatmapEditorContext.SetPropertyValue(Color, color);
+            Color.Apply(color);
+            return false;
+        }
+
+        public void OnBeginColor(ColorBeginEvent @event)
+        {
+            @event.StartColor = Color.Get();
         }
 
         // Цвет неба
@@ -29,28 +49,14 @@ namespace VisualEffect.Object
                 _skybox = skybox;
             }
 
-            public override Color Value
+            protected override void Apply(Color state)
             {
-                get => _skybox.material.GetColor(SkyColor);
-                set => _skybox.material.SetColor(SkyColor, value);
-            }
-        }
-        
-        // Цвет горизонта
-        public class HorizonColorProperty : AbstractColorProperty
-        {
-            private static readonly int HorizonColor = Shader.PropertyToID("_HorizonColor");
-            private readonly Skybox _skybox;
-
-            public HorizonColorProperty(Skybox skybox)
-            {
-                _skybox = skybox;
+                _skybox.material.SetColor(SkyColor, state);
             }
 
-            public override Color Value
+            public Color Get()
             {
-                get => _skybox.material.GetColor(HorizonColor);
-                set => _skybox.material.SetColor(HorizonColor, value);
+                return _skybox.material.GetColor(SkyColor);
             }
         }
     }
