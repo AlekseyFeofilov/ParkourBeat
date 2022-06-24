@@ -5,8 +5,6 @@ namespace Beatmap
 {
     public class PlayableBeatmap : Beatmap
     {
-        [SerializeField] private GameObject player;
-
         private float _lastX;
         
         private void FixedUpdate()
@@ -18,9 +16,9 @@ namespace Beatmap
             timeline.Move(time);
             
             // Двигаем игрока по x
-            float x = (float) timeline.GetPositionBySecond(time);
+            /*var x = (float) timeline.GetPositionBySecond(time);
             Vector3 pos = player.transform.position;
-            player.transform.position = new Vector3(x, pos.y, pos.z);
+            player.transform.position = new Vector3(x, pos.y, pos.z);*/
         }
         
         protected override void OnInitialized()

@@ -1,10 +1,10 @@
 using UnityEngine;
 
-namespace Mechanics
+namespace Gameplay
 {
     public class Collider : MonoBehaviour
     {
-        public Player player;
+        [SerializeField] private PlayerMovement player;
 
         private void OnTriggerEnter(UnityEngine.Collider other)
         {

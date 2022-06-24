@@ -1,23 +1,18 @@
-using System;
+using Gameplay;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Mechanics
 {
-    public class GamaManager : MonoBehaviour
+    public class GameManager : MonoBehaviour
     {
-        private Player _player;
-
-        private void Start()
-        {
-            _player = FindObjectOfType<Player>();
-        }
+        [SerializeField] private PlayerMovement player;
 
         // ReSharper disable Unity.PerformanceAnalysis
-        public void EndGame()
+        public void EndGame(float timeDelay)
         {
-            _player.enabled = false;
-            Invoke(nameof(RestartGame), 0.5f);
+            player.enabled = false;
+            Invoke(nameof(RestartGame), timeDelay);
         }
 
         private void RestartGame()
