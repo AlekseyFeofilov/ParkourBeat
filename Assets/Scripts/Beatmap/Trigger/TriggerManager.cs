@@ -98,7 +98,7 @@ namespace Beatmap.Trigger
             data.EffectTriggers.AddRange(from trigger in _effectTriggers
                 select new EffectTriggerData
                 {
-                    Position = new Vector2(trigger.BeginPosition.y, trigger.BeginPosition.z),
+                    Position = new Vector2(trigger.BeginPosition.z, trigger.BeginPosition.y),
                     BeginTime = trigger.BeginTime,
                     EndTime = trigger.EndTime,
                     TimingFunction = trigger.TimingFunction,
