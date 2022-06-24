@@ -3,16 +3,16 @@ using System;
 namespace MenuMap
 {
     [Serializable]
-    public class BeatMapMeta
+    public class BeatmapMeta
     {
         public string displayName;
         public string description;
         public string author;
         public long publicationDate;
         public long updateDate;
-
-        private void ShowInfoAboutLevel()
-        {
-        }
+        public bool yourMap;
+        public bool defaultMap;
+        public string assessment;
+        public string difficulty;
     }
 }
