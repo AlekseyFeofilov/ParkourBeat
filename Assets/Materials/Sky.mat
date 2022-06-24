@@ -123,7 +123,7 @@ Material:
     - _Color: {r: 1, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GroundColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HorizonColor: {r: 0.23672009, g: 0.12515637, b: 0.21640734, a: 1}
+    - _HorizonColor: {r: 0.02053252, g: 0.022399113, b: 0.042931635, a: 1}
     - _MoonVector: {r: 0, g: 0, b: 0, a: 0}
     - _SkyColor: {r: 0, g: 0, b: 0, a: 1}
     - _SkyColor1: {r: 1, g: 0, b: 0, a: 1}

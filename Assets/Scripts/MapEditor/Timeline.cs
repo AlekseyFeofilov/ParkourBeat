@@ -316,20 +316,25 @@ namespace MapEditor
         public void UpdateDefault(IVisualProperty property, object state)
         {
             property.SetDefault(state);
-            if (_beginSortedEffectPoints.Count > 0)
+            
+            int nextIndex = CollectionUtils.FindNext(_beginSortedEffectPoints, -1,
+                e => e.Property == property);
+            
+            if (nextIndex >= 0)
             {
-                _beginSortedEffectPoints[0].FromState = state;
+                _beginSortedEffectPoints[nextIndex].FromState = state;
             }
         }
 
         public void UpdateEffect(EffectTimestamp effect, object state)
         {
+            effect.ToState = state;
+            
             int beginIndex = _beginSortedEffectPoints.IndexOf(effect);
             
             int nextIndex = CollectionUtils.FindNext(_beginSortedEffectPoints, beginIndex,
                 e => e.Property == effect.Property);
-
-            effect.ToState = state;
+            
             if (nextIndex >= 0)
             {
                 _beginSortedEffectPoints[nextIndex].FromState = state;

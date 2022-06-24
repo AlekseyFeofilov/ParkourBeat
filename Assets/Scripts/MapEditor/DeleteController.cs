@@ -1,4 +1,5 @@
-﻿using Beatmap.Object;
+﻿using System.Linq;
+using Beatmap.Object;
 using Beatmap.Trigger;
 using MapEditor.Select;
 using MapEditor.Trigger;
@@ -20,17 +21,18 @@ namespace Beatmap
 
         private void DeleteSelected()
         {
-            GameObject selected = MainSelect.SelectedObj.gameObject;
-
-            if (selected.TryGetComponent(out MonoObject monoObject))
+            foreach (GameObject selected in MainSelect.Selected.Select(e => e.gameObject))
             {
-                mainSelect.Deselect();
-                objectManager.RemoveObject(monoObject);
-            }
-            else if (selected.TryGetComponent(out IEffectTriggerPart part))
-            {
-                mainSelect.Deselect();
-                triggerManager.RemoveEffectTrigger(part.Parent);
+                if (selected.TryGetComponent(out MonoObject monoObject))
+                {
+                    mainSelect.Deselect();
+                    objectManager.RemoveObject(monoObject);
+                }
+                else if (selected.TryGetComponent(out IEffectTriggerPart part))
+                {
+                    mainSelect.Deselect();
+                    triggerManager.RemoveEffectTrigger(part.Parent);
+                }
             }
         }
     }

@@ -4,11 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: 
-  - enabled: 1
-    path: Assets/Scenes/BeatmapEditmode.unity
+  m_Scenes:
+  - enabled: 0
+    path: Assets/Scenes/Map Editmode.unity
     guid: e7d0040301d4ce841a7bfd87bac7dfdc
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Map Editmode.unity
     guid: e7d0040301d4ce841a7bfd87bac7dfdc
   - enabled: 1

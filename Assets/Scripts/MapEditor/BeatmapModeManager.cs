@@ -9,18 +9,19 @@ namespace MapEditor
     {
         [SerializeField] private Timeline timeline;
         
+        // TODO сделано по тупому с MainSelect.Selected
         private void Update()
         {
             if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Global &&
-                MainSelect.SelectedObj == null)
+                MainSelect.Selected.Count == 0)
             {
                 BeatmapEditorContext.Reset();
                 return;
             }
             
             if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Preview &&
-                MainSelect.SelectedObj != null &&
-                MainSelect.SelectedObj.GetComponent<MonoObject>() != null)
+                MainSelect.Selected.Count > 0 &&
+                MainSelect.Selected[0].GetComponent<MonoObject>() != null)
             {
                 BeatmapEditorContext.Trigger = null;
                 BeatmapEditorContext.Mode = BeatmapEditorContext.ToolMode.Global;
@@ -33,8 +34,8 @@ namespace MapEditor
                 ResetTrigger();
 
                 // Режим триггера
-                if (MainSelect.SelectedObj != null &&
-                    MainSelect.SelectedObj.gameObject.TryGetComponent(out IEffectTriggerPart part) &&
+                if (MainSelect.Selected.Count > 0 &&
+                    MainSelect.Selected[0].gameObject.TryGetComponent(out IEffectTriggerPart part) &&
                     BeatmapEditorContext.Trigger != part.Parent)
                 {
                     BeatmapEditorContext.Trigger = part.Parent;
