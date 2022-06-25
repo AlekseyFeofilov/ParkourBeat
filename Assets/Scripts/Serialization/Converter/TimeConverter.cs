@@ -33,7 +33,14 @@ namespace Serialization.Converter
 
             if (read == null) return timeData;
 
-            timeData.Value = double.Parse(Regex.Match(read, ValueRegex).Value);
+            try
+            {
+                timeData.Value = double.Parse(Regex.Match(read, ValueRegex).Value);
+            }
+            catch (FormatException)
+            {
+                timeData.Value = 0;
+            }
             timeData.Unit = timeUnitRegistry.KeyMap[Regex.Match(read, UnitRegex).Value];
             return timeData;
         }

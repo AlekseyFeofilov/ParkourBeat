@@ -54,7 +54,7 @@ namespace MapEditor.Tools
 
         private void Update()
         {
-            if (_activated)
+            if (_activated && !Input.GetKey(KeyCode.LeftControl))
             {
                 if (Input.GetKeyDown(KeyCode.Z))
                 {
