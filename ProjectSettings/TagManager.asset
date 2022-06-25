@@ -9,6 +9,10 @@ TagManager:
   - OY
   - OZ
   - OX
+  - Left
+  - Right
+  - Front
+  - Back
   layers:
   - Default
   - TransparentFX

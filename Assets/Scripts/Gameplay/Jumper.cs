@@ -4,19 +4,28 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class Jumping : MonoBehaviour
+    public class Jumper : MonoBehaviour
     {
         [SerializeField] private AnimationCurve animation;
-        [SerializeField] private Transform jumper;
+        [SerializeField] private PlayerMovement player;
+        private Transform _jumper;
+        
         [SerializeField] private float jumpHeight = 0.5f;
         [SerializeField] private float deltaTime = 0.5f;
+        
         private Coroutine _lastAnimation;
         private bool _stopAnimation;
         private float _startHeight;
 
+        private void Start()
+        {
+            _jumper = player.transform;
+        }
+
         public void Jump()
         {
-            _startHeight = jumper.position.y;
+            player.jumping = true;
+            _startHeight = _jumper.position.y;
             // ReSharper disable once Unity.InefficientPropertyAccess
             PlayAnimation(deltaTime);
         }
@@ -26,9 +35,9 @@ namespace Gameplay
             Play(duration, progress =>
             {
                 // ReSharper disable once NotAccessedVariable
-                var position = jumper.position;
+                var position = _jumper.position;
                 position = new Vector3(position.x, jumpHeight * animation.Evaluate(progress) + _startHeight, position.z);
-                jumper.position = position;
+                _jumper.position = position;
                 return 0;
             });
         }
@@ -46,7 +55,7 @@ namespace Gameplay
             var expiredSecond = 0f;
             var progress = 0f;
 
-            while (progress < 1 && !_stopAnimation)
+            while (progress < 1 && (!player.isBottomTrigger || progress < 0.02))
             {
                 expiredSecond += Time.deltaTime;
                 progress = expiredSecond / duration;
@@ -54,6 +63,8 @@ namespace Gameplay
 
                 yield return null;
             }
+
+            player.jumping = false;
         }
     }
 }
