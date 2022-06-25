@@ -9,6 +9,9 @@ namespace Serialization.Data
         public int GameVersion = 1;
 
         public long UpdateDate;
+
+        // Настройки
+        public BeatmapSettings Settings = new();
         
         // Список элементов на карте
         public List<ObjectData> Objects = new();
@@ -23,5 +26,12 @@ namespace Serialization.Data
         public List<EffectTimestampData> BeginSortedEffects = new();
 
         public List<int> EndSortedEffects = new();
+    }
+
+    public class BeatmapSettings
+    {
+        public double End = 120;
+
+        public float Fog = 200;
     }
 }

@@ -7,6 +7,7 @@ using MapEditor.Trigger;
 using Serialization.Data;
 using UnityEngine;
 using VisualEffect.Function;
+using VisualEffect.Object;
 using VisualEffect.Property;
 
 namespace Beatmap.Trigger
@@ -63,6 +64,17 @@ namespace Beatmap.Trigger
             foreach (var timestamp in trigger.Timestamps.Values)
             {
                 timeline.RemoveEffectPoint(timestamp);
+            }
+        }
+
+        public void RemoveObject(MonoObject monoObject)
+        {
+            foreach (var property in monoObject.Properties.ValueMap.Keys)
+            {
+                foreach (var trigger in _effectTriggers.Where(trigger => trigger.Timestamps.ContainsKey(property)))
+                {
+                    trigger.Timestamps.Remove(property);
+                }
             }
         }
 
