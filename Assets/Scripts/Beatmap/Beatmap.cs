@@ -29,6 +29,9 @@ namespace Beatmap
 
         protected readonly JsonManager JsonManager = new();
 
+        protected double End;
+        protected float Fog;
+
         public abstract void PlayAudio();
         public abstract void StopAudio();
 
@@ -77,6 +80,8 @@ namespace Beatmap
         {
             objectManager.LoadData(data);
             timeline.LoadData(data);
+            Fog = data.Settings.Fog;
+            End = data.Settings.End;
         }
     }
 }

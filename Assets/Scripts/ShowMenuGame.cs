@@ -1,35 +1,43 @@
+using Beatmap;
 using UnityEngine;
 
-namespace DefaultNamespace
+public class ShowMenuGame : MonoBehaviour
 {
-    public class ShowMenuGame : MonoBehaviour
+    [SerializeField] private GameObject menu;
+    [SerializeField] private PlayableBeatmap beatmap;
+        
+    private bool _activeMenu = false;
+
+    void Update()
     {
-        [SerializeField] private GameObject menu;
-        private bool _activeMenu = false;
-
-        void Update()
+        if (Input.GetKeyDown(KeyCode.Escape) && !_activeMenu)
         {
-            if (Input.GetKeyDown(KeyCode.Escape) && !_activeMenu)
-            {
-                ShowMenu();
-            }
-            else if (Input.GetKeyDown(KeyCode.Escape) && _activeMenu)
-            {
-                HideMenu();
-            }
+            ShowMenu();
         }
-
-        private void ShowMenu()
+        else if (Input.GetKeyDown(KeyCode.Escape) && _activeMenu)
         {
-            menu.SetActive(true);
-            _activeMenu = true;
+            HideMenu();
         }
+    }
 
-
-        public void HideMenu()
+    private void ShowMenu()
+    {
+        menu.SetActive(true);
+        _activeMenu = true;
+        if (beatmap != null)
         {
-            menu.SetActive(false);
-            _activeMenu = false;
+            beatmap.PauseAudio();
+        }
+    }
+
+
+    public void HideMenu()
+    {
+        menu.SetActive(false);
+        _activeMenu = false;
+        if (beatmap != null)
+        {
+            beatmap.ContinueAudio();
         }
     }
 }

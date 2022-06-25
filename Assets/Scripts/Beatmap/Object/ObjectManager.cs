@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Beatmap.Trigger;
 using DataStructures.BiDictionary;
 using MapEditor;
 using Serialization.Data;
@@ -17,6 +18,7 @@ namespace Beatmap.Object
         [SerializeField] public SkyObject skyObject;
         [SerializeField] public HorizonObject horizonObject;
         [SerializeField] private Timeline timeline;
+        [SerializeField] private TriggerManager triggerManager;
         
         [SerializeField] private CubeObject cubePrefab; 
         
@@ -81,6 +83,8 @@ namespace Beatmap.Object
             {
                 timeline.RemoveVisualProperty(property);
             }
+
+            triggerManager.RemoveObject(monoObject);
         }
 
         public MonoObject CreateObject(string type)
