@@ -5,6 +5,7 @@ public class ShowMenuGame : MonoBehaviour
 {
     [SerializeField] private GameObject menu;
     [SerializeField] private PlayableBeatmap beatmap;
+    [SerializeField] private HideCursorScript hideCursorScript;
         
     private bool _activeMenu = false;
 
@@ -27,6 +28,11 @@ public class ShowMenuGame : MonoBehaviour
         if (beatmap != null)
         {
             beatmap.PauseAudio();
+        }
+
+        if (hideCursorScript != null)
+        {
+            hideCursorScript.Show();
         }
     }
 

@@ -1399,6 +1399,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menu: {fileID: 1146336836}
   beatmap: {fileID: 276268862}
+  hideCursorScript: {fileID: 862685275}
 --- !u!4 &1276116596
 Transform:
   m_ObjectHideFlags: 0
