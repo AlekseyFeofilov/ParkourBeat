@@ -12,11 +12,11 @@ namespace Gameplay
 
         private Vector3 _normal = Vector3.up;
         private Vector3 _move;
-        
+
         [SerializeField] private float horizontalSpeed = 10f;
 
         public bool isBottomTrigger;
-        
+
         private bool _isTopTrigger;
         private bool _isLeftTrigger;
         private bool _isRightTrigger;
@@ -25,7 +25,7 @@ namespace Gameplay
         public bool jumping;
 
         private Rigidbody _rigidbody;
-        
+
         private void Start()
         {
             _rigidbody = GetComponent<Rigidbody>();
@@ -42,26 +42,26 @@ namespace Gameplay
             {
                 jumper.Jump();
             }
-            
+
             _move += Vector3.forward * ((leftMove - rightMove) * horizontalSpeed * Time.deltaTime);
         }
 
         private void FixedUpdate()
         {
             var time = beatmap.AudioTime;
-            var x = (float) beatmap.timeline.GetPositionBySecond(time);
+            var x = (float)beatmap.timeline.GetPositionBySecond(time);
             _move += Vector3.right * (x - transform.position.x);
-            
+
             Move(_move);
             _move = Vector3.zero;
 
-            if(transform.position.y < -20) gameManager.EndGame(0);
+            if (transform.position.y < -20) gameManager.EndGame(0);
         }
-        
+
         public void CollisionEnter(string collisionTag)
         {
             _rigidbody.velocity = Vector3.zero;
-            
+
             if (collisionTag != "Bottom")
             {
                 gameManager.EndGame(0);
@@ -74,15 +74,15 @@ namespace Gameplay
                 case "Top":
                     _isTopTrigger = true;
                     break;
-                
+
                 case "Bottom":
                     isBottomTrigger = true;
                     break;
-                
+
                 case "Left":
                     _isLeftTrigger = true;
                     break;
-                
+
                 case "Right":
                     _isRightTrigger = true;
                     break;
@@ -90,11 +90,11 @@ namespace Gameplay
                 case "Front":
                     _isFrontTrigger = true;
                     break;
-                
+
                 case "Back":
                     _isBackTrigger = true;
                     break;
-                
+
                 default:
                     throw new Exception("Unknown collider involved CollisionEnter (Player.cs)");
             }
@@ -107,23 +107,23 @@ namespace Gameplay
                 case "Top":
                     _isTopTrigger = false;
                     break;
-                
+
                 case "Bottom":
                     isBottomTrigger = false;
                     break;
-                
+
                 case "Left":
                     _isLeftTrigger = false;
                     break;
-                
+
                 case "Right":
                     _isRightTrigger = false;
                     break;
-                
+
                 case "Front":
                     _isFrontTrigger = false;
                     break;
-                
+
                 case "Back":
                     _isBackTrigger = false;
                     break;
@@ -141,7 +141,7 @@ namespace Gameplay
         private void Move(Vector3 direction)
         {
             var directionAlongSurface = GetProjection(direction.normalized);
-            if(directionAlongSurface.x == 0) return;
+            if (directionAlongSurface.x == 0) return;
             var elongation = direction.x / directionAlongSurface.x;
             transform.position += directionAlongSurface * elongation;
         }
@@ -155,9 +155,12 @@ namespace Gameplay
         {
             _normal = collision.contacts[0].normal;
 
-            if (_normal == -Vector3.right)
+            if (_normal == -Vector3.right ||
+                _normal == Vector3.forward ||
+                _normal == -Vector3.forward
+               )
             {
-                gameManager.EndGame(0.1f);
+                gameManager.EndGame(0);
             }
         }
     }
