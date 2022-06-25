@@ -8,22 +8,23 @@ namespace Gameplay
     {
         [SerializeField] private Beatmap.Beatmap beatmap;
         [SerializeField] private GameManager gameManager;
-        [SerializeField] private Jumping jumping;
+        [SerializeField] private Jumper jumper;
 
         private Vector3 _normal = Vector3.up;
         private Vector3 _move;
         
         [SerializeField] private float horizontalSpeed = 10f;
-        [SerializeField] private float jumpForce = 100f;
-         
+
+        public bool isBottomTrigger;
+        
         private bool _isTopTrigger;
-        private bool _isBottomTrigger;
         private bool _isLeftTrigger;
         private bool _isRightTrigger;
+        private bool _isFrontTrigger;
+        private bool _isBackTrigger;
+        public bool jumping;
 
         private Rigidbody _rigidbody;
-        [SerializeField] private float jumpLenght;
-        [SerializeField] private float jumpDuration;
         
         private void Start()
         {
@@ -39,7 +40,7 @@ namespace Gameplay
 
             if (Input.GetKey(KeyCode.Space) && !IsFreeFall())
             {
-                jumping.Jump();
+                jumper.Jump();
             }
             
             _move += Vector3.forward * ((leftMove - rightMove) * horizontalSpeed * Time.deltaTime);
@@ -59,6 +60,15 @@ namespace Gameplay
         
         public void CollisionEnter(string collisionTag)
         {
+            _rigidbody.velocity = Vector3.zero;
+            
+            if (collisionTag != "Bottom")
+            {
+                gameManager.EndGame(0);
+            }
+
+            isBottomTrigger = true;
+
             switch (collisionTag)
             {
                 case "Top":
@@ -66,7 +76,7 @@ namespace Gameplay
                     break;
                 
                 case "Bottom":
-                    _isBottomTrigger = true;
+                    isBottomTrigger = true;
                     break;
                 
                 case "Left":
@@ -75,6 +85,14 @@ namespace Gameplay
                 
                 case "Right":
                     _isRightTrigger = true;
+                    break;
+
+                case "Front":
+                    _isFrontTrigger = true;
+                    break;
+                
+                case "Back":
+                    _isBackTrigger = true;
                     break;
                 
                 default:
@@ -91,7 +109,7 @@ namespace Gameplay
                     break;
                 
                 case "Bottom":
-                    _isBottomTrigger = false;
+                    isBottomTrigger = false;
                     break;
                 
                 case "Left":
@@ -101,6 +119,14 @@ namespace Gameplay
                 case "Right":
                     _isRightTrigger = false;
                     break;
+                
+                case "Front":
+                    _isFrontTrigger = false;
+                    break;
+                
+                case "Back":
+                    _isBackTrigger = false;
+                    break;
 
                 default:
                     throw new Exception("Unknown collider involved CollisionExit (Player.cs)");
@@ -109,7 +135,7 @@ namespace Gameplay
 
         private bool IsFreeFall()
         {
-            return Physics.gravity.y < 0 && !_isBottomTrigger;
+            return Physics.gravity.y < 0 && !isBottomTrigger;
         }
 
         private void Move(Vector3 direction)
