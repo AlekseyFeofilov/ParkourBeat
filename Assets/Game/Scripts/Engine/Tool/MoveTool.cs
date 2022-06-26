@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Game.Scripts.Engine.Api.Listener;
 using Game.Scripts.Engine.Manager;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 
 namespace Game.Scripts.Engine.Tool
@@ -10,17 +9,17 @@ namespace Game.Scripts.Engine.Tool
     {
         private IMovable _movable;
         
-        protected override void AddChangeHandler(OutlinedObject selected)
+        protected override void AddChangeHandler(GameObject selected)
         {
             _movable = selected.GetComponent<IMovable>();
         }
 
-        protected override bool OnBegin(OutlinedObject selected)
+        protected override bool OnBegin(GameObject selected)
         {
             return selected.TryGetComponent(out IMovable movable) && movable.OnBeginMove();
         }
 
-        protected override void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data)
+        protected override void ChangeRequest(KeyValuePair<GameObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(ScaledSpeed, tag);
 
@@ -32,7 +31,7 @@ namespace Game.Scripts.Engine.Tool
 
         protected override void Change() => ((ITool)this).Change(((ITool)this).GetChange(ScaledSpeed, tag));
 
-        protected override bool OnEnd(OutlinedObject selected)
+        protected override bool OnEnd(GameObject selected)
         {
             return !selected.TryGetComponent(out IMovable movable) || movable.OnEndMove();
         }

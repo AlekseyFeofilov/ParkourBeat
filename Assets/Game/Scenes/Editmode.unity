@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3834,7 +3834,6 @@ GameObject:
   m_Component:
   - component: {fileID: 870019171}
   - component: {fileID: 870019169}
-  - component: {fileID: 870019170}
   m_Layer: 0
   m_Name: Horizon
   m_TagString: Untagged
@@ -3856,24 +3855,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skybox: {fileID: 649265959}
   toolManager: {fileID: 377477226}
---- !u!114 &870019170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 870019168}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 2
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 0
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!4 &870019171
 Transform:
   m_ObjectHideFlags: 0
@@ -6748,6 +6729,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1702742216}
   - component: {fileID: 1702742217}
+  - component: {fileID: 1702742218}
   m_Layer: 0
   m_Name: Select Manager
   m_TagString: Untagged
@@ -6790,6 +6772,19 @@ MonoBehaviour:
     m_Bits: 64
   emptyObject: {fileID: 4358790393149043017, guid: 6e6e1c99b85f87647b20754ade3416db, type: 3}
   toolManager: {fileID: 377477226}
+--- !u!114 &1702742218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1702742215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e150e73f2c04484d9f76f48cc9e69c1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skin: {fileID: 11400000, guid: 52b7d42ab43a7394a96d23704e3ae2ff, type: 2}
 --- !u!1 &1704248112
 GameObject:
   m_ObjectHideFlags: 0
@@ -7202,7 +7197,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1725982787}
   - component: {fileID: 1725982789}
-  - component: {fileID: 1725982788}
   m_Layer: 0
   m_Name: Sky
   m_TagString: Untagged
@@ -7225,24 +7219,6 @@ Transform:
   m_Father: {fileID: 1196401869}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1725982788
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725982786}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 2
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 0
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!114 &1725982789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8554,7 +8530,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menu: {fileID: 1431358035}
   beatmap: {fileID: 0}
-  hideCursorScript: {fileID: 0}
+  cursorManager: {fileID: 0}
 --- !u!4 &2053354330
 Transform:
   m_ObjectHideFlags: 0

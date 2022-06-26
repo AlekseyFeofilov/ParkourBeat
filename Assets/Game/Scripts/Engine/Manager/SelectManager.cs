@@ -4,6 +4,7 @@ using Game.Scripts.Engine.Api.Event;
 using Game.Scripts.Engine.Api.Listener;
 using Game.Scripts.Engine.Select;
 using Libraries.QuickOutline.Scripts;
+using Unity.VisualScripting;
 using UnityEngine;
 
 // ReSharper disable Unity.PerformanceCriticalCodeInvocation
@@ -24,7 +25,7 @@ namespace Game.Scripts.Engine.Manager
 
         private void Awake()
         {
-            Selected = new List<OutlinedObject>();
+            Selected = new List<GameObject>();
         }
 
         private void Start()
@@ -32,7 +33,7 @@ namespace Game.Scripts.Engine.Manager
             _camera = Camera.main;
         }
 
-        public static List<OutlinedObject> Selected { get; private set; }
+        public static List<GameObject> Selected { get; private set; }
 
         // ReSharper disable twice Unity.PerformanceCriticalCodeNullComparison
         private void Select()
@@ -40,7 +41,7 @@ namespace Game.Scripts.Engine.Manager
             if (UIRaycaster.PointerIsOverUI(Input.mousePosition)) return;
 
             var obj = GetObjectByMousePosition();
-
+            
             if (Selected.Contains(obj))
             {
                 if (Input.GetKey(KeyCode.LeftControl)) Deselect(obj);
@@ -51,18 +52,27 @@ namespace Game.Scripts.Engine.Manager
             Select(obj);
         }
 
-        private void Select(ISelectable[] objects)
+        public void Select(List<GameObject> objects)
         {
+            foreach (var obj in objects)
+            {
+                Select(obj);
+            }
         }
 
-        public void Select(OutlinedObject obj)
+        public void Select(GameObject obj)
         {
             if (obj == null) return;
-
+            
             var @event = SelectRequest(obj);
             if (@event.Cancelled) return;
 
             Selected.Add(obj);
+            Select(obj.transform.AddComponent<OutlinedObject>(), @event);
+        }
+        
+        private void Select(OutlinedObject obj, SelectEvent @event)
+        {
             if (Selected.Count == 1)
             {
                 _wrapper = AddWrapper();
@@ -108,7 +118,7 @@ namespace Game.Scripts.Engine.Manager
             toolManager.Deactivate();
         }
 
-        private static SelectEvent SelectRequest(OutlinedObject obj)
+        private static SelectEvent SelectRequest(GameObject obj)
         {
             SelectEvent @event = new();
 
@@ -120,7 +130,7 @@ namespace Game.Scripts.Engine.Manager
             return @event;
         }
 
-        private static DeselectEvent DeselectRequest(OutlinedObject obj)
+        private static DeselectEvent DeselectRequest(GameObject obj)
         {
             DeselectEvent @event = new();
 
@@ -132,7 +142,7 @@ namespace Game.Scripts.Engine.Manager
             return @event;
         }
 
-        public void Deselect(OutlinedObject obj)
+        public void Deselect(GameObject obj)
         {
             var @event = DeselectRequest(obj);
             if (@event.Cancelled) return;
@@ -148,8 +158,8 @@ namespace Game.Scripts.Engine.Manager
                 objTransform.parent = objTransform.parent.parent.parent;
             }
 
-            obj.OutlineWidth = 0;
             Selected.Remove(obj);
+            Destroy(obj.GetComponent<OutlinedObject>());
         }
         
         public void Deselect()
@@ -165,14 +175,22 @@ namespace Game.Scripts.Engine.Manager
             return Selected.Any(selected => selected.TryGetComponent(out T _));
         }
         
-        private OutlinedObject GetObjectByMousePosition()
+        private GameObject GetObjectByMousePosition()
         {
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
             if (!Physics.Raycast(ray, out var hit, 100, toolMask) &&
                 !Physics.Raycast(ray, out hit, 100, selectableMask)) return null;
+            
+            var obj = hit.transform.gameObject;
 
-            var obj = hit.transform.GetComponent<OutlinedObject>();
-            return obj ? obj : Selected.Last();
+            if (obj && hit.transform.gameObject.layer != LayerMask.NameToLayer("Tool"))
+            {
+                return obj;
+            }
+            else
+            {
+                return Selected.Last();
+            }
         }
 
         private void Update()

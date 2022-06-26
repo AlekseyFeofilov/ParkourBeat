@@ -4,7 +4,6 @@ using System.Linq;
 using Game.Scripts.Engine.Api.Event;
 using Game.Scripts.Engine.Api.Listener;
 using HSVPicker;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 
 namespace Game.Scripts.Engine.Manager
@@ -173,7 +172,7 @@ namespace Game.Scripts.Engine.Manager
 
         private void ColorToolCleaner()
         {
-            var copySelected = new List<OutlinedObject>(SelectManager.Selected);
+            var copySelected = new List<GameObject>(SelectManager.Selected);
 
             foreach (var selected in copySelected.Where(selected =>
                          !selected.TryGetComponent(out IColorable _))

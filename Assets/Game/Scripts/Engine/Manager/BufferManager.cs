@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Game.Scripts.Engine.Select;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -23,9 +22,9 @@ namespace Game.Scripts.Engine.Manager
             if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C))
             {
                 Dictionary<GameObject, Vector3> objects = new();
-                foreach (OutlinedObject outlinedObject in SelectManager.Selected)
+                foreach (var obj in SelectManager.Selected)
                 {
-                    objects[outlinedObject.gameObject] = outlinedObject.transform.position * 1;
+                    objects[obj.gameObject] = obj.transform.position * 1;
                 }
                 _buffer = new Buffer(objects, _camera.transform.position * 1);
             }
