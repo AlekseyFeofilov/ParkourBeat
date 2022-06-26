@@ -1,6 +1,6 @@
 ﻿using Game.Scripts.MapEditor;
+using Game.Scripts.Scenes;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Game.Scripts.Map
 {
@@ -11,13 +11,13 @@ namespace Game.Scripts.Map
         public void LoadBeatmapInPlaymode()
         {
             BeatmapEditorContext.Reset();
-            SceneManager.LoadScene("Playmode");
+            AdvancedSceneManager.LoadScene("Playmode");
         }
         
         public void LoadBeatmapInEditmode()
         {
             BeatmapEditorContext.Reset();
-            SceneManager.LoadScene("Editmode");
+            AdvancedSceneManager.LoadScene("Editmode");
         }
 
         public void SetName(string mapName)

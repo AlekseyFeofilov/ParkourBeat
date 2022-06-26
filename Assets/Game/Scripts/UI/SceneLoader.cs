@@ -1,5 +1,5 @@
+using Game.Scripts.Scenes;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Game.Scripts.UI
 {
@@ -7,7 +7,7 @@ namespace Game.Scripts.UI
     {
         public void SceneLoad(int index)
         {
-            SceneManager.LoadScene(index);
+            AdvancedSceneManager.LoadScene(index);
         }
 
         public void Quit()

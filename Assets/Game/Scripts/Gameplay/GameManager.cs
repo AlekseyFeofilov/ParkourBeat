@@ -1,4 +1,5 @@
 using Game.Scripts.Gameplay.Player;
+using Game.Scripts.Scenes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,7 +19,7 @@ namespace Game.Scripts.Gameplay
         private void RestartGame()
         {
             DefaultSettings();
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            AdvancedSceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         private void DefaultSettings()
