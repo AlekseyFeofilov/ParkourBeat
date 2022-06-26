@@ -5,6 +5,7 @@ using Game.Scripts.Map.Timeline;
 using Game.Scripts.Map.Timestamp;
 using Game.Scripts.Map.VisualEffect.Function;
 using Game.Scripts.Map.VisualEffect.Property;
+using Libraries.QuickOutline.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -46,6 +47,24 @@ namespace Game.Scripts.MapEditor.Trigger
                 _cylinderTransfrom.position += new Vector3(x, 0, 0);
                 _cylinderTransfrom.localScale = new Vector3(_cylinderTransfrom.localScale.x, x, _cylinderTransfrom.localScale.z);
                 _toTransfrom.position = value;
+            }
+        }
+
+        public bool Outlined
+        {
+            set
+            {
+                if (value && !gameObject.GetComponent<OutlinedObject>())
+                {
+                    OutlinedObject outlined = gameObject.AddComponent<OutlinedObject>();
+                    outlined.OutlineColor = Color.red;
+                    outlined.OutlineMode = OutlinedObject.Mode.OutlineAll;
+                    outlined.OutlineWidth = 10;   
+                }
+                else if (gameObject.TryGetComponent(out OutlinedObject outlined))
+                {
+                    Destroy(outlined);
+                }
             }
         }
 

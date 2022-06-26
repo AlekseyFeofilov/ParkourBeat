@@ -1,7 +1,6 @@
 ﻿using Game.Scripts.Engine.Manager;
 using Game.Scripts.Map.VisualEffect.Object;
 using Game.Scripts.MapEditor.Trigger;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 
 namespace Game.Scripts.MapEditor
@@ -13,6 +12,7 @@ namespace Game.Scripts.MapEditor
         // TODO сделано по тупому с MainSelect.Selected
         private void Update()
         {
+            // Превью режим
             if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Global &&
                 SelectManager.Selected.Count == 0)
             {
@@ -20,9 +20,10 @@ namespace Game.Scripts.MapEditor
                 return;
             }
             
+            // Глобальный режим
             if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Preview &&
                 SelectManager.Selected.Count > 0 &&
-                SelectManager.Selected[0].GetComponent<MonoObject>() != null)
+                SelectManager.Selected[0].GetComponent<MonoObject>())
             {
                 BeatmapEditorContext.Trigger = null;
                 BeatmapEditorContext.Mode = BeatmapEditorContext.ToolMode.Global;
@@ -44,11 +45,17 @@ namespace Game.Scripts.MapEditor
                     BeatmapEditorContext.UpdateTrigger(timeline);
                 }
                 // Глобальный режим
-                else
+                else if (SelectManager.Selected.Count > 0 &&
+                         SelectManager.Selected[0].GetComponent<MonoObject>())
                 {
                     BeatmapEditorContext.Trigger = null;
                     BeatmapEditorContext.Mode = BeatmapEditorContext.ToolMode.Global;
                     timeline.Move(0);
+                }
+                // Превью режим
+                else
+                {
+                    BeatmapEditorContext.Reset();
                 }
             }
         }
@@ -61,10 +68,8 @@ namespace Game.Scripts.MapEditor
             {
                 property.Apply(property.GetDefault());   
             }
-            if (BeatmapEditorContext.Trigger.TryGetComponent(out OutlinedObject outlined))
-            {
-                outlined.OutlineMode = OutlinedObject.Mode.OutlineHidden;
-            }
+
+            BeatmapEditorContext.Trigger.Outlined = false;
         }
     }
 }

@@ -4,7 +4,6 @@ using Game.Scripts.Engine.Api.Event;
 using Game.Scripts.Engine.Api.Listener;
 using Game.Scripts.Engine.Select;
 using Libraries.QuickOutline.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
 
 // ReSharper disable Unity.PerformanceCriticalCodeInvocation
@@ -22,6 +21,7 @@ namespace Game.Scripts.Engine.Manager
         [SerializeField] private ToolManager toolManager;
 
         private Transform _wrapper;
+        private readonly Dictionary<Transform, Transform> _childToParentDictionary = new();
 
         private void Awake()
         {
@@ -68,7 +68,7 @@ namespace Game.Scripts.Engine.Manager
             if (@event.Cancelled) return;
 
             Selected.Add(obj);
-            Select(obj.transform.AddComponent<OutlinedObject>(), @event);
+            Select(obj.AddComponent<OutlinedObject>(), @event);
         }
         
         private void Select(OutlinedObject obj, SelectEvent @event)
@@ -78,7 +78,12 @@ namespace Game.Scripts.Engine.Manager
                 _wrapper = AddWrapper();
             }
 
-            obj.transform.parent = _wrapper;
+            Transform objTransform = obj.transform;
+            
+            // Сопоставляем в словаре, чтобы потом вернуть к родителю
+            _childToParentDictionary[objTransform] = objTransform.parent;
+            
+            objTransform.parent = _wrapper;
             obj.OutlineWidth = 10;
             obj.OutlineColor = @event.SelectColor;
         }
@@ -109,12 +114,13 @@ namespace Game.Scripts.Engine.Manager
 
         private void RemoveWrapper()
         {
-            Transform parent;
             var selectedTransform = Selected[0].transform;
-
-            selectedTransform.parent = (parent = selectedTransform.parent).parent.parent;
-            Destroy(parent.parent.gameObject);
-            Destroy(parent.gameObject);
+            var wrapperTransform = selectedTransform.parent;
+            Destroy(wrapperTransform.parent.gameObject);
+            Destroy(wrapperTransform.gameObject);
+            
+            selectedTransform.parent = _childToParentDictionary[selectedTransform];
+            
             toolManager.Deactivate();
         }
 
@@ -155,7 +161,7 @@ namespace Game.Scripts.Engine.Manager
             else
             {
                 var objTransform = obj.transform;
-                objTransform.parent = objTransform.parent.parent.parent;
+                objTransform.parent = _childToParentDictionary[objTransform];
             }
 
             Selected.Remove(obj);
