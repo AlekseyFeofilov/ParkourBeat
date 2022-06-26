@@ -6784,6 +6784,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e150e73f2c04484d9f76f48cc9e69c1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectManager: {fileID: 1702742217}
   skin: {fileID: 11400000, guid: 52b7d42ab43a7394a96d23704e3ae2ff, type: 2}
 --- !u!1 &1704248112
 GameObject:
