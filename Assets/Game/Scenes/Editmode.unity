@@ -2169,6 +2169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeline: {fileID: 1514992278}
+  toolManager: {fileID: 377477226}
 --- !u!1 &443176749
 GameObject:
   m_ObjectHideFlags: 0

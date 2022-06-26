@@ -22,6 +22,7 @@ namespace Game.Scripts.Engine.Manager
 
         private Transform _wrapper;
         private readonly Dictionary<Transform, Transform> _childToParentDictionary = new();
+        private readonly Dictionary<GameObject, OutlinedObjectData> _objectToOutlineDictonary = new();
 
         private void Awake()
         {
@@ -68,7 +69,17 @@ namespace Game.Scripts.Engine.Manager
             if (@event.Cancelled) return;
 
             Selected.Add(obj);
-            Select(obj.AddComponent<OutlinedObject>(), @event);
+
+            if (obj.TryGetComponent(out OutlinedObject outlined))
+            {
+                _objectToOutlineDictonary[obj] = new OutlinedObjectData(outlined);
+            }
+            else
+            {
+                outlined = obj.AddComponent<OutlinedObject>();
+            }
+            
+            Select(outlined, @event);
         }
         
         private void Select(OutlinedObject obj, SelectEvent @event)
@@ -120,6 +131,7 @@ namespace Game.Scripts.Engine.Manager
             Destroy(wrapperTransform.gameObject);
             
             selectedTransform.parent = _childToParentDictionary[selectedTransform];
+            _childToParentDictionary.Remove(selectedTransform);
             
             toolManager.Deactivate();
         }
@@ -162,10 +174,28 @@ namespace Game.Scripts.Engine.Manager
             {
                 var objTransform = obj.transform;
                 objTransform.parent = _childToParentDictionary[objTransform];
+                _childToParentDictionary.Remove(objTransform);
             }
 
             Selected.Remove(obj);
-            Destroy(obj.GetComponent<OutlinedObject>());
+
+            if (_objectToOutlineDictonary.ContainsKey(obj))
+            {
+                if (obj.TryGetComponent(out OutlinedObject outlinedObject))
+                {
+                    OutlinedObjectData data = _objectToOutlineDictonary[obj];
+                    outlinedObject.OutlineColor = data.Color;
+                    outlinedObject.OutlineWidth = data.Width;
+                    outlinedObject.OutlineMode = data.Mode;
+                    outlinedObject.enabled = true;
+                }
+
+                _objectToOutlineDictonary.Remove(obj);
+            }
+            else
+            {
+                Destroy(obj.GetComponent<OutlinedObject>());
+            }
         }
         
         public void Deselect()
@@ -204,6 +234,20 @@ namespace Game.Scripts.Engine.Manager
             if (Input.GetMouseButtonDown(0))
             {
                 Select();
+            }
+        }
+        
+        private class OutlinedObjectData
+        {
+            public readonly Color Color;
+            public readonly float Width;
+            public readonly OutlinedObject.Mode Mode;
+
+            public OutlinedObjectData(OutlinedObject outlinedObject)
+            {
+                Color = outlinedObject.OutlineColor;
+                Width = outlinedObject.OutlineWidth;
+                Mode = outlinedObject.OutlineMode;
             }
         }
     }

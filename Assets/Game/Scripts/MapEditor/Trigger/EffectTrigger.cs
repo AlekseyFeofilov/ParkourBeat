@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Game.Scripts.Engine.Api.Listener;
 using Game.Scripts.Map.Timeline;
 using Game.Scripts.Map.Timestamp;
 using Game.Scripts.Map.VisualEffect.Function;
+using Game.Scripts.Map.VisualEffect.Object;
 using Game.Scripts.Map.VisualEffect.Property;
 using Libraries.QuickOutline.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Scripts.MapEditor.Trigger
@@ -23,6 +24,8 @@ namespace Game.Scripts.MapEditor.Trigger
         private Transform _fromTransfrom;
         private Transform _toTransfrom;
         private Transform _cylinderTransfrom;
+
+        public ISet<MonoObject> Objects => Timestamps.Keys.Select(e => e.Parent).Distinct().ToHashSet();
 
         public Vector3 BeginPosition
         {
@@ -50,7 +53,7 @@ namespace Game.Scripts.MapEditor.Trigger
             }
         }
 
-        public bool Outlined
+        public bool Selected
         {
             set
             {
@@ -59,11 +62,30 @@ namespace Game.Scripts.MapEditor.Trigger
                     OutlinedObject outlined = gameObject.AddComponent<OutlinedObject>();
                     outlined.OutlineColor = Color.red;
                     outlined.OutlineMode = OutlinedObject.Mode.OutlineAll;
-                    outlined.OutlineWidth = 10;   
+                    outlined.OutlineWidth = 10;
+
+                    foreach (var monoObject in Objects)
+                    {
+                        if (!monoObject.TryGetComponent(out OutlinedObject outlinedObject))
+                        {
+                            outlinedObject = monoObject.gameObject.AddComponent<OutlinedObject>();
+                        }
+                        outlinedObject.OutlineColor = Color.red;
+                        outlinedObject.OutlineMode = OutlinedObject.Mode.OutlineAll;
+                        outlinedObject.OutlineWidth = 10;
+                    }
                 }
                 else if (gameObject.TryGetComponent(out OutlinedObject outlined))
                 {
                     Destroy(outlined);
+                    
+                    foreach (var monoObject in Objects)
+                    {
+                        if (monoObject.TryGetComponent(out OutlinedObject outlinedObject))
+                        {
+                            Destroy(outlinedObject);
+                        }
+                    }
                 }
             }
         }
@@ -72,9 +94,9 @@ namespace Game.Scripts.MapEditor.Trigger
         private void Start()
         {
             _fromTransfrom = transform.Find("From");
-            _fromTransfrom.AddComponent<EffectTriggerBegin>();
+            _fromTransfrom.gameObject.AddComponent<EffectTriggerBegin>();
             _toTransfrom = transform.Find("To");
-            _toTransfrom.AddComponent<EffectTriggerEnd>();
+            _toTransfrom.gameObject.AddComponent<EffectTriggerEnd>();
             _cylinderTransfrom = transform.Find("Cylinder");
 
             double beginSecond = BeginTime.ToSecond(Timeline);

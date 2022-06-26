@@ -59,7 +59,7 @@ namespace Game.Scripts.MapEditor
                 effect.Property.Apply(effect.ToState);   
             }
                         
-            BeatmapEditorContext.Trigger.Outlined = true;
+            Trigger.Selected = true;
         }
 
         public static void Reset()
