@@ -2,14 +2,13 @@
 using System.Linq;
 using Game.Scripts.Engine.Manager;
 using Game.Scripts.Engine.Visual;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 
 namespace Game.Scripts.Engine.Tool
 {
     public abstract class Tool : ActivatingObject
     {
-        protected readonly Dictionary<OutlinedObject, Transform> Data = new(); 
+        protected readonly Dictionary<GameObject, Transform> Data = new(); 
         
         [SerializeField] private float speedBooster = 1f;
         [SerializeField] protected float rotateSpeed = 1f;
@@ -45,7 +44,7 @@ namespace Game.Scripts.Engine.Tool
                 CalculateProperties();
             }
 
-            var copySelected =new List<OutlinedObject>(SelectManager.Selected);
+            var copySelected =new List<GameObject>(SelectManager.Selected);
             
             foreach (var selected in copySelected.Where(selected => !Data.ContainsKey(selected)))
             {
@@ -65,7 +64,7 @@ namespace Game.Scripts.Engine.Tool
             ToolManager.UpdateTool();
         }
 
-        private void EndChange(KeyValuePair<OutlinedObject, Transform> data)
+        private void EndChange(KeyValuePair<GameObject, Transform> data)
         {
             if (!OnEnd(data.Key))
             {
@@ -127,14 +126,14 @@ namespace Game.Scripts.Engine.Tool
             _offset = Input.mousePosition;
         }
 
-        protected abstract void AddChangeHandler(OutlinedObject selected);
+        protected abstract void AddChangeHandler(GameObject selected);
         
-        protected abstract bool OnBegin(OutlinedObject selected);
+        protected abstract bool OnBegin(GameObject selected);
 
         protected abstract void Change();
 
-        protected abstract void ChangeRequest(KeyValuePair<OutlinedObject, Transform> data);
+        protected abstract void ChangeRequest(KeyValuePair<GameObject, Transform> data);
 
-        protected abstract bool OnEnd(OutlinedObject selected);
+        protected abstract bool OnEnd(GameObject selected);
     }
 }

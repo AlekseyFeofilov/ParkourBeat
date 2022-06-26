@@ -1,5 +1,4 @@
 ﻿using Game.Scripts.Engine.Manager;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -12,16 +11,14 @@ namespace Game.Scripts.Map.Manager.Selector
 
         public void SelectSky()
         {
-            var outlined = objectManager.skyObject.GetComponent<OutlinedObject>();
             selectManager.Deselect();
-            selectManager.Select(outlined);
+            selectManager.Select(objectManager.skyObject.gameObject);
         }
 
         public void SelectHorizon()
         {
-            var outlined = objectManager.horizonObject.GetComponent<OutlinedObject>();
             selectManager.Deselect();
-            selectManager.Select(outlined);
+            selectManager.Select(objectManager.horizonObject.gameObject);
         }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Game.Scripts.Engine.Manager;
 using Game.Scripts.Map.Manager;
 using Game.Scripts.Map.VisualEffect.Object;
 using Game.Scripts.MapEditor.Trigger;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -23,7 +21,7 @@ namespace Game.Scripts.MapEditor.Controller
 
         private void DeleteSelected()
         {
-            foreach (GameObject selected in new List<OutlinedObject>(SelectManager.Selected).Select(e => e.gameObject))
+            foreach (var selected in new List<GameObject>(SelectManager.Selected))
             {
                 if (selected.TryGetComponent(out MonoObject monoObject))
                 {
