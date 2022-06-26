@@ -802,7 +802,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1134,7 +1134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skybox: {fileID: 649265959}
-  mainTools: {fileID: 0}
+  toolManager: {fileID: 0}
 --- !u!1 &1114553148
 GameObject:
   m_ObjectHideFlags: 0
@@ -1399,7 +1399,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menu: {fileID: 1146336836}
   beatmap: {fileID: 276268862}
-  hideCursorScript: {fileID: 862685275}
+  cursorManager: {fileID: 862685275}
 --- !u!4 &1276116596
 Transform:
   m_ObjectHideFlags: 0
@@ -1877,7 +1877,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skybox: {fileID: 649265959}
-  mainTools: {fileID: 0}
+  toolManager: {fileID: 0}
 --- !u!114 &1815802945
 MonoBehaviour:
   m_ObjectHideFlags: 0
