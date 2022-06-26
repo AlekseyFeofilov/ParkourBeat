@@ -3,7 +3,6 @@ using Game.Scripts.Map.Timeline;
 using Game.Scripts.Map.Timestamp;
 using Game.Scripts.Map.VisualEffect.Property;
 using Game.Scripts.MapEditor.Trigger;
-using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 
 namespace Game.Scripts.MapEditor
@@ -60,10 +59,7 @@ namespace Game.Scripts.MapEditor
                 effect.Property.Apply(effect.ToState);   
             }
                         
-            if (Trigger.TryGetComponent(out OutlinedObject outlined))
-            {
-                outlined.OutlineMode = OutlinedObject.Mode.OutlineAll;
-            }
+            Trigger.Selected = true;
         }
 
         public static void Reset()

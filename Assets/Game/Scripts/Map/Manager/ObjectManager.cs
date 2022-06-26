@@ -42,6 +42,7 @@ namespace Game.Scripts.Map.Manager
                 _ => throw new InvalidOperationException("unsupported type")
             }).GetComponent<MonoObject>();
 
+            obj.transform.parent = transform;
             _objects.Add(id, obj);
 
             if (_counter < id) _counter = id;

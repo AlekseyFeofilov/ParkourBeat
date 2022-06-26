@@ -130,6 +130,8 @@ namespace Game.Scripts.Map
         {
             objectManager.SaveData(data);
             timeline.SaveData(data);
+            data.Settings.Fog = Fog;
+            data.Settings.End = End;
         }
     }
 }

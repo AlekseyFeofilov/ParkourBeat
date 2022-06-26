@@ -4,7 +4,6 @@ using Game.Scripts.Engine.Api.Event;
 using Game.Scripts.Engine.Api.Listener;
 using Game.Scripts.Engine.Select;
 using Libraries.QuickOutline.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
 
 // ReSharper disable Unity.PerformanceCriticalCodeInvocation
@@ -22,6 +21,8 @@ namespace Game.Scripts.Engine.Manager
         [SerializeField] private ToolManager toolManager;
 
         private Transform _wrapper;
+        private readonly Dictionary<Transform, Transform> _childToParentDictionary = new();
+        private readonly Dictionary<GameObject, OutlinedObjectData> _objectToOutlineDictonary = new();
 
         private void Awake()
         {
@@ -68,7 +69,17 @@ namespace Game.Scripts.Engine.Manager
             if (@event.Cancelled) return;
 
             Selected.Add(obj);
-            Select(obj.transform.AddComponent<OutlinedObject>(), @event);
+
+            if (obj.TryGetComponent(out OutlinedObject outlined))
+            {
+                _objectToOutlineDictonary[obj] = new OutlinedObjectData(outlined);
+            }
+            else
+            {
+                outlined = obj.AddComponent<OutlinedObject>();
+            }
+            
+            Select(outlined, @event);
         }
         
         private void Select(OutlinedObject obj, SelectEvent @event)
@@ -78,7 +89,12 @@ namespace Game.Scripts.Engine.Manager
                 _wrapper = AddWrapper();
             }
 
-            obj.transform.parent = _wrapper;
+            Transform objTransform = obj.transform;
+            
+            // Сопоставляем в словаре, чтобы потом вернуть к родителю
+            _childToParentDictionary[objTransform] = objTransform.parent;
+            
+            objTransform.parent = _wrapper;
             obj.OutlineWidth = 10;
             obj.OutlineColor = @event.SelectColor;
         }
@@ -109,12 +125,14 @@ namespace Game.Scripts.Engine.Manager
 
         private void RemoveWrapper()
         {
-            Transform parent;
             var selectedTransform = Selected[0].transform;
-
-            selectedTransform.parent = (parent = selectedTransform.parent).parent.parent;
-            Destroy(parent.parent.gameObject);
-            Destroy(parent.gameObject);
+            var wrapperTransform = selectedTransform.parent;
+            Destroy(wrapperTransform.parent.gameObject);
+            Destroy(wrapperTransform.gameObject);
+            
+            selectedTransform.parent = _childToParentDictionary[selectedTransform];
+            _childToParentDictionary.Remove(selectedTransform);
+            
             toolManager.Deactivate();
         }
 
@@ -155,11 +173,29 @@ namespace Game.Scripts.Engine.Manager
             else
             {
                 var objTransform = obj.transform;
-                objTransform.parent = objTransform.parent.parent.parent;
+                objTransform.parent = _childToParentDictionary[objTransform];
+                _childToParentDictionary.Remove(objTransform);
             }
 
             Selected.Remove(obj);
-            Destroy(obj.GetComponent<OutlinedObject>());
+
+            if (_objectToOutlineDictonary.ContainsKey(obj))
+            {
+                if (obj.TryGetComponent(out OutlinedObject outlinedObject))
+                {
+                    OutlinedObjectData data = _objectToOutlineDictonary[obj];
+                    outlinedObject.OutlineColor = data.Color;
+                    outlinedObject.OutlineWidth = data.Width;
+                    outlinedObject.OutlineMode = data.Mode;
+                    outlinedObject.enabled = true;
+                }
+
+                _objectToOutlineDictonary.Remove(obj);
+            }
+            else
+            {
+                Destroy(obj.GetComponent<OutlinedObject>());
+            }
         }
         
         public void Deselect()
@@ -198,6 +234,20 @@ namespace Game.Scripts.Engine.Manager
             if (Input.GetMouseButtonDown(0))
             {
                 Select();
+            }
+        }
+        
+        private class OutlinedObjectData
+        {
+            public readonly Color Color;
+            public readonly float Width;
+            public readonly OutlinedObject.Mode Mode;
+
+            public OutlinedObjectData(OutlinedObject outlinedObject)
+            {
+                Color = outlinedObject.OutlineColor;
+                Width = outlinedObject.OutlineWidth;
+                Mode = outlinedObject.OutlineMode;
             }
         }
     }

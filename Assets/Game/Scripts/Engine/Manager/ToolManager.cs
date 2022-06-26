@@ -20,6 +20,7 @@ namespace Game.Scripts.Engine.Manager
 
         public Mode ToolMode
         {
+            get => _toolMode;
             set
             {
                 _toolMode = value;
@@ -45,6 +46,8 @@ namespace Game.Scripts.Engine.Manager
         private SelectManager _selectManager;
 
         private bool _activated;
+
+        public bool Activated => _activated;
 
         private void Start()
         {

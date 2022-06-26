@@ -1,6 +1,9 @@
-﻿using Game.Scripts.Engine.Api.Listener;
+﻿using System.Collections;
+using Game.Scripts.Engine.Api.Event;
+using Game.Scripts.Engine.Api.Listener;
 using Game.Scripts.Map.VisualEffect.Property;
 using Game.Scripts.MapEditor;
+using Libraries.QuickOutline.Scripts;
 using UnityEngine;
 
 namespace Game.Scripts.Map.VisualEffect.Object
@@ -29,7 +32,28 @@ namespace Game.Scripts.Map.VisualEffect.Object
             Scale = new ScaleProperty(transform1);
             Color = new ColorProperty(renderer.material);
         }
-        
+
+        public void OnDeselect(DeselectEvent @event)
+        {
+            if (BeatmapEditorContext.Mode == BeatmapEditorContext.ToolMode.Trigger &&
+                BeatmapEditorContext.Trigger.Objects.Contains(this))
+            {
+                StartCoroutine(SetRedOutlineDelayed());
+            }
+        }
+
+        private IEnumerator SetRedOutlineDelayed()
+        {
+            yield return 0;
+            if (!TryGetComponent(out OutlinedObject outlinedObject))
+            {
+                outlinedObject = gameObject.AddComponent<OutlinedObject>();
+            }
+            outlinedObject.OutlineColor = UnityEngine.Color.red;
+            outlinedObject.OutlineMode = OutlinedObject.Mode.OutlineAll;
+            outlinedObject.OutlineWidth = 10;
+        }
+
         public bool OnEndMove()
         {
             BeatmapEditorContext.SetPropertyValue(Position, transform.position);
