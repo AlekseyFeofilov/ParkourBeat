@@ -46,6 +46,8 @@ namespace Game.Scripts.Map
                 yield return new WaitForSeconds(0.01f);
             }
             songSource.Stop();
+            // Тут нужно прямое изменение сцены, а не AdvancedSceneManager,
+            // т.к. затемнение уже есть
             SceneManager.LoadScene("Level Menu");
         }
         
