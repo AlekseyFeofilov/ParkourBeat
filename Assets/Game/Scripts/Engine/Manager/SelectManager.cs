@@ -214,8 +214,8 @@ namespace Game.Scripts.Engine.Manager
         private GameObject GetObjectByMousePosition()
         {
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
-            if (!Physics.Raycast(ray, out var hit, 100, toolMask) &&
-                !Physics.Raycast(ray, out hit, 100, selectableMask)) return null;
+            if (!Physics.Raycast(ray, out var hit, float.PositiveInfinity, toolMask) &&
+                !Physics.Raycast(ray, out hit, float.PositiveInfinity, selectableMask)) return null;
             
             var obj = hit.transform.gameObject;
 
