@@ -31,11 +31,12 @@ namespace Game.Scripts.Map.Manager
         }
 
         public EffectTrigger CreateEffectTrigger(
+            Vector3 position,
             MapTime beginTime,
             MapTime duration,
             ITimingFunction function)
         {
-            GameObject gameObj = Instantiate(effectTriggerPrefab.gameObject, Vector3.zero * 1, Quaternion.identity);
+            GameObject gameObj = Instantiate(effectTriggerPrefab.gameObject, position, Quaternion.identity);
             gameObj.transform.parent = transform;
 
             TimeUnit endUnit = beginTime.Unit == duration.Unit ? duration.Unit : TimeUnit.Second;
@@ -53,6 +54,14 @@ namespace Game.Scripts.Map.Manager
             _effectTriggers.Add(trigger);
             
             return trigger;
+        }
+        
+        public EffectTrigger CreateEffectTrigger(
+            MapTime beginTime,
+            MapTime duration,
+            ITimingFunction function)
+        {
+            return CreateEffectTrigger(Vector3.zero * 1, beginTime, duration, function);
         }
 
         public void RemoveEffectTrigger(EffectTrigger trigger)

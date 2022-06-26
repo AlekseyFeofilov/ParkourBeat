@@ -357,6 +357,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeline: {fileID: 1514992278}
   triggerManager: {fileID: 552335829}
+  selectManager: {fileID: 1702742217}
 --- !u!1 &50270562
 GameObject:
   m_ObjectHideFlags: 0

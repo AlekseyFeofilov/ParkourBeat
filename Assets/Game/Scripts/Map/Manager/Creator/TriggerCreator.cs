@@ -1,5 +1,8 @@
-﻿using Game.Scripts.Map.Timestamp;
+﻿using System.Collections;
+using Game.Scripts.Engine.Manager;
+using Game.Scripts.Map.Timestamp;
 using Game.Scripts.Map.VisualEffect.Function;
+using Game.Scripts.MapEditor.Trigger;
 using UnityEngine;
 
 namespace Game.Scripts.Map.Manager.Creator
@@ -8,6 +11,7 @@ namespace Game.Scripts.Map.Manager.Creator
     {
         [SerializeField] private Timeline.Timeline timeline;
         [SerializeField] private TriggerManager triggerManager;
+        [SerializeField] private SelectManager selectManager;
 
         public void Update()
         {
@@ -18,11 +22,20 @@ namespace Game.Scripts.Map.Manager.Creator
         {
             if (Camera.main is null) return;
 
-            double x = Camera.main.transform.position.x;
-            MapTime time = MapTime.OfSecond(timeline.GetSecondByPosition(x));
-            MapTime duration = MapTime.OfBeat(4);
+            Vector3 position = Camera.main.transform.position;
+            position = new Vector3(position.x, 0, position.z);
+            MapTime time = MapTime.OfSecond(timeline.GetSecondByPosition(position.x));
+            MapTime duration = MapTime.OfSecond(1);
             ITimingFunction function = ITimingFunction.Linear;
-            triggerManager.CreateEffectTrigger(time, duration, function);
+            EffectTrigger trigger = triggerManager.CreateEffectTrigger(position, time, duration, function);
+            StartCoroutine(SelectTriggerDelayed(trigger));
+        }
+
+        private IEnumerator SelectTriggerDelayed(EffectTrigger trigger)
+        {
+            yield return 0;
+            selectManager.Deselect();
+            selectManager.Select(trigger.transform.GetChild(0).gameObject);
         }
     }
 }
