@@ -19,10 +19,12 @@ namespace Game.Scripts.Gameplay.Player
         private bool _jumping;
 
         private Rigidbody _rigidbody;
+        private int _capacitor;
 
         private void Start()
         {
             _rigidbody = GetComponent<Rigidbody>();
+            _capacitor = 1;
         }
 
         private void Update()
@@ -45,6 +47,22 @@ namespace Game.Scripts.Gameplay.Player
             var time = beatmap.AudioTime;
             var x = (float)beatmap.timeline.GetPositionBySecond(time);
             _move += Vector3.right * (x - transform.position.x);
+
+            switch (_jumping)
+            {
+                case true:
+                    _capacitor++;
+                    break;
+
+                case false when !isBottomTrigger:
+                    for (var i = 0; i < _capacitor; i++)
+                    {
+                        _rigidbody.AddForce(0, -20, 0);
+                    }
+
+                    _capacitor = 1;
+                    break;
+            }
 
             Move(_move);
             _move = Vector3.zero;
