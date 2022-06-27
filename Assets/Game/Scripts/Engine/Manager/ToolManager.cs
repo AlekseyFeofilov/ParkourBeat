@@ -246,7 +246,12 @@ namespace Game.Scripts.Engine.Manager
         public static void Rotate(Vector3 rotation)
         {
             if (SelectManager.Selected.Count == 0) return;
-            SelectManager.Selected.First().transform.parent.Rotate(rotation);
+
+            foreach (var selected in SelectManager.Selected)
+            {
+                selected.transform.Rotate(rotation);
+            }
+            //SelectManager.Selected.First().transform.parent.Rotate(rotation);
         }
 
         public static void Scale(Vector3 scaling)
