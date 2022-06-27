@@ -45,9 +45,8 @@ namespace Game.Scripts.Engine.Manager
         private GameObject _currentTool;
         private SelectManager _selectManager;
 
-        private bool _activated;
-
-        public bool Activated => _activated;
+        private static bool _activated;
+        public static bool Activated => _activated;
 
         private void Start()
         {
@@ -82,6 +81,7 @@ namespace Game.Scripts.Engine.Manager
             if (!_needsUpdate) return;
 
             DestroyTool();
+            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
             UpdateTools();
             _needsUpdate = false;
         }
@@ -92,6 +92,8 @@ namespace Game.Scripts.Engine.Manager
             if (!_activated)
             {
                 DestroyTool();
+                // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+                _selectManager.Deselect();
                 return;
             }
 
@@ -139,13 +141,13 @@ namespace Game.Scripts.Engine.Manager
             DestroyTool();
         }
 
-        public void Activate()
+        public static void Activate()
         {
             _activated = true;
             _needsUpdate = true;
         }
 
-        public void Deactivate()
+        public static void Deactivate()
         {
             _activated = false;
             _needsUpdate = true;
@@ -157,6 +159,7 @@ namespace Game.Scripts.Engine.Manager
 
             _currentTool = Instantiate(
                 tool,
+                // ReSharper disable once Unity.InefficientPropertyAccess
                 selectedObjTransform.position,
                 selectedObjTransform.rotation,
                 selectedObjTransform.parent.parent
@@ -192,7 +195,7 @@ namespace Game.Scripts.Engine.Manager
             {
                 @event.StartColor = component.material.color;
             }
-            
+
             if (SelectManager.Selected[0].TryGetComponent(out IColorable colorable))
             {
                 colorable.OnBeginColor(@event);
@@ -209,7 +212,7 @@ namespace Game.Scripts.Engine.Manager
                     if (!selected.TryGetComponent(out IColorable colorable)) continue;
                     if (!colorable.OnChange(color)) continue;
                     if (!selected.TryGetComponent(out Renderer component)) continue;
-                
+
                     component.material.color = color;
                 }
             });
@@ -229,9 +232,14 @@ namespace Game.Scripts.Engine.Manager
             Destroy(_currentTool);
         }
 
-        public static void Move(Vector3 direction)
+        public static void Move(Vector3 startPosition, Vector3 direction)
         {
             if (SelectManager.Selected.Count == 0) return;
+            if (Vector3.Magnitude(startPosition + direction) > 1000)
+            {
+                Deactivate();
+            }
+            
             SelectManager.Selected.First().transform.parent.parent.Translate(direction);
         }
 

@@ -119,7 +119,7 @@ namespace Game.Scripts.Engine.Manager
             
             mainWrapper.name = "Selection";
             wrapper.name = "Selected";
-            toolManager.Activate();
+            ToolManager.Activate();
             return wrapper;
         }
 
@@ -133,7 +133,7 @@ namespace Game.Scripts.Engine.Manager
             selectedTransform.parent = _childToParentDictionary[selectedTransform];
             _childToParentDictionary.Remove(selectedTransform);
             
-            toolManager.Deactivate();
+            ToolManager.Deactivate();
         }
 
         private static SelectEvent SelectRequest(GameObject obj)
