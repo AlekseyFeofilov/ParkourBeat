@@ -196,11 +196,10 @@ namespace Game.Scripts.Engine.Manager
                 @event.StartColor = component.material.color;
             }
 
-            if (SelectManager.Selected[0].TryGetComponent(out IColorable colorable))
-            {
-                colorable.OnBeginColor(@event);
-                picker._color = @event.StartColor;
-            }
+            if (!SelectManager.Selected[0].TryGetComponent(out IColorable colorable)) return;
+            
+            colorable.OnBeginColor(@event);
+            picker._color = @event.StartColor;
         }
 
         private static void SetColorToolListener(ColorPicker picker)
@@ -274,26 +273,6 @@ namespace Game.Scripts.Engine.Manager
         {
             if (SelectManager.Selected.Count == 0) return;
             SelectManager.Selected.First().transform.parent.position = direction;
-        }
-
-        public static void RotationReset(bool resetOx, bool resetOy, bool resetOz)
-        {
-            if (SelectManager.Selected.Count == 0) return;
-
-            var rotarion1 = SelectManager.Selected.First().transform.parent.rotation;
-            var rotarion2 = SelectManager.Selected.First().transform.parent.parent.rotation;
-
-            SelectManager.Selected.First().transform.parent.rotation = Quaternion.Euler(
-                resetOx ? 0 : 1 * rotarion1.x,
-                resetOx ? 0 : 1 * rotarion1.y,
-                resetOx ? 0 : 1 * rotarion1.z
-            );
-
-            SelectManager.Selected.First().transform.parent.parent.rotation = Quaternion.Euler(
-                resetOx ? 0 : 1 * rotarion2.x,
-                resetOx ? 0 : 1 * rotarion2.y,
-                resetOx ? 0 : 1 * rotarion2.z
-            );
         }
 
         public static void UpdateTool()

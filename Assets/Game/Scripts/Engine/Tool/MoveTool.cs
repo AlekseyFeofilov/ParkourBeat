@@ -28,15 +28,17 @@ namespace Game.Scripts.Engine.Tool
             return selected.TryGetComponent(out IMovable movable) && movable.OnBeginMove();
         }
 
-        protected override void ChangeRequest(KeyValuePair<GameObject, Transform> data)
+        protected override bool ChangeRequest(KeyValuePair<GameObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(ScaledSpeed, tag);
 
-            if (!data.Key.TryGetComponent(out IMovable movable) || movable.OnMove(change)) return;
+            if (!data.Key.TryGetComponent(out IMovable movable) || movable.OnMove(change)) return true;
 
             // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
             SelectManager.Deselect(data.Key);
             Data.Remove(data.Key);
+
+            return false;
         }
 
         protected override void Change() => ((ITool)this).Change(((ITool)this).GetChange(ScaledSpeed, tag));
