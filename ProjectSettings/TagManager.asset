@@ -13,6 +13,7 @@ TagManager:
   - Right
   - Front
   - Back
+  - BG_MUSIC_VOLUME_SLIDER
   layers:
   - Default
   - TransparentFX
