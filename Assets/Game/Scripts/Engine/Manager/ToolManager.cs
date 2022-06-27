@@ -251,7 +251,6 @@ namespace Game.Scripts.Engine.Manager
             {
                 selected.transform.Rotate(rotation);
             }
-            //SelectManager.Selected.First().transform.parent.Rotate(rotation);
         }
 
         public static void Scale(Vector3 scaling)

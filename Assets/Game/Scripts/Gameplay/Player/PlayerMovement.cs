@@ -35,7 +35,7 @@ namespace Game.Scripts.Gameplay.Player
             //if true rightMove = 1 else 0
             var rightMove = Convert.ToInt32(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow));
 
-            if (Input.GetKey(KeyCode.Space) && _isBottomTrigger)
+            if (Input.GetKey(KeyCode.Space) && isTrigger)
             {
                 jumper.Jump();
             }
@@ -118,8 +118,6 @@ namespace Game.Scripts.Gameplay.Player
 
         private void OnCollisionEnter(Collision collision)
         {
-            _normal = collision.contacts[0].normal;
-
             if (_normal == -Vector3.right ||
                 _normal == Vector3.forward ||
                 _normal == -Vector3.forward
@@ -127,13 +125,18 @@ namespace Game.Scripts.Gameplay.Player
             {
                 gameManager.EndGame(0);
             }
+        }
 
+        private void OnCollisionStay(Collision collision)
+        {
+            _normal = collision.contacts[0].normal;
             isTrigger = true;
         }
 
         private void OnCollisionExit()
         {
             isTrigger = false;
+            _normal = Vector3.up;
         }
     }
 }
