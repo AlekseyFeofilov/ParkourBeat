@@ -16,13 +16,7 @@ namespace Game.Scripts.Gameplay.Player
         [SerializeField] private float horizontalSpeed = 10f;
 
         public bool isBottomTrigger;
-
-        private bool _isTopTrigger;
-        private bool _isLeftTrigger;
-        private bool _isRightTrigger;
-        private bool _isFrontTrigger;
-        private bool _isBackTrigger;
-        public bool jumping;
+        private bool _jumping;
 
         private Rigidbody _rigidbody;
 
@@ -38,7 +32,7 @@ namespace Game.Scripts.Gameplay.Player
             //if true rightMove = 1 else 0
             var rightMove = Convert.ToInt32(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow));
 
-            if (Input.GetKey(KeyCode.Space) && !IsFreeFall())
+            if (Input.GetKey(KeyCode.Space) && isBottomTrigger)
             {
                 jumper.Jump();
             }
@@ -68,74 +62,26 @@ namespace Game.Scripts.Gameplay.Player
             }
 
             isBottomTrigger = true;
-
-            switch (collisionTag)
-            {
-                case "Top":
-                    _isTopTrigger = true;
-                    break;
-
-                case "Bottom":
-                    isBottomTrigger = true;
-                    break;
-
-                case "Left":
-                    _isLeftTrigger = true;
-                    break;
-
-                case "Right":
-                    _isRightTrigger = true;
-                    break;
-
-                case "Front":
-                    _isFrontTrigger = true;
-                    break;
-
-                case "Back":
-                    _isBackTrigger = true;
-                    break;
-
-                default:
-                    throw new Exception("Unknown collider involved CollisionEnter (Player.cs)");
-            }
         }
 
         public void CollisionExit(string collisionTag)
         {
-            switch (collisionTag)
-            {
-                case "Top":
-                    _isTopTrigger = false;
-                    break;
+            if (collisionTag != "Bottom") return;
 
-                case "Bottom":
-                    isBottomTrigger = false;
-                    break;
-
-                case "Left":
-                    _isLeftTrigger = false;
-                    break;
-
-                case "Right":
-                    _isRightTrigger = false;
-                    break;
-
-                case "Front":
-                    _isFrontTrigger = false;
-                    break;
-
-                case "Back":
-                    _isBackTrigger = false;
-                    break;
-
-                default:
-                    throw new Exception("Unknown collider involved CollisionExit (Player.cs)");
-            }
+            isBottomTrigger = false;
         }
 
-        private bool IsFreeFall()
+        public void OnBeginJump()
         {
-            return Physics.gravity.y < 0 && !isBottomTrigger;
+            _capacitor = 0;
+            _jumping = true;
+            _rigidbody.useGravity = false;
+        }
+
+        public void OnEndJump()
+        {
+            _jumping = false;
+            _rigidbody.useGravity = true;
         }
 
         private void Move(Vector3 direction)
