@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using AudioSettings = Game.Scripts.Settings.AudioSettings;
 
 namespace Game.Scripts.Map
 {
@@ -41,7 +42,7 @@ namespace Game.Scripts.Map
         {
             for (int i = 0; i < 500; i++)
             {
-                songSource.volume = (500 - i) / 500f;
+                songSource.volume = (500 - i) / 500f * AudioSettings.MusicVolume;
                 fade.color = new Color(fade.color.r, fade.color.g, fade.color.b, i / 500f);
                 yield return new WaitForSeconds(0.01f);
             }

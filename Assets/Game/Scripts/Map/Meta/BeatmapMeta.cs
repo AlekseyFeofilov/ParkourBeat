@@ -14,5 +14,7 @@ namespace Game.Scripts.Map.Meta
         public bool defaultMap;
         public string assessment;
         public string difficulty;
+        public BeatmapStatus status;
+        public float menuSongTimestamp;
     }
 }
