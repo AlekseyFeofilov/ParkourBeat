@@ -17,4 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Game/Scenes/Editmode.unity
     guid: e7d0040301d4ce841a7bfd87bac7dfdc
+  - enabled: 1
+    path: Assets/Game/Scenes/Settings Menu.unity
+    guid: 5a65ed178e03d4c9c98687e04ef14003
+  - enabled: 1
+    path: Assets/Game/Scenes/Disclaimer.unity
+    guid: a41c298338856b64a99d646e56ec5c66
   m_configObjects: {}

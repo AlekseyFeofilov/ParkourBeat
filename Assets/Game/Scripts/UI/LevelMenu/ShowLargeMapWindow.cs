@@ -1,5 +1,6 @@
 using Game.Scripts.Map;
 using Game.Scripts.Map.Meta;
+using Game.Scripts.Scenes;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -12,7 +13,8 @@ namespace Game.Scripts.UI.LevelMenu
     /// </summary>
     public class ShowLargeMapWindow : MonoBehaviour
     {
-        [SerializeField] GameObject _targetObj;
+        [SerializeField] private GameObject _targetObj;
+        
         private WindowInteractingWithMap _actionWindowInteractingWithMap;
 
         private void Start()
@@ -55,7 +57,7 @@ namespace Game.Scripts.UI.LevelMenu
                 beatmapManager.LoadBeatmapInEditmode();
             });
 
-            if (info.Meta.defaultMap)
+            if (info.Meta.yoursMap)
             {
                 item.transform.GetChild(9).GameObject().SetActive(true);
             }
@@ -72,7 +74,14 @@ namespace Game.Scripts.UI.LevelMenu
             startBtn.onClick.AddListener(() =>
             {
                 beatmapManager.SetName(info.Name);
-                beatmapManager.LoadBeatmapInPlaymode();
+                if (info.Meta.status == BeatmapStatus.Unranked)
+                {
+                    AdvancedSceneManager.LoadScene("Disclaimer");
+                }
+                else
+                {
+                    beatmapManager.LoadBeatmapInPlaymode();   
+                }
             });
         }
     }
