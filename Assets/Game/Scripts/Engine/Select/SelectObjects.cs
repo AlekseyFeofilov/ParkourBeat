@@ -10,6 +10,7 @@ namespace Game.Scripts.Engine.Select
     {
         [SerializeField] private SelectManager selectManager;
         private List<GameObject> _selectables;
+        private List<GameObject> _selected;
 
         [SerializeField] private GUISkin skin;
         private Rect _rect;
@@ -22,6 +23,7 @@ namespace Game.Scripts.Engine.Select
         private void Awake()
         {
             _selectables = new List<GameObject>();
+            _selected = new List<GameObject>();
         }
 
         private void Start()
@@ -36,7 +38,13 @@ namespace Game.Scripts.Engine.Select
             {
                 // ReSharper disable two Unity.PerformanceCriticalCodeInvocation
                 UpdateAvailableObjects();
-                selectManager.Deselect();
+
+                if (!Input.GetKey(KeyCode.LeftControl))
+                {
+                    selectManager.Deselect();
+                }
+                
+                _selected.Clear();
 
                 _startPosition = Input.mousePosition;
                 _selecting = true;
@@ -49,11 +57,6 @@ namespace Game.Scripts.Engine.Select
         private void LocalOnMouseUp()
         {
             _selecting = false;
-        }
-
-        private static bool CheckSelected(GameObject obj)
-        {
-            return SelectManager.Selected.Contains(obj);
         }
 
         private void OnGUI()
@@ -80,14 +83,15 @@ namespace Game.Scripts.Engine.Select
 
             GUI.Box(_rect, "");
 
-            var selectedObjects = new List<GameObject>(SelectManager.Selected);
-            foreach (var selected in from selected in selectedObjects
-                     let position = selected.transform.position 
+            var selected = new List<GameObject>(_selected);
+            foreach (var obj in from obj in selected
+                     let position = obj.transform.position 
                      let screenPoint = _camera.WorldToScreenPoint(position) 
                      let screenPosition = new Vector2(screenPoint.x, Screen.height - screenPoint.y) 
-                     where !_rect.Contains(screenPosition) select selected)
+                     where !_rect.Contains(screenPosition) select obj)
             {
-                selectManager.Deselect(selected);
+                selectManager.Deselect(obj);
+                _selected.Remove(obj);
             }
             
             foreach (var obj in from obj in _selectables
@@ -96,8 +100,9 @@ namespace Game.Scripts.Engine.Select
                      let screenPosition = new Vector2(screenPoint.x, Screen.height - screenPoint.y)
                      where _rect.Contains(screenPosition) select obj)
             {
-                if (CheckSelected(obj)) continue;
+                if (_selected.Contains(obj)) continue;
                 selectManager.Select(obj);
+                _selected.Add(obj);
             }
         }
 
