@@ -53,7 +53,7 @@ namespace Game.Scripts.Gameplay.Player
             var expiredSecond = 0f;
             var progress = 0f;
 
-            while (progress < 1 && (!player.isBottomTrigger || progress < 0.02))
+            while (progress < 1 && (!player.isTrigger || progress < 0.02))
             {
                 expiredSecond += Time.deltaTime;
                 progress = expiredSecond / duration;
