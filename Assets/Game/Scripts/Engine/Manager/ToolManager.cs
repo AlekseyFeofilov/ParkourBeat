@@ -197,7 +197,7 @@ namespace Game.Scripts.Engine.Manager
             }
 
             if (!SelectManager.Selected[0].TryGetComponent(out IColorable colorable)) return;
-            
+
             colorable.OnBeginColor(@event);
             picker._color = @event.StartColor;
         }
@@ -238,7 +238,7 @@ namespace Game.Scripts.Engine.Manager
             {
                 Deactivate();
             }
-            
+
             SelectManager.Selected.First().transform.parent.parent.Translate(direction);
         }
 
@@ -246,10 +246,7 @@ namespace Game.Scripts.Engine.Manager
         {
             if (SelectManager.Selected.Count == 0) return;
 
-            foreach (var selected in SelectManager.Selected)
-            {
-                selected.transform.Rotate(rotation);
-            }
+            SelectManager.Selected.First().transform.parent.Rotate(rotation);
         }
 
         public static void Scale(Vector3 scaling)

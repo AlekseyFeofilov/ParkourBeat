@@ -63,6 +63,7 @@ namespace Game.Scripts.Map.VisualEffect.Object
         public bool OnEndRotate()
         {
             BeatmapEditorContext.SetPropertyValue(Rotation, transform.rotation.eulerAngles);
+            BeatmapEditorContext.SetPropertyValue(Position, transform.position);
             return true;
         }
 
