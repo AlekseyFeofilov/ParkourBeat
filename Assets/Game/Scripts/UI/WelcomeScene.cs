@@ -6,11 +6,10 @@ using UnityEngine.UI;
 
 namespace Game.Scripts.UI
 {
-    public class PreMainScene : MonoBehaviour
+    public class WelcomeScene : MonoBehaviour
     {
         [SerializeField] private AnimationCurve animationCurve;
         [SerializeField] private Image image;
-        [SerializeField] private float loadDuration;
         [SerializeField] private float fadeDuration;
         [SerializeField] private float stayDuration;
 
@@ -24,11 +23,10 @@ namespace Game.Scripts.UI
 
         private IEnumerator AnimateFade()
         {
-            yield return new WaitForSeconds(loadDuration);
             yield return Animate(value => { image.color = Color.black * (1 - value); }, false);
             yield return new WaitForSeconds(stayDuration);
             yield return Animate(value => { image.color = Color.black * value; }, false);
-            SceneManager.LoadScene("Welcome");
+            SceneManager.LoadScene("Main Menu");
         }
 
         public void AnimateFadeOut()
@@ -58,7 +56,7 @@ namespace Game.Scripts.UI
             if (Input.anyKey && !flag)
             {
                 flag = true;
-                SceneManager.LoadScene("Welcome");
+                SceneManager.LoadScene("Main Menu");
             }
         }
     }
