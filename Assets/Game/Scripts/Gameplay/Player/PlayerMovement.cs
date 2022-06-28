@@ -116,8 +116,9 @@ namespace Game.Scripts.Gameplay.Player
             return direction - Vector3.Dot(direction, _normal) * _normal;
         }
 
-        private void OnCollisionEnter(Collision collision)
+        private void OnCollisionStay(Collision collision)
         {
+            _normal = collision.contacts[0].normal;
             if (_normal == -Vector3.right ||
                 _normal == Vector3.forward ||
                 _normal == -Vector3.forward
@@ -125,11 +126,6 @@ namespace Game.Scripts.Gameplay.Player
             {
                 gameManager.EndGame(0);
             }
-        }
-
-        private void OnCollisionStay(Collision collision)
-        {
-            _normal = collision.contacts[0].normal;
             isTrigger = true;
         }
 

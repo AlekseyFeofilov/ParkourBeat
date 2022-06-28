@@ -61,12 +61,12 @@ namespace Game.Scripts.Engine.Manager
             }
         }
 
-        public void Select(GameObject obj)
+        public bool Select(GameObject obj)
         {
-            if (obj == null) return;
+            if (obj == null || Selected.Contains(obj)) return false;
             
             var @event = SelectRequest(obj);
-            if (@event.Cancelled) return;
+            if (@event.Cancelled) return false;
 
             Selected.Add(obj);
 
@@ -80,6 +80,7 @@ namespace Game.Scripts.Engine.Manager
             }
             
             Select(outlined, @event);
+            return true;
         }
         
         private void Select(OutlinedObject obj, SelectEvent @event)
@@ -217,16 +218,17 @@ namespace Game.Scripts.Engine.Manager
             if (!Physics.Raycast(ray, out var hit, float.PositiveInfinity, toolMask) &&
                 !Physics.Raycast(ray, out hit, float.PositiveInfinity, selectableMask)) return null;
             
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Tool") &&
+                Input.GetKey(KeyCode.LeftControl)) return null;
+            
             var obj = hit.transform.gameObject;
 
             if (obj && hit.transform.gameObject.layer != LayerMask.NameToLayer("Tool"))
             {
                 return obj;
             }
-            else
-            {
-                return Selected.Last();
-            }
+
+            return Selected.Last();
         }
 
         private void Update()

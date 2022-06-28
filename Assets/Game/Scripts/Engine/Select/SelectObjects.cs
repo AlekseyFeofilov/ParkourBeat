@@ -101,8 +101,7 @@ namespace Game.Scripts.Engine.Select
                      where _rect.Contains(screenPosition) select obj)
             {
                 if (_selected.Contains(obj)) continue;
-                selectManager.Select(obj);
-                _selected.Add(obj);
+                if(selectManager.Select(obj)) _selected.Add(obj);
             }
         }
 
