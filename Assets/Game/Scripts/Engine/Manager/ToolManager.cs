@@ -45,9 +45,8 @@ namespace Game.Scripts.Engine.Manager
         private GameObject _currentTool;
         private SelectManager _selectManager;
 
-        private bool _activated;
-
-        public bool Activated => _activated;
+        private static bool _activated;
+        public static bool Activated => _activated;
 
         private void Start()
         {
@@ -82,6 +81,7 @@ namespace Game.Scripts.Engine.Manager
             if (!_needsUpdate) return;
 
             DestroyTool();
+            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
             UpdateTools();
             _needsUpdate = false;
         }
@@ -92,6 +92,8 @@ namespace Game.Scripts.Engine.Manager
             if (!_activated)
             {
                 DestroyTool();
+                // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+                _selectManager.Deselect();
                 return;
             }
 
@@ -139,13 +141,13 @@ namespace Game.Scripts.Engine.Manager
             DestroyTool();
         }
 
-        public void Activate()
+        public static void Activate()
         {
             _activated = true;
             _needsUpdate = true;
         }
 
-        public void Deactivate()
+        public static void Deactivate()
         {
             _activated = false;
             _needsUpdate = true;
@@ -157,6 +159,7 @@ namespace Game.Scripts.Engine.Manager
 
             _currentTool = Instantiate(
                 tool,
+                // ReSharper disable once Unity.InefficientPropertyAccess
                 selectedObjTransform.position,
                 selectedObjTransform.rotation,
                 selectedObjTransform.parent.parent
@@ -192,12 +195,11 @@ namespace Game.Scripts.Engine.Manager
             {
                 @event.StartColor = component.material.color;
             }
+
+            if (!SelectManager.Selected[0].TryGetComponent(out IColorable colorable)) return;
             
-            if (SelectManager.Selected[0].TryGetComponent(out IColorable colorable))
-            {
-                colorable.OnBeginColor(@event);
-                picker._color = @event.StartColor;
-            }
+            colorable.OnBeginColor(@event);
+            picker._color = @event.StartColor;
         }
 
         private static void SetColorToolListener(ColorPicker picker)
@@ -209,7 +211,7 @@ namespace Game.Scripts.Engine.Manager
                     if (!selected.TryGetComponent(out IColorable colorable)) continue;
                     if (!colorable.OnChange(color)) continue;
                     if (!selected.TryGetComponent(out Renderer component)) continue;
-                
+
                     component.material.color = color;
                 }
             });
@@ -229,16 +231,25 @@ namespace Game.Scripts.Engine.Manager
             Destroy(_currentTool);
         }
 
-        public static void Move(Vector3 direction)
+        public static void Move(Vector3 startPosition, Vector3 direction)
         {
             if (SelectManager.Selected.Count == 0) return;
+            if (Vector3.Magnitude(startPosition + direction) > 1000)
+            {
+                Deactivate();
+            }
+            
             SelectManager.Selected.First().transform.parent.parent.Translate(direction);
         }
 
         public static void Rotate(Vector3 rotation)
         {
             if (SelectManager.Selected.Count == 0) return;
-            SelectManager.Selected.First().transform.parent.Rotate(rotation);
+
+            foreach (var selected in SelectManager.Selected)
+            {
+                selected.transform.Rotate(rotation);
+            }
         }
 
         public static void Scale(Vector3 scaling)
@@ -262,26 +273,6 @@ namespace Game.Scripts.Engine.Manager
         {
             if (SelectManager.Selected.Count == 0) return;
             SelectManager.Selected.First().transform.parent.position = direction;
-        }
-
-        public static void RotationReset(bool resetOx, bool resetOy, bool resetOz)
-        {
-            if (SelectManager.Selected.Count == 0) return;
-
-            var rotarion1 = SelectManager.Selected.First().transform.parent.rotation;
-            var rotarion2 = SelectManager.Selected.First().transform.parent.parent.rotation;
-
-            SelectManager.Selected.First().transform.parent.rotation = Quaternion.Euler(
-                resetOx ? 0 : 1 * rotarion1.x,
-                resetOx ? 0 : 1 * rotarion1.y,
-                resetOx ? 0 : 1 * rotarion1.z
-            );
-
-            SelectManager.Selected.First().transform.parent.parent.rotation = Quaternion.Euler(
-                resetOx ? 0 : 1 * rotarion2.x,
-                resetOx ? 0 : 1 * rotarion2.y,
-                resetOx ? 0 : 1 * rotarion2.z
-            );
         }
 
         public static void UpdateTool()

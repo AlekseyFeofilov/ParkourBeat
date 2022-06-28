@@ -132,6 +132,7 @@ namespace Game.Scripts.Map
             timeline.SaveData(data);
             data.Settings.Fog = Fog;
             data.Settings.End = End;
+            data.Settings.Far = Far;
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Game.Scripts.MapEditor
             }
 
             if (!Input.GetKeyDown(KeyCode.F) ||
-                toolManager.Activated &&
+                ToolManager.Activated &&
                 toolManager.ToolMode == ToolManager.Mode.ColorTool) return;
             ResetTrigger();
 

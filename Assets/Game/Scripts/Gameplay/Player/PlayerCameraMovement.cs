@@ -4,7 +4,6 @@ namespace Game.Scripts.Gameplay.Player
 {
     public class PlayerCameraMovement : MonoBehaviour
     {
-        [SerializeField] private GameObject player;
         [SerializeField] private float rotateSpeedH = 250f;
         [SerializeField] private float rotateSpeedV = 250f;
         [SerializeField] private float minYaw = 45;
@@ -18,9 +17,6 @@ namespace Game.Scripts.Gameplay.Player
         
         private void Start()
         {
-            var transform = this.transform;
-            _offset = transform.position;
-            
             var eulerAngles = transform.eulerAngles;
             _pitch = eulerAngles.x;
             _yaw = eulerAngles.y;
@@ -28,15 +24,6 @@ namespace Game.Scripts.Gameplay.Player
 
         private void Update()
         {
-            var playerPosition = player.transform.position;
-            var cameraTransform = transform;
-            
-            cameraTransform.position = new Vector3(
-                playerPosition.x + _offset.x,
-                cameraTransform.position.y,
-                playerPosition.z + _offset.z
-            );
-            
             _yaw += rotateSpeedH * Input.GetAxis("Mouse X") * Time.deltaTime;
             _pitch -= rotateSpeedV * Input.GetAxis("Mouse Y") * Time.deltaTime;
 

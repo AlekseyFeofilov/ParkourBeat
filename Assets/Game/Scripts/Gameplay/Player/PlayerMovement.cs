@@ -15,20 +15,17 @@ namespace Game.Scripts.Gameplay.Player
 
         [SerializeField] private float horizontalSpeed = 10f;
 
-        public bool isBottomTrigger;
-
-        private bool _isTopTrigger;
-        private bool _isLeftTrigger;
-        private bool _isRightTrigger;
-        private bool _isFrontTrigger;
-        private bool _isBackTrigger;
-        public bool jumping;
+        public bool isTrigger;
+        private bool _isBottomTrigger;
+        private bool _jumping;
 
         private Rigidbody _rigidbody;
+        private int _capacitor;
 
         private void Start()
         {
             _rigidbody = GetComponent<Rigidbody>();
+            _capacitor = 1;
         }
 
         private void Update()
@@ -38,7 +35,7 @@ namespace Game.Scripts.Gameplay.Player
             //if true rightMove = 1 else 0
             var rightMove = Convert.ToInt32(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow));
 
-            if (Input.GetKey(KeyCode.Space) && !IsFreeFall())
+            if (Input.GetKey(KeyCode.Space) && isTrigger)
             {
                 jumper.Jump();
             }
@@ -51,6 +48,22 @@ namespace Game.Scripts.Gameplay.Player
             var time = beatmap.AudioTime;
             var x = (float)beatmap.timeline.GetPositionBySecond(time);
             _move += Vector3.right * (x - transform.position.x);
+
+            switch (_jumping)
+            {
+                case true:
+                    _capacitor++;
+                    break;
+
+                case false when !_isBottomTrigger:
+                    for (var i = 0; i < _capacitor; i++)
+                    {
+                        _rigidbody.AddForce(0, -20, 0);
+                    }
+
+                    _capacitor = 1;
+                    break;
+            }
 
             Move(_move);
             _move = Vector3.zero;
@@ -67,75 +80,27 @@ namespace Game.Scripts.Gameplay.Player
                 gameManager.EndGame(0);
             }
 
-            isBottomTrigger = true;
-
-            switch (collisionTag)
-            {
-                case "Top":
-                    _isTopTrigger = true;
-                    break;
-
-                case "Bottom":
-                    isBottomTrigger = true;
-                    break;
-
-                case "Left":
-                    _isLeftTrigger = true;
-                    break;
-
-                case "Right":
-                    _isRightTrigger = true;
-                    break;
-
-                case "Front":
-                    _isFrontTrigger = true;
-                    break;
-
-                case "Back":
-                    _isBackTrigger = true;
-                    break;
-
-                default:
-                    throw new Exception("Unknown collider involved CollisionEnter (Player.cs)");
-            }
+            _isBottomTrigger = true;
         }
 
         public void CollisionExit(string collisionTag)
         {
-            switch (collisionTag)
-            {
-                case "Top":
-                    _isTopTrigger = false;
-                    break;
+            if (collisionTag != "Bottom") return;
 
-                case "Bottom":
-                    isBottomTrigger = false;
-                    break;
-
-                case "Left":
-                    _isLeftTrigger = false;
-                    break;
-
-                case "Right":
-                    _isRightTrigger = false;
-                    break;
-
-                case "Front":
-                    _isFrontTrigger = false;
-                    break;
-
-                case "Back":
-                    _isBackTrigger = false;
-                    break;
-
-                default:
-                    throw new Exception("Unknown collider involved CollisionExit (Player.cs)");
-            }
+            _isBottomTrigger = false;
         }
 
-        private bool IsFreeFall()
+        public void OnBeginJump()
         {
-            return Physics.gravity.y < 0 && !isBottomTrigger;
+            _capacitor = 0;
+            _jumping = true;
+            _rigidbody.useGravity = false;
+        }
+
+        public void OnEndJump()
+        {
+            _jumping = false;
+            _rigidbody.useGravity = true;
         }
 
         private void Move(Vector3 direction)
@@ -153,8 +118,6 @@ namespace Game.Scripts.Gameplay.Player
 
         private void OnCollisionEnter(Collision collision)
         {
-            _normal = collision.contacts[0].normal;
-
             if (_normal == -Vector3.right ||
                 _normal == Vector3.forward ||
                 _normal == -Vector3.forward
@@ -162,6 +125,18 @@ namespace Game.Scripts.Gameplay.Player
             {
                 gameManager.EndGame(0);
             }
+        }
+
+        private void OnCollisionStay(Collision collision)
+        {
+            _normal = collision.contacts[0].normal;
+            isTrigger = true;
+        }
+
+        private void OnCollisionExit()
+        {
+            isTrigger = false;
+            _normal = Vector3.up;
         }
     }
 }

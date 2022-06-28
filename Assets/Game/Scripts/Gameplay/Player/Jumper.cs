@@ -14,7 +14,6 @@ namespace Game.Scripts.Gameplay.Player
         [SerializeField] private float deltaTime = 0.5f;
         
         private Coroutine _lastAnimation;
-        private bool _stopAnimation;
         private float _startHeight;
 
         private void Start()
@@ -24,7 +23,7 @@ namespace Game.Scripts.Gameplay.Player
 
         public void Jump()
         {
-            player.jumping = true;
+            player.OnBeginJump();
             _startHeight = _jumper.position.y;
             // ReSharper disable once Unity.InefficientPropertyAccess
             PlayAnimation(deltaTime);
@@ -45,8 +44,7 @@ namespace Game.Scripts.Gameplay.Player
         private void Play(float duration, Func<float, float> body)
         {
             if (_lastAnimation != null) StopCoroutine(_lastAnimation);
-
-            _stopAnimation = false;
+            
             _lastAnimation = StartCoroutine(GetAnimation(duration, body));
         }
 
@@ -55,7 +53,7 @@ namespace Game.Scripts.Gameplay.Player
             var expiredSecond = 0f;
             var progress = 0f;
 
-            while (progress < 1 && (!player.isBottomTrigger || progress < 0.02))
+            while (progress < 1 && (!player.isTrigger || progress < 0.02))
             {
                 expiredSecond += Time.deltaTime;
                 progress = expiredSecond / duration;
@@ -63,8 +61,8 @@ namespace Game.Scripts.Gameplay.Player
 
                 yield return null;
             }
-
-            player.jumping = false;
+            
+            player.OnEndJump();
         }
     }
 }

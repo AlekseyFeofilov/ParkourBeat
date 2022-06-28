@@ -89,12 +89,7 @@ namespace Game.Scripts.Engine.Tool
             
             foreach (var data in Data)
             {
-                if (Vector3.Distance(data.Key.transform.position, data.Value.position) > 100)
-                {
-                    EndChange(data);
-                    continue;
-                }
-
+                // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
                 ChangeRequest(data);
             }
             
@@ -132,7 +127,7 @@ namespace Game.Scripts.Engine.Tool
 
         protected abstract void Change();
 
-        protected abstract void ChangeRequest(KeyValuePair<GameObject, Transform> data);
+        protected abstract bool ChangeRequest(KeyValuePair<GameObject, Transform> data);
 
         protected abstract bool OnEnd(GameObject selected);
     }

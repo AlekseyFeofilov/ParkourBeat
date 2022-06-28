@@ -19,14 +19,16 @@ namespace Game.Scripts.Engine.Tool
             return selected.TryGetComponent(out IScalable scalable) && scalable.OnBeginScale();
         }
 
-        protected override void ChangeRequest(KeyValuePair<GameObject, Transform> data)
+        protected override bool ChangeRequest(KeyValuePair<GameObject, Transform> data)
         {
             var change = ((ITool)this).GetChange(ScaledSpeed, tag);
             
-            if (!data.Key.TryGetComponent(out IScalable scalable) || scalable.OnScale(change)) return;
+            if (!data.Key.TryGetComponent(out IScalable scalable) || scalable.OnScale(change)) return true;
 
             SelectManager.Deselect(data.Key);
             Data.Remove(data.Key);
+
+            return false;
         }
         
         protected override void Change()

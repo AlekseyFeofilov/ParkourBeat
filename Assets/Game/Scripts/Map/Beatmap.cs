@@ -32,6 +32,7 @@ namespace Game.Scripts.Map
 
         protected double End;
         protected float Fog;
+        protected float Far;
 
         public abstract void PlayAudio();
         public abstract void StopAudio();
@@ -83,6 +84,7 @@ namespace Game.Scripts.Map
             timeline.LoadData(data);
             Fog = data.Settings.Fog;
             End = data.Settings.End;
+            Far = data.Settings.Far;
         }
     }
 }
