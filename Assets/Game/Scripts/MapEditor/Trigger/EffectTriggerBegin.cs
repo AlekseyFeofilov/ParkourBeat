@@ -29,6 +29,11 @@ namespace Game.Scripts.MapEditor.Trigger
 
         public void OnSelect(SelectEvent @event)
         {
+            if(Input.GetKey(KeyCode.LeftAlt))
+            {
+                @event.Cancelled = true;
+                return;
+            }
             _toolManager.ToolMode = ToolManager.Mode.MoveTool;
         }
 

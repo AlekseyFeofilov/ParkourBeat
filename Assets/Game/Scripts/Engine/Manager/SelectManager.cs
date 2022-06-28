@@ -61,12 +61,12 @@ namespace Game.Scripts.Engine.Manager
             }
         }
 
-        public void Select(GameObject obj)
+        public bool Select(GameObject obj)
         {
-            if (obj == null) return;
+            if (obj == null || Selected.Contains(obj)) return false;
             
             var @event = SelectRequest(obj);
-            if (@event.Cancelled) return;
+            if (@event.Cancelled) return false;
 
             Selected.Add(obj);
 
@@ -80,6 +80,7 @@ namespace Game.Scripts.Engine.Manager
             }
             
             Select(outlined, @event);
+            return true;
         }
         
         private void Select(OutlinedObject obj, SelectEvent @event)
