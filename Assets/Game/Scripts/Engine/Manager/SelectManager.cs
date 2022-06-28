@@ -218,16 +218,17 @@ namespace Game.Scripts.Engine.Manager
             if (!Physics.Raycast(ray, out var hit, float.PositiveInfinity, toolMask) &&
                 !Physics.Raycast(ray, out hit, float.PositiveInfinity, selectableMask)) return null;
             
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Tool") &&
+                Input.GetKey(KeyCode.LeftControl)) return null;
+            
             var obj = hit.transform.gameObject;
 
             if (obj && hit.transform.gameObject.layer != LayerMask.NameToLayer("Tool"))
             {
                 return obj;
             }
-            else
-            {
-                return Selected.Last();
-            }
+
+            return Selected.Last();
         }
 
         private void Update()
