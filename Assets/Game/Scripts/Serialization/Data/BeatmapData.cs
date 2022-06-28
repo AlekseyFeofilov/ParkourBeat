@@ -33,5 +33,7 @@ namespace Game.Scripts.Serialization.Data
         public double End = 120;
 
         public float Fog = 200;
+
+        public float Far = 0;
     }
 }

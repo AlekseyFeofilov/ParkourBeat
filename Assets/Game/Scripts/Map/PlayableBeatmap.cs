@@ -9,6 +9,7 @@ namespace Game.Scripts.Map
     public class PlayableBeatmap : Beatmap
     {
         [SerializeField] private Image fade;
+        [SerializeField] private Camera camera;
         
         private float _lastX;
         private bool ended;
@@ -17,6 +18,7 @@ namespace Game.Scripts.Map
         {
             base.Start();
             RenderSettings.fogDensity = Fog;
+            camera.farClipPlane = Far < 0 ? 1000 : Far == 0 ? Fog : Far;
         }
 
         private void FixedUpdate()
