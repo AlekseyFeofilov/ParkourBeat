@@ -3,7 +3,7 @@ using Game.Scripts.Scenes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Game.Scripts.Gameplay
+namespace Game.Scripts.Gameplay.Manager
 {
     public class GameManager : MonoBehaviour
     {
