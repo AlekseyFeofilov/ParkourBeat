@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using AudioSettings = Game.Scripts.Settings.AudioSettings;
+using AudioSettings = Game.Scripts.Settings.AudioSettings.AudioSettings;
 
 namespace Game.Scripts.Map
 {

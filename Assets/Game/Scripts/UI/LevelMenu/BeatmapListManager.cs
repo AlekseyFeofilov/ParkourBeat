@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using AudioSettings = Game.Scripts.Settings.AudioSettings;
+using AudioSettings = Game.Scripts.Settings.AudioSettings.AudioSettings;
 
 namespace Game.Scripts.Map.Meta
 {

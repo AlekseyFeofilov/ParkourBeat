@@ -1,5 +1,5 @@
 ﻿using System;
-using Game.Scripts.UI.SettingsScene;
+using Game.Scripts.Settings.GraphicsSettings;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 

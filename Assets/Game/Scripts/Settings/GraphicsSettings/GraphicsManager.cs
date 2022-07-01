@@ -1,4 +1,4 @@
-﻿namespace Game.Scripts.UI.SettingsScene
+﻿namespace Game.Scripts.Settings.GraphicsSettings
 {
     public static class GraphicsManager
     {
