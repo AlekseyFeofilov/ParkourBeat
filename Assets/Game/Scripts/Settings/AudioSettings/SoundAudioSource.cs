@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 
-namespace Game.Scripts.Settings
+namespace Game.Scripts.Settings.AudioSettings
 {
-    public class MusicAudioSource : MonoBehaviour
+    public class SoundAudioSource : MonoBehaviour
     {
         private AudioSource _audioSource;
 
         private void Awake()
         {
             _audioSource = GetComponent<AudioSource>();
-            _audioSource.volume = AudioSettings.MusicVolume;
+            _audioSource.volume = Settings.AudioSettings.AudioSettings.SoundVolume;
         }
     }
 }
