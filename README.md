@@ -1,92 +1,55 @@
-# Game
+# Скачать игру
+Скачать последнюю версию игры можно в репозитории на GitHub:
+https://github.com/GreenpixDev/HitsGamedev/releases
 
-Данный проект разрабатывался в рамках обучения в ТГУ. Модуль - Разработка видеоигры.
+# Что это за игра?
+Жанр: ритм игра
 
-## Getting started
+Музыкальная 3D игра, в которой нужно под музыку совершать различные действия (прыжки и повороты влево и вправо).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+# Особенности
+- Главная особенность нашей игры заключается в том, что каждый игрок может сделать свою карту. Для этого мы разработали свой полноценный движок, на основе которого работает редактор карт. Это мощный инструмент, с помощью которого игрок может создавать препятствия и декорации, анимировать детали и, в конце концов, делать потрясающие карты.
+  Таким образом, в теории игра может долго существовать за счет творческого вклада самих игроков.
+  Примеры игр с подобной идеей: Geometry Dash, Beat Saber, osu!, Minecraft (не ритм игра).
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Красивые анимации. С помощью того же редактора можно создавать различные анимации, которые придают динамичности уровню.
 
-## Add your files
+- Минимализм. Из простых кубиков получаются потрясающие карты в минималистичном стиле.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- Сложность. Несмотря на простую механику, игра достаточно сложная. Это сужает входной порог, но при этом подогревает интерес у игроков. Если добавить элементы соревнования (подключить сервер и сделать таблицу рекордов) - это добавит еще больше интереса к нашей игре.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/hits-tsu/game.git
-git branch -M main
-git push -uf origin main
-```
+# Системные требования
 
-## Integrate with your tools
+**Минимальные системные требования:**
 
-- [ ] [Set up project integrations](https://gitlab.com/hits-tsu/game/-/settings/integrations)
+- ОС: Windows XP/Vista / MacOS / Linux
+- Процессор: 2 GHz
+- Оперативная память: 4 GB RAM
+- Видеокарта: 512 MB dedicated VRAM
+- Место на диске: 200 MB
 
-## Collaborate with your team
+**Рекомендованные системные требования:**
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+- ОС: Windows 7/8/8.1/10
+- Процессор: 2.5 GHz
+- Оперативная память: 8 GB RAM
+- Видеокарта: 2 GB dedicated VRAM
+- Место на диске: 200 MB
 
-## Test and Deploy
+**Протестировано на:**
 
-Use the built-in continuous integration in GitLab.
+- ОС: Windows 10
+- Процессор: Intel Core i5-10400F 2.9 GHz
+- Оперативная память: 16 GB RAM
+- Видеокарта: NVIDIA GTX 1050 Ti
+- Частота кадров: 60 fps
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+# Тизер игры
+https://youtu.be/pPiBPD9n0H8
 
-***
+[![youtube](https://user-images.githubusercontent.com/58062046/176923983-2d5aec71-71f7-40ca-b938-43ec4788e282.jpg)](https://youtu.be/pPiBPD9n0H8)
 
-# Editing this README
+# Туториал по редактору карт
+https://youtu.be/qkI9RrOCBrg
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+[![youtube](https://user-images.githubusercontent.com/58062046/176924612-c95de300-7a4f-41d7-b65e-e62995a2bd2b.jpg)](https://youtu.be/qkI9RrOCBrg)
