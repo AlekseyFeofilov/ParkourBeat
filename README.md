@@ -1,7 +1,6 @@
-# Ссылка на репозиторий с кодом
-Отныне проект является OpenSource.
-Код находится в репозитории на GitLab:
-https://gitlab.com/hits-tsu/HitsGamedev
+# Скачать игру
+Скачать последнюю версию игры можно в репозитории на GitHub:
+https://github.com/GreenpixDev/HitsGamedev/releases
 
 # Что это за игра?
 Жанр: ритм игра
